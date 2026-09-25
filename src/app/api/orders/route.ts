@@ -15,11 +15,12 @@ export async function POST(request: NextRequest) {
           error: "Data formulir pemesanan tidak valid",
           details: parsed.error.format(),
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const { namaToko, namaPemesan, noWhatsApp, alamat, catatan, items } = parsed.data;
+    const { namaToko, namaPemesan, noWhatsApp, alamat, catatan, items } =
+      parsed.data;
 
     // Generate unique order number with standard pattern #KN-XXXXXX-XXX
     const nomorOrder = generateOrderNumber();
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
         totalHarga: createdOrder.totalHarga,
         data: createdOrder,
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error: any) {
     console.error("POST /api/orders error:", error);
@@ -89,7 +90,7 @@ export async function POST(request: NextRequest) {
         error: "Gagal memproses pesanan",
         message: error.message || "Terjadi kesalahan pada transaksi database",
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

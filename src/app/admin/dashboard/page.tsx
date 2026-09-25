@@ -102,7 +102,8 @@ export default function AdminDashboardPage() {
             Dashboard Utama
           </h1>
           <p className="text-xs text-gray-500 mt-0.5">
-            Ringkasan performa penjualan dan status operasional toko grosir hari ini.
+            Ringkasan performa penjualan dan status operasional toko grosir hari
+            ini.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -111,12 +112,14 @@ export default function AdminDashboardPage() {
             disabled={loading}
             className="p-2 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-[#146C43]" : ""}`} />
+            <RefreshCw
+              className={`w-3.5 h-3.5 ${loading ? "animate-spin text-primary" : ""}`}
+            />
             <span className="hidden sm:inline">Segarkan Data</span>
           </button>
           <Link
             href="/admin/products?action=new"
-            className="px-3.5 py-2 rounded-xl bg-[#146C43] hover:bg-[#0f5333] text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
+            className="px-3.5 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Tambah Produk</span>
@@ -129,14 +132,16 @@ export default function AdminDashboardPage() {
         {/* Card 1: Pesanan Hari Ini */}
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500">Pesanan Hari Ini</span>
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#146C43] flex items-center justify-center">
+            <span className="text-xs font-semibold text-gray-500">
+              Pesanan Hari Ini
+            </span>
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-primary flex items-center justify-center">
               <ShoppingCart className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
             <span className="text-2xl font-black font-heading text-gray-900">
-              {loading ? "..." : stats?.ordersToday ?? 0}
+              {loading ? "..." : (stats?.ordersToday ?? 0)}
             </span>
             <span className="text-xs text-gray-500 ml-1.5">pesanan</span>
           </div>
@@ -149,14 +154,19 @@ export default function AdminDashboardPage() {
         {/* Card 2: Total Penjualan */}
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500">Total Penjualan</span>
+            <span className="text-xs font-semibold text-gray-500">
+              Total Penjualan
+            </span>
             <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
             <span className="text-xl font-black font-heading text-gray-900">
-              Rp {loading ? "..." : (stats?.totalSales ?? 0).toLocaleString("id-ID")}
+              Rp{" "}
+              {loading
+                ? "..."
+                : (stats?.totalSales ?? 0).toLocaleString("id-ID")}
             </span>
           </div>
           <div className="mt-2 text-[11px] text-gray-500 font-medium">
@@ -167,14 +177,16 @@ export default function AdminDashboardPage() {
         {/* Card 3: Produk Aktif */}
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500">Produk Aktif</span>
+            <span className="text-xs font-semibold text-gray-500">
+              Produk Aktif
+            </span>
             <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
               <Package className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3">
             <span className="text-2xl font-black font-heading text-gray-900">
-              {loading ? "..." : stats?.activeProducts ?? 0}
+              {loading ? "..." : (stats?.activeProducts ?? 0)}
             </span>
             <span className="text-xs text-gray-500 ml-1.5">katalog</span>
           </div>
@@ -186,8 +198,10 @@ export default function AdminDashboardPage() {
         {/* Card 4: Status Operasional */}
         <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs relative overflow-hidden">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-gray-500">Status Operasional</span>
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#146C43] flex items-center justify-center">
+            <span className="text-xs font-semibold text-gray-500">
+              Status Operasional
+            </span>
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-primary flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
@@ -216,7 +230,7 @@ export default function AdminDashboardPage() {
           </div>
           <Link
             href="/admin/orders"
-            className="text-xs font-semibold text-[#146C43] hover:text-[#0f5333] flex items-center gap-1"
+            className="text-xs font-semibold text-primary hover:text-primary-dark flex items-center gap-1"
           >
             <span>Semua Pesanan</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
@@ -225,7 +239,7 @@ export default function AdminDashboardPage() {
 
         {loading ? (
           <div className="p-8 text-center text-xs text-gray-400">
-            <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-[#146C43]" />
+            <RefreshCw className="w-5 h-5 animate-spin mx-auto mb-2 text-primary" />
             Memuat daftar transaksi terbaru...
           </div>
         ) : stats?.recentOrders && stats.recentOrders.length > 0 ? (
@@ -243,13 +257,20 @@ export default function AdminDashboardPage() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {stats.recentOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr
+                    key={order.id}
+                    className="hover:bg-gray-50/50 transition-colors"
+                  >
                     <td className="px-5 py-3.5 font-mono font-bold text-gray-900">
                       {order.nomorOrder}
                     </td>
                     <td className="px-5 py-3.5">
-                      <div className="font-semibold text-gray-900">{order.namaPemesan}</div>
-                      <div className="text-[11px] text-gray-500">{order.namaToko || "Pelanggan Eceran"}</div>
+                      <div className="font-semibold text-gray-900">
+                        {order.namaPemesan}
+                      </div>
+                      <div className="text-[11px] text-gray-500">
+                        {order.namaToko || "Pelanggan Eceran"}
+                      </div>
                     </td>
                     <td className="px-5 py-3.5">
                       <span
@@ -265,11 +286,13 @@ export default function AdminDashboardPage() {
                     <td className="px-5 py-3.5 font-semibold text-gray-900">
                       Rp {order.totalHarga.toLocaleString("id-ID")}
                     </td>
-                    <td className="px-5 py-3.5">{getStatusBadge(order.status)}</td>
+                    <td className="px-5 py-3.5">
+                      {getStatusBadge(order.status)}
+                    </td>
                     <td className="px-5 py-3.5 text-right">
                       <Link
                         href={`/admin/orders?order=${order.nomorOrder}`}
-                        className="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-[#146C43] hover:text-white text-gray-700 text-[11px] font-semibold transition-all inline-block"
+                        className="px-2.5 py-1 rounded-lg bg-gray-100 hover:bg-primary hover:text-white text-gray-700 text-[11px] font-semibold transition-all inline-block"
                       >
                         Detail
                       </Link>
@@ -292,7 +315,7 @@ export default function AdminDashboardPage() {
           href="/admin/products"
           className="p-4 bg-white rounded-2xl border border-gray-100 shadow-xs hover:border-emerald-300 hover:shadow-md transition-all flex items-center gap-3.5"
         >
-          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#146C43] flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-primary flex items-center justify-center shrink-0">
             <Package className="w-5 h-5" />
           </div>
           <div>

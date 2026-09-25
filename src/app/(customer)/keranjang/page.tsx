@@ -6,7 +6,13 @@ import { useCart } from "@/context/CartContext";
 import { CartItemRow } from "@/components/cart/CartItemRow";
 import { formatRupiah } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
-import { ShoppingBag, ArrowRight, Trash2, ArrowLeft, ShieldCheck, CheckCircle2 } from "lucide-react";
+import {
+  ShoppingBag,
+  ArrowRight,
+  Trash2,
+  ArrowLeft,
+  CheckCircle2,
+} from "lucide-react";
 
 export default function KeranjangPage() {
   const {
@@ -26,14 +32,15 @@ export default function KeranjangPage() {
   if (items.length === 0) {
     return (
       <div className="bg-white rounded-2xl border border-gray-100 p-8 sm:p-12 text-center max-w-lg mx-auto space-y-4 my-8 shadow-xs">
-        <div className="w-16 h-16 rounded-full bg-emerald-50 text-[#146C43] flex items-center justify-center mx-auto">
+        <div className="w-16 h-16 rounded-full bg-emerald-50 text-primary flex items-center justify-center mx-auto">
           <ShoppingBag className="w-8 h-8" />
         </div>
         <h2 className="text-xl font-black text-gray-900">
           Keranjang Belanja Masih Kosong
         </h2>
         <p className="text-xs text-gray-500 leading-relaxed">
-          Anda belum memilih barang dagangan untuk dikulak. Silakan jelajahi katalog produk kami untuk melihat penawaran harga grosir terbaik.
+          Anda belum memilih barang dagangan untuk dikulak. Silakan jelajahi
+          katalog produk kami untuk melihat penawaran harga grosir terbaik.
         </p>
         <div className="pt-2">
           <Link href="/katalog">
@@ -53,7 +60,9 @@ export default function KeranjangPage() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
-            {selectedOrderType === "grosir" ? "Keranjang Belanja Grosir" : "Keranjang Belanja"}
+            {selectedOrderType === "grosir"
+              ? "Keranjang Belanja Grosir"
+              : "Keranjang Belanja"}
           </h2>
           <p className="text-xs text-gray-500">
             Periksa kuantitas dan harga satuan bertingkat sebelum checkout
@@ -80,7 +89,7 @@ export default function KeranjangPage() {
                 type="checkbox"
                 checked={allSelected}
                 onChange={(e) => selectAll(e.target.checked)}
-                className="w-4 h-4 rounded text-[#146C43] focus:ring-[#146C43] border-gray-300 cursor-pointer"
+                className="w-4 h-4 rounded text-primary focus:ring-primary border-gray-300 cursor-pointer"
               />
               <span>Pilih Semua Barang ({items.length})</span>
             </label>
@@ -106,7 +115,7 @@ export default function KeranjangPage() {
           <div className="flex justify-between items-center pt-2">
             <Link
               href="/katalog"
-              className="inline-flex items-center gap-1 text-xs font-bold text-[#146C43] hover:underline"
+              className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Tambah Barang Lainnya</span>
@@ -123,28 +132,36 @@ export default function KeranjangPage() {
             <span
               className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
                 selectedOrderType === "grosir"
-                  ? "bg-emerald-100 text-[#146C43] border border-emerald-200"
+                  ? "bg-emerald-100 text-primary border border-emerald-200"
                   : "bg-blue-50 text-blue-700 border border-blue-200"
               }`}
             >
-              {selectedOrderType === "grosir" ? "Pesanan Grosir" : "Pesanan Eceran"}
+              {selectedOrderType === "grosir"
+                ? "Pesanan Grosir"
+                : "Pesanan Eceran"}
             </span>
           </div>
 
           <div className="space-y-2 text-[12px] sm:text-[13px]">
             <div className="flex justify-between text-gray-600">
               <span>Total Kuantitas</span>
-              <span className="font-bold text-gray-900">{selectedTotalCount} item</span>
+              <span className="font-bold text-gray-900">
+                {selectedTotalCount} item
+              </span>
             </div>
 
             <div className="flex justify-between text-gray-600">
               <span>Estimasi Ongkir</span>
-              <span className="text-emerald-700 font-medium">Dihitung manual via WA</span>
+              <span className="text-emerald-700 font-medium">
+                Dihitung manual via WA
+              </span>
             </div>
 
             <div className="pt-3 border-t border-gray-100 flex justify-between items-baseline">
-              <span className="text-[13px] font-bold text-gray-900">Total Harga</span>
-              <span className="font-price text-[16px] sm:text-[18px] font-bold text-[#146C43]">
+              <span className="text-[13px] font-bold text-gray-900">
+                Total Harga
+              </span>
+              <span className="font-price text-[16px] sm:text-[18px] font-bold text-primary">
                 {formatRupiah(selectedTotalAmount)}
               </span>
             </div>
@@ -152,9 +169,13 @@ export default function KeranjangPage() {
 
           {/* Info Garansi Discrepancy */}
           <div className="bg-emerald-50 p-2.5 rounded-lg border border-emerald-100 text-[11px] sm:text-[12px] text-emerald-900 flex items-start gap-2">
-            <CheckCircle2 className="w-4 h-4 text-[#146C43] shrink-0 mt-0.5" strokeWidth={2} />
+            <CheckCircle2
+              className="w-4 h-4 text-primary shrink-0 mt-0.5"
+              strokeWidth={2}
+            />
             <span>
-              <strong>Garansi 0% Selisih:</strong> Total belanja di aplikasi ini sama persis dengan rincian pesan WhatsApp toko.
+              <strong>Garansi 0% Selisih:</strong> Total belanja di aplikasi ini
+              sama persis dengan rincian pesan WhatsApp toko.
             </span>
           </div>
 
@@ -162,10 +183,12 @@ export default function KeranjangPage() {
             <Button
               size="lg"
               disabled={selectedTotalCount === 0}
-              className="w-full h-12 font-medium text-[13px] sm:text-[14px] tracking-normal bg-[#146C43] hover:bg-[#115b38] shadow-md"
+              className="w-full h-12 font-medium text-[13px] sm:text-[14px] tracking-normal bg-primary hover:bg-primary-dark shadow-md"
             >
               <span>
-                {selectedOrderType === "grosir" ? "Lanjut ke Form Pemesanan Grosir" : "Lanjut ke Form Pemesanan"}
+                {selectedOrderType === "grosir"
+                  ? "Lanjut ke Form Pemesanan Grosir"
+                  : "Lanjut ke Form Pemesanan"}
               </span>
               <ArrowRight className="w-4 h-4 ml-1" strokeWidth={2.2} />
             </Button>

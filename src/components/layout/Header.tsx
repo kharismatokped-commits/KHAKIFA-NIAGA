@@ -3,7 +3,16 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search, ShoppingCart, Menu, X, Store, Grid, Home, MessageCircle } from "lucide-react";
+import {
+  Search,
+  ShoppingCart,
+  Menu,
+  X,
+  Store,
+  Grid,
+  Home,
+  MessageCircle,
+} from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { normalizeWhatsAppNumber } from "@/lib/formatters";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
@@ -55,8 +64,12 @@ export const Header: React.FC = () => {
     }
   };
 
-  const phone = normalizeWhatsAppNumber(storeSettings.nomorWhatsApp || "6287789923079") || "6287789923079";
-  const defaultMessage = process.env.NEXT_PUBLIC_WA_MESSAGE || "Halo, saya tertarik belanja di Khalifa Niaga";
+  const phone =
+    normalizeWhatsAppNumber(storeSettings.nomorWhatsApp || "6287789923079") ||
+    "6287789923079";
+  const defaultMessage =
+    process.env.NEXT_PUBLIC_WA_MESSAGE ||
+    "Halo, saya tertarik belanja di Khalifa Niaga";
   const waLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(defaultMessage)}`;
 
   return (
@@ -71,7 +84,8 @@ export const Header: React.FC = () => {
                 : "max-h-16 opacity-100 translate-y-0 mb-2.5"
             }`}
             style={{
-              transition: "max-height 0.25s ease-out, opacity 0.25s ease-out, transform 0.25s ease-out, margin 0.25s ease-out",
+              transition:
+                "max-height 0.25s ease-out, opacity 0.25s ease-out, transform 0.25s ease-out, margin 0.25s ease-out",
             }}
           >
             <div className="flex items-center justify-between gap-3 pb-1">
@@ -143,7 +157,7 @@ export const Header: React.FC = () => {
               placeholder="Cari produk, nama, atau kategori..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-11 pl-10 pr-9 rounded-2xl bg-[#EEF2F6] text-gray-800 placeholder:text-[#94A3B8] text-[13px] sm:text-sm font-medium border-0 focus:outline-none focus:ring-2 focus:ring-[#146C43] transition-all"
+              className="w-full h-11 pl-10 pr-9 rounded-2xl bg-[#EEF2F6] text-gray-800 placeholder:text-[#94A3B8] text-[13px] sm:text-sm font-medium border-0 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
             />
             {/* Search Icon */}
             <div className="absolute left-3.5 top-3 text-[#94A3B8] pointer-events-none">
@@ -188,28 +202,31 @@ export const Header: React.FC = () => {
                 <Link
                   href="/"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-emerald-50 hover:text-[#146C43] transition-colors"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-emerald-50 hover:text-primary transition-colors"
                 >
-                  <Home className="w-5 h-5 text-[#146C43]" strokeWidth={2.2} />
+                  <Home className="w-5 h-5 text-primary" strokeWidth={2.2} />
                   <span>Beranda</span>
                 </Link>
 
                 <Link
                   href="/katalog"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-emerald-50 hover:text-[#146C43] transition-colors"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-emerald-50 hover:text-primary transition-colors"
                 >
-                  <Grid className="w-5 h-5 text-[#146C43]" strokeWidth={2.2} />
+                  <Grid className="w-5 h-5 text-primary" strokeWidth={2.2} />
                   <span>Katalog Produk</span>
                 </Link>
 
                 <Link
                   href="/keranjang"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-emerald-50 hover:text-[#146C43] transition-colors"
+                  className="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-emerald-50 hover:text-primary transition-colors"
                 >
                   <div className="flex items-center gap-3">
-                    <ShoppingCart className="w-5 h-5 text-[#146C43]" strokeWidth={2.2} />
+                    <ShoppingCart
+                      className="w-5 h-5 text-primary"
+                      strokeWidth={2.2}
+                    />
                     <span>Keranjang Belanja</span>
                   </div>
                   {totalItemsCount > 0 && (
@@ -222,9 +239,9 @@ export const Header: React.FC = () => {
                 <Link
                   href="/info-toko"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-emerald-50 hover:text-[#146C43] transition-colors"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-emerald-50 hover:text-primary transition-colors"
                 >
-                  <Store className="w-5 h-5 text-[#146C43]" strokeWidth={2.2} />
+                  <Store className="w-5 h-5 text-primary" strokeWidth={2.2} />
                   <span>Info Toko & Kontak</span>
                 </Link>
               </nav>
@@ -235,7 +252,7 @@ export const Header: React.FC = () => {
                 href={waLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full py-3 bg-[#146C43] text-white rounded-xl font-heading font-bold text-xs flex items-center justify-center gap-2 shadow-sm"
+                className="w-full py-3 bg-primary hover:bg-primary-dark text-white rounded-xl font-heading font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-colors"
               >
                 <MessageCircle className="w-5 h-5" strokeWidth={2.2} />
                 <span>Chat Admin WhatsApp</span>

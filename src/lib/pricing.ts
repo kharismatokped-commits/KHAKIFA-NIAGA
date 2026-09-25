@@ -18,7 +18,7 @@ export type OrderType = "eceran" | "grosir";
 export function getOrderType(
   cartItems: CartItem[],
   threshold: number = GROSIR_QTY_THRESHOLD,
-  productsMap?: Map<string, Product>
+  productsMap?: Map<string, Product>,
 ): OrderType {
   if (!cartItems || cartItems.length === 0) return "eceran";
 
@@ -47,9 +47,12 @@ export function getOrderType(
 /**
  * Mencari tier harga yang aktif berdasarkan jumlah (qty)
  */
-export function findActiveTier(tiers: PriceTier[], qty: number): PriceTier | undefined {
+export function findActiveTier(
+  tiers: PriceTier[],
+  qty: number,
+): PriceTier | undefined {
   if (!tiers || tiers.length === 0) return undefined;
-  
+
   // Sort ascending by minQty just in case
   const sorted = [...tiers].sort((a, b) => a.minQty - b.minQty);
 
@@ -76,7 +79,10 @@ export function getUnitPrice(tiers: PriceTier[], qty: number): number {
 /**
  * Menghitung persentase hemat dibanding tier pertama (harga eceran dasar)
  */
-export function calculateSavings(basePrice: number, currentPrice: number): number {
+export function calculateSavings(
+  basePrice: number,
+  currentPrice: number,
+): number {
   if (basePrice <= 0 || currentPrice >= basePrice) return 0;
   return Math.round(((basePrice - currentPrice) / basePrice) * 100);
 }
@@ -84,7 +90,10 @@ export function calculateSavings(basePrice: number, currentPrice: number): numbe
 /**
  * Informasi tier berikutnya untuk rekomendasi "Beli X lagi dapat harga lebih murah!"
  */
-export function getNextTierRecommendation(tiers: PriceTier[], currentQty: number): {
+export function getNextTierRecommendation(
+  tiers: PriceTier[],
+  currentQty: number,
+): {
   targetQty: number;
   moreNeeded: number;
   nextPrice: number;
@@ -92,7 +101,7 @@ export function getNextTierRecommendation(tiers: PriceTier[], currentQty: number
 } | null {
   if (!tiers || tiers.length === 0) return null;
   const sorted = [...tiers].sort((a, b) => a.minQty - b.minQty);
-  
+
   for (const tier of sorted) {
     if (tier.minQty > currentQty) {
       const moreNeeded = tier.minQty - currentQty;

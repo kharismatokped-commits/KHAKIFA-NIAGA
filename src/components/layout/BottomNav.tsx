@@ -13,7 +13,12 @@ export const BottomNav: React.FC = () => {
   const navItems = [
     { href: "/", label: "Beranda", icon: Home },
     { href: "/katalog", label: "Kategori", icon: LayoutGrid },
-    { href: "/keranjang", label: "Keranjang", icon: ShoppingBag, badge: totalItemsCount },
+    {
+      href: "/keranjang",
+      label: "Keranjang",
+      icon: ShoppingBag,
+      badge: totalItemsCount,
+    },
     { href: "/info-toko", label: "Akun", icon: User },
   ];
 
@@ -23,7 +28,9 @@ export const BottomNav: React.FC = () => {
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive =
-            item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+            item.href === "/"
+              ? pathname === "/"
+              : pathname.startsWith(item.href);
 
           return (
             <Link
@@ -31,16 +38,15 @@ export const BottomNav: React.FC = () => {
               href={item.href}
               className={`flex flex-col items-center justify-center gap-1 transition-colors relative py-1 ${
                 isActive
-                  ? "text-[#146C43] font-bold"
+                  ? "text-primary font-bold"
                   : "text-[#64748B] hover:text-gray-900"
               }`}
             >
               <div className="relative">
                 {/* Ukuran minimal 24px, strokeWidth 2.2 / 2.5 */}
                 <Icon
-                  className="w-6 h-6"
+                  className={`w-6 h-6 ${isActive ? "text-primary" : "text-[#64748B]"}`}
                   strokeWidth={isActive ? 2.5 : 2}
-                  color={isActive ? "#146C43" : "#64748B"}
                 />
                 {item.badge !== undefined && item.badge > 0 && (
                   <span className="absolute -top-1.5 -right-2.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-[#E53935] text-white text-[10px] font-black shadow-xs">
@@ -49,7 +55,9 @@ export const BottomNav: React.FC = () => {
                 )}
               </div>
               {/* Label teks selalu ada di bawah ikon */}
-              <span className={`text-[11px] leading-tight ${isActive ? "font-bold text-[#146C43]" : "font-medium text-[#64748B]"}`}>
+              <span
+                className={`text-[11px] leading-tight ${isActive ? "font-bold text-primary" : "font-medium text-[#64748B]"}`}
+              >
                 {item.label}
               </span>
             </Link>

@@ -9,7 +9,7 @@ const updateCategorySchema = z.object({
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -28,21 +28,24 @@ export async function PUT(
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: error.issues[0]?.message || "Data tidak valid" },
-        { status: 400 }
+        {
+          success: false,
+          error: error.issues[0]?.message || "Data tidak valid",
+        },
+        { status: 400 },
       );
     }
     console.error("Error updating category:", error);
     return NextResponse.json(
       { success: false, error: "Gagal memperbarui kategori" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -58,7 +61,7 @@ export async function DELETE(
           success: false,
           error: `Tidak bisa menghapus kategori ini karena masih digunakan oleh ${productCount} produk`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -74,7 +77,7 @@ export async function DELETE(
     console.error("Error deleting category:", error);
     return NextResponse.json(
       { success: false, error: "Gagal menghapus kategori" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

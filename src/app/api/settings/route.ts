@@ -14,7 +14,8 @@ export async function GET() {
         nomorWhatsApp: "6287789923079",
         alamatToko: "Pasar Pagi Grosir Blok A No. 12, Jakarta",
         teksBannerJudul: "Solusi Belanja Grosir Cepat & Murah",
-        teksBannerSubjudul: "Katalog online harga bertingkat resmi. Pesan langsung terhubung ke WhatsApp toko.",
+        teksBannerSubjudul:
+          "Katalog online harga bertingkat resmi. Pesan langsung terhubung ke WhatsApp toko.",
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -34,7 +35,8 @@ export async function GET() {
         nomorWhatsApp: "6287789923079",
         alamatToko: "Pasar Pagi Grosir Blok A No. 12, Jakarta",
         teksBannerJudul: "Solusi Belanja Grosir Cepat & Murah",
-        teksBannerSubjudul: "Katalog online harga bertingkat resmi. Pesan langsung terhubung ke WhatsApp toko.",
+        teksBannerSubjudul:
+          "Katalog online harga bertingkat resmi. Pesan langsung terhubung ke WhatsApp toko.",
       },
     });
   }

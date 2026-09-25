@@ -1,12 +1,23 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { CartItem, CustomerOrderInfo, Product, ProductVariant, UnitType } from "@/types/product";
+import {
+  CartItem,
+  CustomerOrderInfo,
+  Product,
+  ProductVariant,
+  UnitType,
+} from "@/types/product";
 import { getUnitPrice, getOrderType, OrderType } from "@/lib/pricing";
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: Product, unitType: UnitType, qty: number, variant?: ProductVariant) => void;
+  addItem: (
+    product: Product,
+    unitType: UnitType,
+    qty: number,
+    variant?: ProductVariant,
+  ) => void;
   updateQty: (itemId: string, newQty: number) => void;
   removeItem: (itemId: string) => void;
   clearCart: () => void;
@@ -34,12 +45,13 @@ const defaultCustomerInfo: CustomerOrderInfo = {
   notes: "",
 };
 
-export const CartProvider: React.FC<{ children: React.ReactNode; initialProducts?: Product[] }> = ({
-  children,
-  initialProducts = [],
-}) => {
+export const CartProvider: React.FC<{
+  children: React.ReactNode;
+  initialProducts?: Product[];
+}> = ({ children, initialProducts = [] }) => {
   const [items, setItems] = useState<CartItem[]>([]);
-  const [customerInfo, setCustomerInfo] = useState<CustomerOrderInfo>(defaultCustomerInfo);
+  const [customerInfo, setCustomerInfo] =
+    useState<CustomerOrderInfo>(defaultCustomerInfo);
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Products map for looking up tiered prices when qty changes in cart
@@ -73,7 +85,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode; initialProducts
         const validatedItems = parsedItems.map((item) => {
           const prod = productsMap.get(item.productId);
           if (prod) {
-            const tiers = item.unitType === "PAK" ? prod.tieredPricesPack : prod.tieredPricesPcs;
+            const tiers =
+              item.unitType === "PAK"
+                ? prod.tieredPricesPack
+                : prod.tieredPricesPcs;
             const unitPrice = getUnitPrice(tiers, item.qty);
             return {
               ...item,
@@ -119,12 +134,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode; initialProducts
     product: Product,
     unitType: UnitType,
     qty: number,
-    variant?: ProductVariant
+    variant?: ProductVariant,
   ) => {
     if (qty <= 0) return;
 
     const itemId = `${product.id}__${variant ? variant.id : "default"}__${unitType}`;
-    const tiers = unitType === "PAK" ? product.tieredPricesPack : product.tieredPricesPcs;
+    const tiers =
+      unitType === "PAK" ? product.tieredPricesPack : product.tieredPricesPcs;
     const packRatio = unitType === "PAK" ? product.packRatio : 1;
 
     setItems((prev) => {
@@ -181,7 +197,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode; initialProducts
         let unitPrice = item.unitPrice;
 
         if (prod) {
-          const tiers = item.unitType === "PAK" ? prod.tieredPricesPack : prod.tieredPricesPcs;
+          const tiers =
+            item.unitType === "PAK"
+              ? prod.tieredPricesPack
+              : prod.tieredPricesPcs;
           unitPrice = getUnitPrice(tiers, newQty);
         }
 
@@ -191,7 +210,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode; initialProducts
           unitPrice,
           subtotal: newQty * unitPrice,
         };
-      })
+      }),
     );
   };
 
@@ -205,7 +224,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode; initialProducts
 
   const toggleSelect = (itemId: string) => {
     setItems((prev) =>
-      prev.map((item) => (item.id === itemId ? { ...item, selected: !item.selected } : item))
+      prev.map((item) =>
+        item.id === itemId ? { ...item, selected: !item.selected } : item,
+      ),
     );
   };
 
@@ -221,8 +242,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode; initialProducts
   const totalItemsCount = items.reduce((acc, curr) => acc + curr.qty, 0);
 
   const selectedItems = items.filter((item) => item.selected);
-  const selectedTotalCount = selectedItems.reduce((acc, curr) => acc + curr.qty, 0);
-  const selectedTotalAmount = selectedItems.reduce((acc, curr) => acc + curr.subtotal, 0);
+  const selectedTotalCount = selectedItems.reduce(
+    (acc, curr) => acc + curr.qty,
+    0,
+  );
+  const selectedTotalAmount = selectedItems.reduce(
+    (acc, curr) => acc + curr.subtotal,
+    0,
+  );
   const selectedOrderType = getOrderType(selectedItems, undefined, productsMap);
 
   return (

@@ -1,14 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import { MessageCircle, CheckCheck, Copy, Check } from "lucide-react";
+import { CheckCheck, Copy, Check } from "lucide-react";
 import { STORE_NAME, DEFAULT_STORE_WHATSAPP } from "@/lib/whatsapp";
 
 interface WhatsAppPreviewProps {
   messageText: string;
 }
 
-export const WhatsAppPreview: React.FC<WhatsAppPreviewProps> = ({ messageText }) => {
+export const WhatsAppPreview: React.FC<WhatsAppPreviewProps> = ({
+  messageText,
+}) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -30,7 +32,9 @@ export const WhatsAppPreview: React.FC<WhatsAppPreviewProps> = ({ messageText })
               <span>{STORE_NAME} CS Grosir</span>
               <span className="w-2 h-2 rounded-full bg-emerald-300"></span>
             </div>
-            <div className="text-[10px] text-emerald-200">+{DEFAULT_STORE_WHATSAPP}</div>
+            <div className="text-[10px] text-emerald-200">
+              +{DEFAULT_STORE_WHATSAPP}
+            </div>
           </div>
         </div>
 

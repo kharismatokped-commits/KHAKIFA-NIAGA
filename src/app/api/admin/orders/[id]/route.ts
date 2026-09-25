@@ -3,14 +3,18 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const updateStatusSchema = z.object({
-  status: z.enum(["pending", "confirmed", "processing", "delivered", "cancelled"], {
-    error: "Status tidak valid. Harus salah satu dari: pending, confirmed, processing, delivered, cancelled",
-  }),
+  status: z.enum(
+    ["pending", "confirmed", "processing", "delivered", "cancelled"],
+    {
+      error:
+        "Status tidak valid. Harus salah satu dari: pending, confirmed, processing, delivered, cancelled",
+    },
+  ),
 });
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -33,7 +37,7 @@ export async function GET(
     if (!order) {
       return NextResponse.json(
         { success: false, error: "Pesanan tidak ditemukan" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -42,14 +46,14 @@ export async function GET(
     console.error("Error fetching order detail:", error);
     return NextResponse.json(
       { success: false, error: "Gagal memuat detail pesanan" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -74,14 +78,17 @@ export async function PATCH(
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: error.issues[0]?.message || "Status tidak valid" },
-        { status: 400 }
+        {
+          success: false,
+          error: error.issues[0]?.message || "Status tidak valid",
+        },
+        { status: 400 },
       );
     }
     console.error("Error updating order status:", error);
     return NextResponse.json(
       { success: false, error: "Gagal memperbarui status pesanan" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

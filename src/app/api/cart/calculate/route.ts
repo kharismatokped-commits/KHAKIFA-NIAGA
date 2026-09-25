@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
           error: "Payload keranjang belanja tidak valid",
           details: parsed.error.format(),
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
         error: "Gagal menghitung harga keranjang",
         message: error.message || "Terjadi kesalahan pada server",
       },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { HeroBanner } from "@/components/home/HeroBanner";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { PopularSection } from "@/components/home/PopularSection";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Product } from "@/types/product";
 import { prisma } from "@/lib/prisma";
@@ -35,7 +35,8 @@ export default async function HomePage() {
   }
 
   const promoProducts = allProducts.filter((p) => p.isPromo);
-  const displayPromo = promoProducts.length > 0 ? promoProducts : allProducts.slice(0, 3);
+  const displayPromo =
+    promoProducts.length > 0 ? promoProducts : allProducts.slice(0, 3);
 
   return (
     <div className="space-y-6 sm:space-y-8 pb-12">
@@ -61,7 +62,7 @@ export default async function HomePage() {
           </div>
           <Link
             href="/katalog?promo=true"
-            className="text-[12px] font-medium text-[#146C43] hover:underline flex items-center gap-0.5 shrink-0"
+            className="text-[12px] font-medium text-primary hover:underline flex items-center gap-0.5 shrink-0"
           >
             <span>Semua</span>
             <ArrowRight className="w-4 h-4" strokeWidth={2.2} />
@@ -98,11 +99,13 @@ export default async function HomePage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div className="bg-white p-4 rounded-xl border border-emerald-100 shadow-xs flex items-center sm:flex-col sm:text-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#146C43] text-white font-black text-sm flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-full bg-primary text-white font-black text-sm flex items-center justify-center shrink-0">
               1
             </div>
             <div>
-              <h4 className="font-heading font-bold text-sm text-gray-900 mb-0.5">Pilih Qty Barang</h4>
+              <h4 className="font-heading font-bold text-sm text-gray-900 mb-0.5">
+                Pilih Qty Barang
+              </h4>
               <p className="text-xs text-gray-500 leading-normal">
                 Makin banyak beli, harga satuan makin murah otomatis.
               </p>
@@ -110,11 +113,13 @@ export default async function HomePage() {
           </div>
 
           <div className="bg-white p-4 rounded-xl border border-emerald-100 shadow-xs flex items-center sm:flex-col sm:text-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#146C43] text-white font-black text-sm flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-full bg-primary text-white font-black text-sm flex items-center justify-center shrink-0">
               2
             </div>
             <div>
-              <h4 className="font-heading font-bold text-sm text-gray-900 mb-0.5">Isi Data Toko</h4>
+              <h4 className="font-heading font-bold text-sm text-gray-900 mb-0.5">
+                Isi Data Toko
+              </h4>
               <p className="text-xs text-gray-500 leading-normal">
                 Nama toko, no WA, dan alamat tujuan pengiriman.
               </p>
@@ -122,11 +127,13 @@ export default async function HomePage() {
           </div>
 
           <div className="bg-white p-4 rounded-xl border border-emerald-100 shadow-xs flex items-center sm:flex-col sm:text-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#146C43] text-white font-black text-sm flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-full bg-primary text-white font-black text-sm flex items-center justify-center shrink-0">
               3
             </div>
             <div>
-              <h4 className="font-heading font-bold text-sm text-gray-900 mb-0.5">Kirim ke WhatsApp</h4>
+              <h4 className="font-heading font-bold text-sm text-gray-900 mb-0.5">
+                Kirim ke WhatsApp
+              </h4>
               <p className="text-xs text-gray-500 leading-normal">
                 Format order rapi langsung masuk ke admin WhatsApp toko.
               </p>

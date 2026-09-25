@@ -9,6 +9,8 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-  secret: process.env.BETTER_AUTH_SECRET || "925b97d06cb78c6471e437417a07e37896f2c80727fa147f3c8ab42582ca143b",
+  secret:
+    process.env.BETTER_AUTH_SECRET ||
+    "925b97d06cb78c6471e437417a07e37896f2c80727fa147f3c8ab42582ca143b",
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3005",
 });

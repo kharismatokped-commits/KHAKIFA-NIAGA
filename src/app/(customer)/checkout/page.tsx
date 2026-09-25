@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useId } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { formatRupiah } from "@/lib/formatters";
 import {
@@ -18,25 +17,23 @@ import { WhatsAppPreview } from "@/components/cart/WhatsAppPreview";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Store,
-  User,
-  Phone,
-  MapPin,
-  FileText,
-  MessageCircle,
-  ArrowLeft,
-  ShieldCheck,
-  CheckCircle2,
-  AlertCircle,
-} from "lucide-react";
+import { Store, MessageCircle, ArrowLeft, AlertCircle } from "lucide-react";
 
 export default function CheckoutPage() {
-  const router = useRouter();
-  const { items, selectedTotalAmount, customerInfo, updateCustomerInfo, productsMap } = useCart();
+  const {
+    items,
+    selectedTotalAmount,
+    customerInfo,
+    updateCustomerInfo,
+    productsMap,
+  } = useCart();
   const storeSettings = useStoreSettings();
   const selectedItems = items.filter((item) => item.selected);
-  const orderType: OrderType = getOrderType(selectedItems, undefined, productsMap);
+  const orderType: OrderType = getOrderType(
+    selectedItems,
+    undefined,
+    productsMap,
+  );
 
   const [orderNumber] = useState(() => generateOrderNumber());
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -44,8 +41,12 @@ export default function CheckoutPage() {
 
   // Form states
   const [storeName, setStoreName] = useState(customerInfo.storeName || "");
-  const [customerName, setCustomerName] = useState(customerInfo.customerName || "");
-  const [whatsappNumber, setWhatsappNumber] = useState(customerInfo.whatsappNumber || "");
+  const [customerName, setCustomerName] = useState(
+    customerInfo.customerName || "",
+  );
+  const [whatsappNumber, setWhatsappNumber] = useState(
+    customerInfo.whatsappNumber || "",
+  );
   const [address, setAddress] = useState(customerInfo.address || "");
   const [notes, setNotes] = useState(customerInfo.notes || "");
 
@@ -62,7 +63,7 @@ export default function CheckoutPage() {
     selectedItems,
     selectedTotalAmount,
     orderType,
-    storeSettings.namaToko
+    storeSettings.namaToko,
   );
 
   const validateForm = () => {
@@ -115,7 +116,7 @@ export default function CheckoutPage() {
       selectedItems,
       selectedTotalAmount,
       orderType,
-      storeSettings.namaToko
+      storeSettings.namaToko,
     );
 
     const waUrl = createWhatsAppUrl(storeSettings.nomorWhatsApp, finalMessage);
@@ -128,12 +129,16 @@ export default function CheckoutPage() {
   if (selectedItems.length === 0) {
     return (
       <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center max-w-md mx-auto space-y-4 my-8">
-        <AlertCircle className="w-12 h-12 text-amber-500 mx-auto" strokeWidth={2} />
+        <AlertCircle
+          className="w-12 h-12 text-amber-500 mx-auto"
+          strokeWidth={2}
+        />
         <h2 className="text-lg font-bold text-gray-900">
           Tidak ada barang terpilih untuk checkout
         </h2>
         <p className="text-xs text-gray-500">
-          Silakan centang barang yang ingin Anda pesan di halaman keranjang terlebih dahulu.
+          Silakan centang barang yang ingin Anda pesan di halaman keranjang
+          terlebih dahulu.
         </p>
         <Link href="/keranjang">
           <Button size="default" className="text-xs font-bold">
@@ -157,7 +162,9 @@ export default function CheckoutPage() {
         <div>
           {/* (a) Teks Judul Form Dinamis: "Form Pemesanan" (Eceran) vs "Form Pemesanan Grosir" */}
           <h2 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
-            {orderType === "grosir" ? "Form Pemesanan Grosir" : "Form Pemesanan"}
+            {orderType === "grosir"
+              ? "Form Pemesanan Grosir"
+              : "Form Pemesanan"}
           </h2>
           {/* (b) Teks Subjudul Dinamis */}
           <p className="text-xs text-gray-500">
@@ -170,10 +177,13 @@ export default function CheckoutPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Kolom Kiri: Form Data Pemesan */}
-        <form onSubmit={handleSendToWhatsApp} className="lg:col-span-7 space-y-4">
+        <form
+          onSubmit={handleSendToWhatsApp}
+          className="lg:col-span-7 space-y-4"
+        >
           <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs space-y-4">
             <h3 className="font-extrabold text-sm text-gray-900 flex items-center gap-2 pb-2 border-b border-gray-100">
-              <Store className="w-4 h-4 text-[#146C43]" />
+              <Store className="w-4 h-4 text-primary" />
               <span>Data Toko & Pemesan</span>
             </h3>
 
@@ -190,10 +200,16 @@ export default function CheckoutPage() {
                   setStoreName(e.target.value);
                   if (errors.storeName) setErrors({ ...errors, storeName: "" });
                 }}
-                className={errors.storeName ? "border-red-400 focus-visible:ring-red-400" : ""}
+                className={
+                  errors.storeName
+                    ? "border-red-400 focus-visible:ring-red-400"
+                    : ""
+                }
               />
               {errors.storeName && (
-                <p className="text-[11px] text-red-500 font-medium">{errors.storeName}</p>
+                <p className="text-[11px] text-red-500 font-medium">
+                  {errors.storeName}
+                </p>
               )}
             </div>
 
@@ -208,12 +224,19 @@ export default function CheckoutPage() {
                 value={customerName}
                 onChange={(e) => {
                   setCustomerName(e.target.value);
-                  if (errors.customerName) setErrors({ ...errors, customerName: "" });
+                  if (errors.customerName)
+                    setErrors({ ...errors, customerName: "" });
                 }}
-                className={errors.customerName ? "border-red-400 focus-visible:ring-red-400" : ""}
+                className={
+                  errors.customerName
+                    ? "border-red-400 focus-visible:ring-red-400"
+                    : ""
+                }
               />
               {errors.customerName && (
-                <p className="text-[11px] text-red-500 font-medium">{errors.customerName}</p>
+                <p className="text-[11px] text-red-500 font-medium">
+                  {errors.customerName}
+                </p>
               )}
             </div>
 
@@ -229,19 +252,28 @@ export default function CheckoutPage() {
                 value={whatsappNumber}
                 onChange={(e) => {
                   setWhatsappNumber(e.target.value);
-                  if (errors.whatsappNumber) setErrors({ ...errors, whatsappNumber: "" });
+                  if (errors.whatsappNumber)
+                    setErrors({ ...errors, whatsappNumber: "" });
                 }}
-                className={errors.whatsappNumber ? "border-red-400 focus-visible:ring-red-400" : ""}
+                className={
+                  errors.whatsappNumber
+                    ? "border-red-400 focus-visible:ring-red-400"
+                    : ""
+                }
               />
               {errors.whatsappNumber && (
-                <p className="text-[11px] text-red-500 font-medium">{errors.whatsappNumber}</p>
+                <p className="text-[11px] text-red-500 font-medium">
+                  {errors.whatsappNumber}
+                </p>
               )}
             </div>
 
             {/* Alamat Pengiriman */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-gray-700 flex items-center gap-1">
-                <span>Alamat Lengkap Pengiriman (atau Patokan Lokasi Toko)</span>
+                <span>
+                  Alamat Lengkap Pengiriman (atau Patokan Lokasi Toko)
+                </span>
                 <span className="text-red-500">*</span>
               </label>
               <Textarea
@@ -252,10 +284,16 @@ export default function CheckoutPage() {
                   setAddress(e.target.value);
                   if (errors.address) setErrors({ ...errors, address: "" });
                 }}
-                className={errors.address ? "border-red-400 focus-visible:ring-red-400" : ""}
+                className={
+                  errors.address
+                    ? "border-red-400 focus-visible:ring-red-400"
+                    : ""
+                }
               />
               {errors.address && (
-                <p className="text-[11px] text-red-500 font-medium">{errors.address}</p>
+                <p className="text-[11px] text-red-500 font-medium">
+                  {errors.address}
+                </p>
               )}
             </div>
 
@@ -282,7 +320,7 @@ export default function CheckoutPage() {
               <span
                 className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
                   orderType === "grosir"
-                    ? "bg-emerald-100 text-[#146C43] border border-emerald-200"
+                    ? "bg-emerald-100 text-primary border border-emerald-200"
                     : "bg-blue-50 text-blue-700 border border-blue-200"
                 }`}
               >
@@ -291,7 +329,10 @@ export default function CheckoutPage() {
             </div>
             <div className="divide-y divide-gray-100 text-xs">
               {selectedItems.map((item, idx) => (
-                <div key={item.id} className="py-2 flex items-center justify-between">
+                <div
+                  key={item.id}
+                  className="py-2 flex items-center justify-between"
+                >
                   <div className="min-w-0 pr-2">
                     <div className="font-semibold text-gray-900 truncate">
                       {idx + 1}. {item.productName}
@@ -299,7 +340,8 @@ export default function CheckoutPage() {
                     </div>
                     <div className="text-[11px] text-gray-500">
                       {item.qty} {item.unitType}{" "}
-                      {item.unitType === "PAK" && `(isi ${item.packRatio})`} × {formatRupiah(item.unitPrice)}
+                      {item.unitType === "PAK" && `(isi ${item.packRatio})`} ×{" "}
+                      {formatRupiah(item.unitPrice)}
                     </div>
                   </div>
                   <span className="font-bold text-gray-900 shrink-0">
@@ -310,8 +352,10 @@ export default function CheckoutPage() {
             </div>
 
             <div className="pt-2 border-t border-gray-200 flex justify-between items-baseline">
-              <span className="text-[13px] font-bold text-gray-700">Total Belanja:</span>
-              <span className="font-price text-[16px] sm:text-[18px] font-bold text-[#146C43]">
+              <span className="text-[13px] font-bold text-gray-700">
+                Total Belanja:
+              </span>
+              <span className="font-price text-[16px] sm:text-[18px] font-bold text-primary">
                 {formatRupiah(selectedTotalAmount)}
               </span>
             </div>
@@ -322,16 +366,20 @@ export default function CheckoutPage() {
             <Button
               type="submit"
               size="lg"
-              className="w-full min-h-[52px] h-14 text-[13px] sm:text-[14px] font-heading font-medium shadow-lg rounded-xl flex items-center justify-center gap-2 bg-[#146C43] hover:bg-[#115b38] text-white"
+              className="w-full min-h-[52px] h-14 text-[13px] sm:text-[14px] font-heading font-medium shadow-lg rounded-xl flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white"
               disabled={isSubmitting}
             >
               <MessageCircle className="w-5 h-5" strokeWidth={2.2} />
               <span>
-                {orderType === "grosir" ? "Pesan Grosir lewat WhatsApp" : "Pesan lewat WhatsApp"} (+{storeSettings.nomorWhatsApp || DEFAULT_STORE_WHATSAPP})
+                {orderType === "grosir"
+                  ? "Pesan Grosir lewat WhatsApp"
+                  : "Pesan lewat WhatsApp"}{" "}
+                (+{storeSettings.nomorWhatsApp || DEFAULT_STORE_WHATSAPP})
               </span>
             </Button>
             <p className="text-[12px] text-center text-gray-500 mt-2 font-normal">
-              Tidak ada pembayaran di web. Pembayaran & ongkir dikonfirmasi manual via WhatsApp.
+              Tidak ada pembayaran di web. Pembayaran & ongkir dikonfirmasi
+              manual via WhatsApp.
             </p>
           </div>
         </form>
@@ -340,7 +388,10 @@ export default function CheckoutPage() {
         <div className="lg:col-span-5 space-y-3 sticky top-24">
           <div className="flex items-center justify-between">
             <span className="text-[12px] sm:text-[13px] font-medium text-gray-800 flex items-center gap-1.5">
-              <MessageCircle className="w-4 h-4 text-[#146C43]" strokeWidth={2.2} />
+              <MessageCircle
+                className="w-4 h-4 text-primary"
+                strokeWidth={2.2}
+              />
               <span>Pratinjau Pesan yang Diterima Toko:</span>
             </span>
             <span className="text-[10px] text-emerald-800 font-bold bg-emerald-100 px-2 py-0.5 rounded-full">
@@ -356,11 +407,13 @@ export default function CheckoutPage() {
               type="button"
               onClick={handleSendToWhatsApp}
               size="lg"
-              className="w-full min-h-[48px] h-12 text-[13px] sm:text-[14px] font-heading font-medium rounded-xl shadow-md bg-[#146C43] hover:bg-[#115b38] text-white"
+              className="w-full min-h-[48px] h-12 text-[13px] sm:text-[14px] font-heading font-medium rounded-xl shadow-md bg-primary hover:bg-primary-dark text-white"
             >
               <MessageCircle className="w-5 h-5 mr-1.5" strokeWidth={2.2} />
               <span>
-                {orderType === "grosir" ? "Pesan Grosir lewat WhatsApp" : "Pesan lewat WhatsApp"}
+                {orderType === "grosir"
+                  ? "Pesan Grosir lewat WhatsApp"
+                  : "Pesan lewat WhatsApp"}
               </span>
             </Button>
           </div>

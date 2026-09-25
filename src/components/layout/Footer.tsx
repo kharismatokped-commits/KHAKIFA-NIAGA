@@ -1,12 +1,20 @@
 import React from "react";
-import Link from "next/link";
 import { STORE_NAME, DEFAULT_STORE_WHATSAPP } from "@/lib/whatsapp";
-import { MessageCircle, MapPin, Clock, ShieldCheck, CheckCircle2 } from "lucide-react";
+import {
+  MessageCircle,
+  MapPin,
+  Clock,
+  ShieldCheck,
+  CheckCircle2,
+} from "lucide-react";
 import { normalizeWhatsAppNumber } from "@/lib/formatters";
 
 export const Footer: React.FC = () => {
-  const phone = normalizeWhatsAppNumber(DEFAULT_STORE_WHATSAPP) || "6287789923079";
-  const defaultMessage = process.env.NEXT_PUBLIC_WA_MESSAGE || "Halo, saya tertarik belanja di Khalifa Niaga";
+  const phone =
+    normalizeWhatsAppNumber(DEFAULT_STORE_WHATSAPP) || "6287789923079";
+  const defaultMessage =
+    process.env.NEXT_PUBLIC_WA_MESSAGE ||
+    "Halo, saya tertarik belanja di Khalifa Niaga";
   const waLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(defaultMessage)}`;
 
   return (
@@ -15,13 +23,15 @@ export const Footer: React.FC = () => {
         {/* Kolom 1: Profil Toko */}
         <div>
           <div className="flex items-center gap-2 text-white font-black text-lg mb-2">
-            <span className="w-7 h-7 rounded-lg bg-[#146C43] flex items-center justify-center text-white text-sm">
+            <span className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center text-white text-sm">
               KN
             </span>
             <span>{STORE_NAME}</span>
           </div>
           <p className="text-gray-400 text-xs leading-relaxed mb-4">
-            Pusat kulakan & grosir alat tulis kantor (ATK), aneka plastik kemasan, perlengkapan rumah tangga dan sembako kelontong. Solusi belanja stok murah untuk warung dan pengecer.
+            Pusat kulakan & grosir alat tulis kantor (ATK), aneka plastik
+            kemasan, perlengkapan rumah tangga dan sembako kelontong. Solusi
+            belanja stok murah untuk warung dan pengecer.
           </p>
           <div className="flex items-center gap-2 text-xs text-emerald-400">
             <ShieldCheck className="w-4 h-4 shrink-0" />
@@ -35,7 +45,9 @@ export const Footer: React.FC = () => {
           <ul className="space-y-2 text-xs text-gray-400">
             <li className="flex items-start gap-2">
               <MapPin className="w-4 h-4 text-[#25D366] shrink-0 mt-0.5" />
-              <span>Gudang & Toko Khalifa Niaga, Pasar Grosir Baru, Blok C No. 12</span>
+              <span>
+                Gudang & Toko Khalifa Niaga, Pasar Grosir Baru, Blok C No. 12
+              </span>
             </li>
             <li className="flex items-center gap-2">
               <Clock className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -50,11 +62,15 @@ export const Footer: React.FC = () => {
 
         {/* Kolom 3: Cara Kerja Order WhatsApp */}
         <div>
-          <h4 className="text-white font-bold mb-3 text-sm">Cara Order Grosir</h4>
+          <h4 className="text-white font-bold mb-3 text-sm">
+            Cara Order Grosir
+          </h4>
           <ul className="space-y-1.5 text-xs text-gray-400">
             <li className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-              <span>1. Pilih barang & kuantitas (makin banyak makin murah)</span>
+              <span>
+                1. Pilih barang & kuantitas (makin banyak makin murah)
+              </span>
             </li>
             <li className="flex items-center gap-1.5">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
@@ -85,7 +101,8 @@ export const Footer: React.FC = () => {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 mt-8 pt-4 border-t border-gray-800 text-center text-xs text-gray-500">
-        © 2026 {STORE_NAME}. Hak Cipta Dilindungi. Sistem Pemesanan Grosir Cepat & Praktis.
+        © 2026 {STORE_NAME}. Hak Cipta Dilindungi. Sistem Pemesanan Grosir Cepat
+        & Praktis.
       </div>
     </footer>
   );

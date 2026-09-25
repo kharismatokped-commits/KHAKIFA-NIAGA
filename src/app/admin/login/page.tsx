@@ -3,7 +3,14 @@
 import React, { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
-import { Lock, Mail, ShieldCheck, ArrowRight, AlertCircle, Loader2 } from "lucide-react";
+import {
+  Lock,
+  Mail,
+  ShieldCheck,
+  ArrowRight,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
 
 function AdminLoginForm() {
   const router = useRouter();
@@ -27,7 +34,9 @@ function AdminLoginForm() {
       });
 
       if (res.error) {
-        setErrorMessage(res.error.message || "Email atau kata sandi tidak sesuai.");
+        setErrorMessage(
+          res.error.message || "Email atau kata sandi tidak sesuai.",
+        );
         setLoading(false);
         return;
       }
@@ -46,14 +55,15 @@ function AdminLoginForm() {
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 sm:p-8">
         {/* Header Branding */}
         <div className="text-center mb-6">
-          <div className="w-14 h-14 bg-[#146C43] rounded-2xl mx-auto flex items-center justify-center font-heading font-black text-2xl text-white shadow-lg shadow-emerald-900/30 mb-3">
+          <div className="w-14 h-14 bg-primary rounded-2xl mx-auto flex items-center justify-center font-heading font-black text-2xl text-white shadow-lg shadow-emerald-900/30 mb-3">
             KN
           </div>
           <h1 className="font-heading font-black text-xl text-gray-900 tracking-tight">
             Masuk ke Khalifa Niaga
           </h1>
           <p className="text-xs text-gray-500 mt-1">
-            Silakan masuk dengan akun terdaftar untuk mengakses seluruh aplikasi dan katalog.
+            Silakan masuk dengan akun terdaftar untuk mengakses seluruh aplikasi
+            dan katalog.
           </p>
         </div>
 
@@ -79,7 +89,7 @@ function AdminLoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@khalifaniaga.com"
-                className="w-full pl-9 pr-3 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#146C43]/20 focus:border-[#146C43] transition-all"
+                className="w-full pl-9 pr-3 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               />
             </div>
           </div>
@@ -96,7 +106,7 @@ function AdminLoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-9 pr-3 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#146C43]/20 focus:border-[#146C43] transition-all"
+                className="w-full pl-9 pr-3 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
               />
             </div>
           </div>
@@ -104,7 +114,7 @@ function AdminLoginForm() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 py-3 px-4 bg-[#146C43] hover:bg-[#0f5333] active:scale-[0.99] text-white font-semibold text-xs rounded-xl shadow-md shadow-emerald-900/20 flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
+            className="w-full mt-2 py-3 px-4 bg-primary hover:bg-primary-dark active:scale-[0.99] text-white font-semibold text-xs rounded-xl shadow-md shadow-emerald-900/20 flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
           >
             {loading ? (
               <>
@@ -123,11 +133,22 @@ function AdminLoginForm() {
         {/* Info Akun Default */}
         <div className="mt-6 pt-5 border-t border-gray-100">
           <div className="p-3 bg-emerald-50/70 border border-emerald-100 rounded-xl text-[11px] text-emerald-900">
-            <div className="font-bold flex items-center gap-1.5 text-[#146C43] mb-1">
-              <ShieldCheck className="w-3.5 h-3.5" /> Akun Administrator Tersedia:
+            <div className="font-bold flex items-center gap-1.5 text-primary mb-1">
+              <ShieldCheck className="w-3.5 h-3.5" /> Akun Administrator
+              Tersedia:
             </div>
-            <p className="text-gray-600">Email: <span className="font-mono font-medium text-gray-900">admin@khalifaniaga.com</span></p>
-            <p className="text-gray-600">Password: <span className="font-mono font-medium text-gray-900">AdminGrosir2026!</span></p>
+            <p className="text-gray-600">
+              Email:{" "}
+              <span className="font-mono font-medium text-gray-900">
+                admin@khalifaniaga.com
+              </span>
+            </p>
+            <p className="text-gray-600">
+              Password:{" "}
+              <span className="font-mono font-medium text-gray-900">
+                AdminGrosir2026!
+              </span>
+            </p>
           </div>
         </div>
       </div>

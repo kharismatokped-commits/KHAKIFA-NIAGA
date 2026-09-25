@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { BookOpen, Home, Package, Store, LayoutGrid, Grid } from "lucide-react";
+import { BookOpen, Home, Package, Store, LayoutGrid } from "lucide-react";
 
 interface CategoryData {
   id: string;
@@ -69,15 +69,15 @@ export const CategoryGrid: React.FC = () => {
             className="flex flex-col items-center group active:scale-95 transition-transform"
           >
             {/* Kotak Putih Squircle dengan Ikon Lucide Outline Tebal */}
-            <div className="w-13 h-13 sm:w-16 sm:h-16 rounded-[18px] sm:rounded-2xl bg-white shadow-xs border border-gray-200/80 flex items-center justify-center group-hover:border-[#146C43] group-hover:bg-emerald-50/40 group-hover:scale-105 group-hover:shadow-md transition-all">
+            <div className="w-13 h-13 sm:w-16 sm:h-16 rounded-[18px] sm:rounded-2xl bg-white shadow-xs border border-gray-200/80 flex items-center justify-center group-hover:border-primary group-hover:bg-emerald-50/40 group-hover:scale-105 group-hover:shadow-md transition-all">
               <IconComponent
-                className="w-6 h-6 sm:w-7 sm:h-7 text-[#146C43] group-hover:scale-110 transition-transform"
+                className="w-6 h-6 sm:w-7 sm:h-7 text-primary group-hover:scale-110 transition-transform"
                 strokeWidth={2.2}
               />
             </div>
 
             {/* Label Teks di Bawah Kotak */}
-            <span className="font-heading font-medium text-[12px] sm:text-[13px] text-gray-800 group-hover:text-[#146C43] text-center leading-tight mt-1.5 line-clamp-2 max-w-[72px] whitespace-pre-line transition-colors">
+            <span className="font-heading font-medium text-[12px] sm:text-[13px] text-gray-800 group-hover:text-primary text-center leading-tight mt-1.5 line-clamp-2 max-w-[72px] whitespace-pre-line transition-colors">
               {cat.nama}
             </span>
           </Link>

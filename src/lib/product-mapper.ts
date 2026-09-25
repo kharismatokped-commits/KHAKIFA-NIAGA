@@ -23,12 +23,12 @@ export function mapDbProductToCustomerProduct(db: any): Product {
     pcsTiers.length > 0
       ? pcsTiers
       : allTiers.length > 0
-      ? allTiers.map((t: any) => ({
-          minQty: t.minQty,
-          maxQty: t.maxQty,
-          price: t.hargaPerUnit,
-        }))
-      : [{ minQty: 1, maxQty: null, price: 5000 }];
+        ? allTiers.map((t: any) => ({
+            minQty: t.minQty,
+            maxQty: t.maxQty,
+            price: t.hargaPerUnit,
+          }))
+        : [{ minQty: 1, maxQty: null, price: 5000 }];
 
   return {
     id: db.id,
@@ -39,7 +39,9 @@ export function mapDbProductToCustomerProduct(db: any): Product {
     images:
       db.gambar && db.gambar.length > 0
         ? db.gambar
-        : ["https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600"],
+        : [
+            "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600",
+          ],
     rating: db.rating || 5.0,
     reviewCount: db.jumlahUlasan || 0,
     minOrder: 1,

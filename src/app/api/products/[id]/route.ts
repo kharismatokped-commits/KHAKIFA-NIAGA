@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -11,7 +11,7 @@ export async function GET(
     if (!id || typeof id !== "string") {
       return NextResponse.json(
         { error: "ID produk tidak valid" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -22,10 +22,7 @@ export async function GET(
         variants: {
           include: {
             priceTiers: {
-              orderBy: [
-                { jenisKemasan: "asc" },
-                { minQty: "asc" },
-              ],
+              orderBy: [{ jenisKemasan: "asc" }, { minQty: "asc" }],
             },
           },
         },
@@ -35,11 +32,12 @@ export async function GET(
     if (!product) {
       return NextResponse.json(
         { error: "Produk tidak ditemukan" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    const { mapDbProductToCustomerProduct } = await import("@/lib/product-mapper");
+    const { mapDbProductToCustomerProduct } =
+      await import("@/lib/product-mapper");
 
     return NextResponse.json({
       success: true,
@@ -50,7 +48,7 @@ export async function GET(
     console.error("GET /api/products/[id] error:", error);
     return NextResponse.json(
       { error: "Gagal mengambil rincian produk", message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

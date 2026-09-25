@@ -6,6 +6,8 @@ export default async function LoginPage({
   searchParams: Promise<{ callbackUrl?: string }>;
 }) {
   const params = await searchParams;
-  const callbackUrl = params.callbackUrl ? `?callbackUrl=${encodeURIComponent(params.callbackUrl)}` : "";
+  const callbackUrl = params.callbackUrl
+    ? `?callbackUrl=${encodeURIComponent(params.callbackUrl)}`
+    : "";
   redirect(`/admin/login${callbackUrl}`);
 }

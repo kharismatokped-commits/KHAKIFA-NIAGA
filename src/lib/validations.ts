@@ -36,7 +36,11 @@ export const ProductsQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
 });
 
-export type CartItemCalculationInput = z.infer<typeof CartItemCalculationInputSchema>;
-export type CartCalculationRequest = z.infer<typeof CartCalculationRequestSchema>;
+export type CartItemCalculationInput = z.infer<
+  typeof CartItemCalculationInputSchema
+>;
+export type CartCalculationRequest = z.infer<
+  typeof CartCalculationRequestSchema
+>;
 export type CreateOrderRequest = z.infer<typeof CreateOrderRequestSchema>;
 export type ProductsQuery = z.infer<typeof ProductsQuerySchema>;

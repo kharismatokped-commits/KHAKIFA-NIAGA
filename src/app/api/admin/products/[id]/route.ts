@@ -13,7 +13,9 @@ const variantSchema = z.object({
   id: z.string().optional(),
   namaVarian: z.string().min(1, "Nama varian wajib diisi"),
   gambarVarian: z.string().nullable().optional(),
-  priceTiers: z.array(priceTierSchema).min(1, "Minimal 1 tier harga per varian"),
+  priceTiers: z
+    .array(priceTierSchema)
+    .min(1, "Minimal 1 tier harga per varian"),
 });
 
 const updateProductSchema = z.object({
@@ -25,8 +27,8 @@ const updateProductSchema = z.object({
 });
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -47,7 +49,7 @@ export async function GET(
     if (!product) {
       return NextResponse.json(
         { success: false, error: "Produk tidak ditemukan" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -56,14 +58,14 @@ export async function GET(
     console.error("Error fetching product detail:", error);
     return NextResponse.json(
       { success: false, error: "Gagal memuat detail produk" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -139,21 +141,24 @@ export async function PUT(
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: error.issues[0]?.message || "Data produk tidak valid" },
-        { status: 400 }
+        {
+          success: false,
+          error: error.issues[0]?.message || "Data produk tidak valid",
+        },
+        { status: 400 },
       );
     }
     console.error("Error updating product:", error);
     return NextResponse.json(
       { success: false, error: "Gagal memperbarui produk" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -176,7 +181,7 @@ export async function DELETE(
           error:
             "Produk ini memiliki riwayat transaksi/pesanan sehingga tidak dapat dihapus permanen.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -201,7 +206,7 @@ export async function DELETE(
     console.error("Error deleting product:", error);
     return NextResponse.json(
       { success: false, error: "Gagal menghapus produk" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

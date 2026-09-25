@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
           error: "Parameter pencarian tidak valid",
           details: parsedQuery.error.format(),
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -60,7 +60,8 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    const { mapDbProductToCustomerProduct } = await import("@/lib/product-mapper");
+    const { mapDbProductToCustomerProduct } =
+      await import("@/lib/product-mapper");
     const customerProducts = products.map(mapDbProductToCustomerProduct);
 
     return NextResponse.json({
@@ -78,7 +79,7 @@ export async function GET(request: NextRequest) {
     console.error("GET /api/products error:", error);
     return NextResponse.json(
       { error: "Gagal mengambil data produk", message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

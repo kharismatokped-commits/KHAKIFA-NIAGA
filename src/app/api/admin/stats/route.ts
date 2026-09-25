@@ -69,7 +69,7 @@ export async function GET() {
     console.error("Error fetching admin stats:", error);
     return NextResponse.json(
       { success: false, error: "Gagal memuat statistik admin" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

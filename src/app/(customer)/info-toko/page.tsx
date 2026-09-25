@@ -8,11 +8,7 @@ import {
   Phone,
   MapPin,
   Clock,
-  ShieldCheck,
-  CreditCard,
-  Truck,
   RotateCcw,
-  CheckCircle2,
   HelpCircle,
   LogOut,
 } from "lucide-react";
@@ -22,8 +18,12 @@ import { authClient } from "@/lib/auth-client";
 export default function InfoTokoPage() {
   const storeSettings = useStoreSettings();
   const [resetSuccess, setResetSuccess] = useState(false);
-  const phone = normalizeWhatsAppNumber(storeSettings.nomorWhatsApp || "6287789923079") || "6287789923079";
-  const defaultMessage = process.env.NEXT_PUBLIC_WA_MESSAGE || "Halo, saya tertarik belanja di Khalifa Niaga";
+  const phone =
+    normalizeWhatsAppNumber(storeSettings.nomorWhatsApp || "6287789923079") ||
+    "6287789923079";
+  const defaultMessage =
+    process.env.NEXT_PUBLIC_WA_MESSAGE ||
+    "Halo, saya tertarik belanja di Khalifa Niaga";
   const waLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(defaultMessage)}`;
 
   const handleClearCache = () => {
@@ -43,8 +43,8 @@ export default function InfoTokoPage() {
   return (
     <div className="space-y-6 pb-20 sm:pb-12 max-w-2xl mx-auto">
       {/* Header Profile */}
-      <div className="bg-gradient-to-r from-[#146C43] to-[#1B7A4A] rounded-2xl p-6 text-white text-center shadow-md">
-        <div className="w-16 h-16 rounded-2xl bg-white text-[#146C43] flex items-center justify-center mx-auto mb-3 shadow-md">
+      <div className="bg-gradient-to-r from-primary to-primary-light rounded-2xl p-6 text-white text-center shadow-md">
+        <div className="w-16 h-16 rounded-2xl bg-white text-primary flex items-center justify-center mx-auto mb-3 shadow-md">
           <Store className="w-9 h-9" />
         </div>
         <h2 className="text-xl font-black">{storeSettings.namaToko}</h2>
@@ -61,9 +61,11 @@ export default function InfoTokoPage() {
 
         <div className="space-y-3">
           <div className="flex items-start gap-3">
-            <MapPin className="w-4 h-4 text-[#146C43] shrink-0 mt-0.5" />
+            <MapPin className="w-4 h-4 text-primary shrink-0 mt-0.5" />
             <div>
-              <div className="font-bold text-gray-900">Alamat Gudang & Toko Offline:</div>
+              <div className="font-bold text-gray-900">
+                Alamat Gudang & Toko Offline:
+              </div>
               <div className="text-gray-600 mt-0.5 leading-relaxed">
                 {storeSettings.alamatToko}
               </div>
@@ -73,16 +75,22 @@ export default function InfoTokoPage() {
           <div className="flex items-center gap-3">
             <Clock className="w-4 h-4 text-emerald-600 shrink-0" />
             <div>
-              <div className="font-bold text-gray-900">Jam Operasional Pelayanan:</div>
-              <div className="text-gray-600">Senin - Minggu: 07.30 - 17.00 WIB</div>
+              <div className="font-bold text-gray-900">
+                Jam Operasional Pelayanan:
+              </div>
+              <div className="text-gray-600">
+                Senin - Minggu: 07.30 - 17.00 WIB
+              </div>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <Phone className="w-4 h-4 text-[#25D366] shrink-0" />
             <div>
-              <div className="font-bold text-gray-900">WhatsApp Resmi Toko:</div>
-              <div className="text-gray-600 font-mono font-bold text-sm text-[#146C43]">
+              <div className="font-bold text-gray-900">
+                WhatsApp Resmi Toko:
+              </div>
+              <div className="text-gray-600 font-mono font-bold text-sm text-primary">
                 +{storeSettings.nomorWhatsApp}
               </div>
             </div>
@@ -104,7 +112,7 @@ export default function InfoTokoPage() {
       {/* FAQ & Ketentuan Transaksi Grosir */}
       <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-xs space-y-4 text-xs">
         <h3 className="font-extrabold text-sm text-gray-900 flex items-center gap-2 border-b border-gray-100 pb-2">
-          <HelpCircle className="w-4 h-4 text-[#146C43]" />
+          <HelpCircle className="w-4 h-4 text-primary" />
           <span>Ketentuan & Tanya Jawab Kulakan</span>
         </h3>
 
@@ -114,7 +122,10 @@ export default function InfoTokoPage() {
               1. Bagaimana cara pembayarannya?
             </h4>
             <p className="leading-relaxed">
-              Setelah pesanan Anda masuk ke WhatsApp kami, admin akan mengonfirmasi total barang dan ongkir. Pembayaran dapat ditransfer ke rekening bank resmi toko (BCA / Mandiri / BRI) atau tunai saat barang diambil langsung.
+              Setelah pesanan Anda masuk ke WhatsApp kami, admin akan
+              mengonfirmasi total barang dan ongkir. Pembayaran dapat ditransfer
+              ke rekening bank resmi toko (BCA / Mandiri / BRI) atau tunai saat
+              barang diambil langsung.
             </p>
           </div>
 
@@ -123,7 +134,9 @@ export default function InfoTokoPage() {
               2. Bagaimana pengiriman barangnya?
             </h4>
             <p className="leading-relaxed">
-              Bisa dikirim via kurir toko (radius terjangkau), ekspedisi kargo (Dakota, Indah Cargo, J&T Cargo), atau diambil sendiri ke toko grosir kami.
+              Bisa dikirim via kurir toko (radius terjangkau), ekspedisi kargo
+              (Dakota, Indah Cargo, J&T Cargo), atau diambil sendiri ke toko
+              grosir kami.
             </p>
           </div>
 
@@ -132,7 +145,10 @@ export default function InfoTokoPage() {
               3. Apakah ada minimal order (MOQ)?
             </h4>
             <p className="leading-relaxed">
-              Tidak ada batasan ketat. Anda bisa beli 1 pcs atau 1 dus sekalipun. Namun, semakin banyak jumlah yang Anda beli, harga satuan yang didapatkan akan semakin murah sesuai tabel harga bertingkat.
+              Tidak ada batasan ketat. Anda bisa beli 1 pcs atau 1 dus
+              sekalipun. Namun, semakin banyak jumlah yang Anda beli, harga
+              satuan yang didapatkan akan semakin murah sesuai tabel harga
+              bertingkat.
             </p>
           </div>
         </div>
@@ -145,7 +161,8 @@ export default function InfoTokoPage() {
           <span>Pengaturan Data Aplikasi</span>
         </h3>
         <p className="text-gray-500 leading-relaxed">
-          Jika Anda ingin mereset keranjang belanja atau menghapus data toko yang tersimpan di perangkat ini:
+          Jika Anda ingin mereset keranjang belanja atau menghapus data toko
+          yang tersimpan di perangkat ini:
         </p>
 
         <div className="flex flex-wrap gap-2 pt-1">
@@ -156,7 +173,9 @@ export default function InfoTokoPage() {
             size="sm"
             className="text-xs text-red-600 hover:bg-red-50 hover:border-red-200"
           >
-            {resetSuccess ? "Berhasil Direset!" : "Hapus Riwayat Keranjang & Data Saya"}
+            {resetSuccess
+              ? "Berhasil Direset!"
+              : "Hapus Riwayat Keranjang & Data Saya"}
           </Button>
 
           <Button

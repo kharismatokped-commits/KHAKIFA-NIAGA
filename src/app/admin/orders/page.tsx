@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useEffect, useState, Suspense } from "react";
+import React, { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
-  ShoppingCart,
   Search,
-  Filter,
   Eye,
   CheckCircle2,
   Clock,
@@ -16,8 +14,6 @@ import {
   Store,
   MapPin,
   FileText,
-  Calendar,
-  ChevronDown,
 } from "lucide-react";
 
 interface OrderItem {
@@ -65,7 +61,7 @@ function AdminOrdersContent() {
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
@@ -78,7 +74,9 @@ function AdminOrdersContent() {
         setOrders(json.data);
         // Jika ada queryOrderNum dari redirect dashboard, buka otomatis
         if (queryOrderNum && json.data.length > 0) {
-          const found = json.data.find((o: Order) => o.nomorOrder === queryOrderNum);
+          const found = json.data.find(
+            (o: Order) => o.nomorOrder === queryOrderNum,
+          );
           if (found) setSelectedOrder(found);
         }
       }
@@ -87,11 +85,11 @@ function AdminOrdersContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, searchQuery, queryOrderNum]);
 
   useEffect(() => {
     fetchOrders();
-  }, [statusFilter]);
+  }, [fetchOrders]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,7 +166,7 @@ function AdminOrdersContent() {
     <div className="space-y-6">
       {/* Toast Alert */}
       {toastMessage && (
-        <div className="fixed top-4 right-4 z-50 bg-[#146C43] text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-4">
+        <div className="fixed top-4 right-4 z-50 bg-primary text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-4">
           <CheckCircle2 className="w-4 h-4 text-emerald-300" />
           <span>{toastMessage}</span>
         </div>
@@ -189,7 +187,9 @@ function AdminOrdersContent() {
           disabled={loading}
           className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer self-start sm:self-auto"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-[#146C43]" : ""}`} />
+          <RefreshCw
+            className={`w-3.5 h-3.5 ${loading ? "animate-spin text-primary" : ""}`}
+          />
           <span>Segarkan Pesanan</span>
         </button>
       </div>
@@ -204,7 +204,7 @@ function AdminOrdersContent() {
             placeholder="Cari No. Order, Nama, No WA..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#146C43]/20 focus:border-[#146C43]"
+            className="w-full pl-9 pr-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           />
         </form>
 
@@ -222,7 +222,7 @@ function AdminOrdersContent() {
               onClick={() => setStatusFilter(tab.id)}
               className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
                 statusFilter === tab.id
-                  ? "bg-[#146C43] text-white shadow-xs"
+                  ? "bg-primary text-white shadow-xs"
                   : "bg-gray-50 text-gray-600 hover:bg-gray-100"
               }`}
             >
@@ -236,7 +236,7 @@ function AdminOrdersContent() {
       <div className="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
         {loading ? (
           <div className="p-12 text-center text-xs text-gray-400">
-            <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#146C43]" />
+            <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-primary" />
             Memuat daftar pesanan...
           </div>
         ) : orders.length > 0 ? (
@@ -255,7 +255,10 @@ function AdminOrdersContent() {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {orders.map((o) => (
-                  <tr key={o.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr
+                    key={o.id}
+                    className="hover:bg-gray-50/50 transition-colors"
+                  >
                     <td className="px-5 py-3.5 font-mono font-bold text-gray-900">
                       {o.nomorOrder}
                     </td>
@@ -269,7 +272,9 @@ function AdminOrdersContent() {
                       })}
                     </td>
                     <td className="px-5 py-3.5">
-                      <div className="font-bold text-gray-900">{o.namaPemesan}</div>
+                      <div className="font-bold text-gray-900">
+                        {o.namaPemesan}
+                      </div>
                       <div className="text-[11px] text-gray-500">
                         {o.namaToko ? `Toko: ${o.namaToko}` : o.noWhatsApp}
                       </div>
@@ -292,7 +297,7 @@ function AdminOrdersContent() {
                     <td className="px-5 py-3.5 text-right">
                       <button
                         onClick={() => setSelectedOrder(o)}
-                        className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-[#146C43] text-[#146C43] hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all ml-auto cursor-pointer"
+                        className="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-primary text-primary hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all ml-auto cursor-pointer"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         <span>Buka</span>
@@ -324,7 +329,8 @@ function AdminOrdersContent() {
                   {getStatusBadge(selectedOrder.status)}
                 </div>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  Diterima pada {new Date(selectedOrder.createdAt).toLocaleString("id-ID")}
+                  Diterima pada{" "}
+                  {new Date(selectedOrder.createdAt).toLocaleString("id-ID")}
                 </p>
               </div>
               <button
@@ -339,7 +345,9 @@ function AdminOrdersContent() {
             <div className="p-6 space-y-6 overflow-y-auto flex-1 text-xs">
               {/* Status Update Quick Bar */}
               <div className="p-4 bg-emerald-50/70 border border-emerald-100 rounded-xl space-y-2">
-                <span className="font-bold text-gray-700 block">Ubah Status Pesanan:</span>
+                <span className="font-bold text-gray-700 block">
+                  Ubah Status Pesanan:
+                </span>
                 <div className="flex flex-wrap items-center gap-2">
                   {[
                     { key: "pending", label: "Baru Masuk" },
@@ -349,11 +357,15 @@ function AdminOrdersContent() {
                   ].map((s) => (
                     <button
                       key={s.key}
-                      disabled={isUpdatingStatus || selectedOrder.status === s.key}
-                      onClick={() => handleUpdateStatus(selectedOrder.id, s.key)}
+                      disabled={
+                        isUpdatingStatus || selectedOrder.status === s.key
+                      }
+                      onClick={() =>
+                        handleUpdateStatus(selectedOrder.id, s.key)
+                      }
                       className={`px-3 py-1.5 rounded-lg font-semibold text-xs transition-all cursor-pointer ${
                         selectedOrder.status === s.key
-                          ? "bg-[#146C43] text-white shadow-xs"
+                          ? "bg-primary text-white shadow-xs"
                           : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
                       }`}
                     >
@@ -371,7 +383,9 @@ function AdminOrdersContent() {
                     <span>{selectedOrder.namaPemesan}</span>
                   </div>
                   {selectedOrder.namaToko && (
-                    <p className="text-gray-600 font-medium">Toko: {selectedOrder.namaToko}</p>
+                    <p className="text-gray-600 font-medium">
+                      Toko: {selectedOrder.namaToko}
+                    </p>
                   )}
                   <a
                     href={`https://wa.me/${selectedOrder.noWhatsApp.replace(/[^0-9]/g, "")}`}
@@ -400,7 +414,9 @@ function AdminOrdersContent() {
 
               {/* Tabel Barang yang Dipesan */}
               <div>
-                <h4 className="font-bold text-gray-900 mb-2">Barang yang Dipesan:</h4>
+                <h4 className="font-bold text-gray-900 mb-2">
+                  Barang yang Dipesan:
+                </h4>
                 <div className="border border-gray-200 rounded-xl overflow-hidden shadow-2xs">
                   <table className="w-full text-left text-xs">
                     <thead className="bg-gray-100/75 text-gray-600 font-semibold border-b border-gray-200">
@@ -440,10 +456,13 @@ function AdminOrdersContent() {
                     </tbody>
                     <tfoot className="bg-emerald-50/50 border-t border-gray-200 font-bold">
                       <tr>
-                        <td colSpan={4} className="px-3 py-3 text-right text-gray-800">
+                        <td
+                          colSpan={4}
+                          className="px-3 py-3 text-right text-gray-800"
+                        >
                           Total Tagihan Pesanan:
                         </td>
-                        <td className="px-3 py-3 text-right text-sm text-[#146C43]">
+                        <td className="px-3 py-3 text-right text-sm text-primary">
                           Rp {selectedOrder.totalHarga.toLocaleString("id-ID")}
                         </td>
                       </tr>

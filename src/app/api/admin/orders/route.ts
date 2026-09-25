@@ -65,7 +65,7 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching admin orders:", error);
     return NextResponse.json(
       { success: false, error: "Gagal memuat daftar pesanan" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

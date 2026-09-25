@@ -21,7 +21,8 @@ export async function GET() {
         nomorWhatsApp: "6287789923079",
         alamatToko: "Pasar Pagi Grosir Blok A No. 12, Jakarta",
         teksBannerJudul: "Solusi Belanja Grosir Cepat & Murah",
-        teksBannerSubjudul: "Katalog online harga bertingkat resmi. Pesan langsung terhubung ke WhatsApp toko.",
+        teksBannerSubjudul:
+          "Katalog online harga bertingkat resmi. Pesan langsung terhubung ke WhatsApp toko.",
       },
     });
 
@@ -33,7 +34,7 @@ export async function GET() {
     console.error("Error fetching store settings:", error);
     return NextResponse.json(
       { success: false, error: "Gagal memuat pengaturan toko" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -73,14 +74,17 @@ export async function PUT(request: NextRequest) {
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: error.issues[0]?.message || "Data tidak valid" },
-        { status: 400 }
+        {
+          success: false,
+          error: error.issues[0]?.message || "Data tidak valid",
+        },
+        { status: 400 },
       );
     }
     console.error("Error saving store settings:", error);
     return NextResponse.json(
       { success: false, error: "Gagal menyimpan pengaturan toko" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

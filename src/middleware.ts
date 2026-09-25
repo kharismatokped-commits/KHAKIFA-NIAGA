@@ -39,7 +39,8 @@ export async function middleware(request: NextRequest) {
   // 5. Halaman login (/admin/login)
   if (pathname === "/admin/login") {
     if (isAuthenticated) {
-      const callbackUrl = request.nextUrl.searchParams.get("callbackUrl") || "/";
+      const callbackUrl =
+        request.nextUrl.searchParams.get("callbackUrl") || "/";
       return NextResponse.redirect(new URL(callbackUrl, request.url));
     }
     return NextResponse.next();
@@ -61,7 +62,7 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith("/api")) {
       return NextResponse.json(
         { error: "Unauthorized: Silakan login terlebih dahulu" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 

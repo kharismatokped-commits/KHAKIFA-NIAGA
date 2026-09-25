@@ -4,7 +4,9 @@ import { z } from "zod";
 
 const priceTierSchema = z.object({
   id: z.string().optional(),
-  jenisKemasan: z.string().min(1, "Jenis kemasan wajib diisi (contoh: pcs atau pak)"),
+  jenisKemasan: z
+    .string()
+    .min(1, "Jenis kemasan wajib diisi (contoh: pcs atau pak)"),
   minQty: z.number().int().min(1, "Min Qty minimal 1"),
   maxQty: z.number().int().nullable().optional(),
   hargaPerUnit: z.number().int().min(100, "Harga per unit minimal Rp 100"),
@@ -14,7 +16,9 @@ const variantSchema = z.object({
   id: z.string().optional(),
   namaVarian: z.string().min(1, "Nama varian wajib diisi"),
   gambarVarian: z.string().nullable().optional(),
-  priceTiers: z.array(priceTierSchema).min(1, "Setiap varian minimal memiliki 1 tier harga"),
+  priceTiers: z
+    .array(priceTierSchema)
+    .min(1, "Setiap varian minimal memiliki 1 tier harga"),
 });
 
 const productSchema = z.object({
@@ -66,7 +70,7 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching admin products:", error);
     return NextResponse.json(
       { success: false, error: "Gagal memuat daftar produk" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -92,9 +96,12 @@ export async function POST(request: NextRequest) {
           nama: validated.nama,
           deskripsi: validated.deskripsi,
           categoryId: validated.categoryId,
-          gambar: validated.gambar.length > 0 ? validated.gambar : [
-            "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600&auto=format&fit=crop&q=80"
-          ],
+          gambar:
+            validated.gambar.length > 0
+              ? validated.gambar
+              : [
+                  "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600&auto=format&fit=crop&q=80",
+                ],
         },
       });
 
@@ -137,14 +144,17 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: error.issues[0]?.message || "Data produk tidak valid" },
-        { status: 400 }
+        {
+          success: false,
+          error: error.issues[0]?.message || "Data produk tidak valid",
+        },
+        { status: 400 },
       );
     }
     console.error("Error creating product:", error);
     return NextResponse.json(
       { success: false, error: "Gagal membuat produk baru" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

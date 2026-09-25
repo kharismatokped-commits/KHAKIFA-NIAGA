@@ -27,7 +27,7 @@ export async function GET() {
     console.error("Error fetching categories:", error);
     return NextResponse.json(
       { success: false, error: "Gagal mengambil daftar kategori" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     if (existing) {
       return NextResponse.json(
         { success: false, error: "Kategori dengan ID tersebut sudah ada" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -61,18 +61,24 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ success: true, data: category }, { status: 201 });
+    return NextResponse.json(
+      { success: true, data: category },
+      { status: 201 },
+    );
   } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: error.issues[0]?.message || "Data tidak valid" },
-        { status: 400 }
+        {
+          success: false,
+          error: error.issues[0]?.message || "Data tidak valid",
+        },
+        { status: 400 },
       );
     }
     console.error("Error creating category:", error);
     return NextResponse.json(
       { success: false, error: "Gagal menambahkan kategori" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

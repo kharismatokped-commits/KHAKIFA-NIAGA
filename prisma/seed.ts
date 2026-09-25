@@ -22,7 +22,7 @@ async function main() {
     },
   });
 
-  const rumahTangga = await prisma.category.create({
+  await prisma.category.create({
     data: {
       id: "rumah-tangga",
       nama: "Kebutuhan Rumah Tangga",
@@ -38,7 +38,7 @@ async function main() {
     },
   });
 
-  const kelontong = await prisma.category.create({
+  await prisma.category.create({
     data: {
       id: "kelontong",
       nama: "Kelontong & Sembako",
@@ -46,7 +46,7 @@ async function main() {
     },
   });
 
-  const lainnya = await prisma.category.create({
+  await prisma.category.create({
     data: {
       id: "lainnya",
       nama: "Aksesoris & Lainnya",
@@ -55,7 +55,7 @@ async function main() {
   });
 
   // 3. Buat Produk 1: Bolpoin Gel Joyko 0.5mm
-  const bolpoin = await prisma.product.create({
+  await prisma.product.create({
     data: {
       id: "atk-bolpoin-gel",
       nama: "Bolpoin Gel Joyko 0.5mm Tinta Pekat",
@@ -108,7 +108,7 @@ async function main() {
   });
 
   // 4. Buat Produk 2: Lakban Cokelat Daimaru
-  const lakban = await prisma.product.create({
+  await prisma.product.create({
     data: {
       id: "atk-lakban-cokelat",
       nama: "Lakban Cokelat Daimaru 48mm × 90 Yard Tebal Kuat",
@@ -143,7 +143,7 @@ async function main() {
   });
 
   // 5. Buat Produk 3: Buku Tulis Sinar Dunia (SiDU) 38 Lembar
-  const buku = await prisma.product.create({
+  await prisma.product.create({
     data: {
       id: "atk-buku-tulis-sidu-38",
       nama: "Buku Tulis Sinar Dunia (SiDU) 38 Lembar Kertas Putih",
@@ -178,7 +178,7 @@ async function main() {
   });
 
   // 6. Buat Produk 4: Plastik Kresek Hitam HD Jumbo
-  const kresek = await prisma.product.create({
+  await prisma.product.create({
     data: {
       id: "plastik-kresek-hd-hitam",
       nama: "Kantong Plastik Kresek Hitam HD Tebal Anti Sobek",

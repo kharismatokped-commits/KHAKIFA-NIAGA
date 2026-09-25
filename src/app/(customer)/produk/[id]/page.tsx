@@ -8,7 +8,7 @@ import { Product, ProductVariant, UnitType } from "@/types/product";
 import { TieredPriceTable } from "@/components/product/TieredPriceTable";
 import { QuantityCalculator } from "@/components/product/QuantityCalculator";
 import { ProductCard } from "@/components/product/ProductCard";
-import { Star, ShieldCheck, ChevronRight, Package, Truck, ArrowLeft, Loader2 } from "lucide-react";
+import { Star, ShieldCheck, ChevronRight, Truck, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function ProductDetailPage({
@@ -23,7 +23,9 @@ export default function ProductDetailPage({
 
   // State untuk interaktivitas detail produk
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(undefined);
+  const [selectedVariant, setSelectedVariant] = useState<
+    ProductVariant | undefined
+  >(undefined);
   const [unitType, setUnitType] = useState<UnitType>("PCS");
   const [qty, setQty] = useState<number>(1);
 
@@ -34,18 +36,23 @@ export default function ProductDetailPage({
       .then((data) => {
         if (data.customerProduct) {
           setProduct(data.customerProduct);
-          if (data.customerProduct.variants && data.customerProduct.variants.length > 0) {
+          if (
+            data.customerProduct.variants &&
+            data.customerProduct.variants.length > 0
+          ) {
             setSelectedVariant(data.customerProduct.variants[0]);
           }
           // Ambil produk terkait langsung dari API
-          fetch(`/api/products?category=${data.customerProduct.category}&limit=5`)
+          fetch(
+            `/api/products?category=${data.customerProduct.category}&limit=5`,
+          )
             .then((res) => res.json())
             .then((relData) => {
               if (relData.customerProducts) {
                 setRelatedProducts(
                   relData.customerProducts
                     .filter((p: Product) => p.id !== data.customerProduct.id)
-                    .slice(0, 4)
+                    .slice(0, 4),
                 );
               }
             })
@@ -68,8 +75,10 @@ export default function ProductDetailPage({
   if (!product) {
     return (
       <div className="p-16 text-center space-y-3 bg-white rounded-2xl border border-gray-100 my-6">
-        <Loader2 className="w-8 h-8 animate-spin text-[#146C43] mx-auto" />
-        <p className="text-xs text-gray-500 font-medium">Memuat rincian produk...</p>
+        <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
+        <p className="text-xs text-gray-500 font-medium">
+          Memuat rincian produk...
+        </p>
       </div>
     );
   }
@@ -83,13 +92,13 @@ export default function ProductDetailPage({
     <div className="space-y-8 pb-12">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-1.5 text-xs text-gray-500 overflow-x-auto whitespace-nowrap py-1">
-        <Link href="/" className="hover:text-[#146C43] transition-colors">
+        <Link href="/" className="hover:text-primary transition-colors">
           Beranda
         </Link>
         <ChevronRight className="w-3.5 h-3.5 text-gray-400 shrink-0" />
         <Link
           href={`/katalog?kategori=${product.category}`}
-          className="hover:text-[#146C43] capitalize transition-colors"
+          className="hover:text-primary capitalize transition-colors"
         >
           {product.category.replace("-", " ")}
         </Link>
@@ -131,11 +140,16 @@ export default function ProductDetailPage({
                   onClick={() => setActiveImageIndex(idx)}
                   className={`relative w-16 h-16 rounded-lg overflow-hidden border-2 transition-all shrink-0 ${
                     activeImageIndex === idx
-                      ? "border-[#146C43] scale-105"
+                      ? "border-primary scale-105"
                       : "border-transparent opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <Image src={img} alt="thumbnail" fill className="object-cover" />
+                  <Image
+                    src={img}
+                    alt="thumbnail"
+                    fill
+                    className="object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -144,7 +158,7 @@ export default function ProductDetailPage({
           {/* Info Trust & Pengiriman */}
           <div className="bg-gray-50 p-3.5 rounded-xl border border-gray-100 space-y-2 text-xs text-gray-600">
             <div className="flex items-center gap-2 font-bold text-gray-800">
-              <ShieldCheck className="w-4 h-4 text-[#146C43]" strokeWidth={2.2} />
+              <ShieldCheck className="w-4 h-4 text-primary" strokeWidth={2.2} />
               <span>Jaminan Grosir Asli & Kondisi Baru</span>
             </div>
             <div className="flex items-center gap-2 text-gray-500">
@@ -180,7 +194,7 @@ export default function ProductDetailPage({
             <div className="space-y-2 pt-2 border-t border-gray-100">
               <div className="text-[12px] sm:text-[13px] font-medium text-gray-700">
                 Pilih Varian:{" "}
-                <span className="text-[#146C43] font-bold">
+                <span className="text-primary font-bold">
                   {selectedVariant?.name}
                 </span>
               </div>
@@ -194,7 +208,7 @@ export default function ProductDetailPage({
                       onClick={() => setSelectedVariant(v)}
                       className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border text-[12px] sm:text-[13px] font-medium transition-all ${
                         isSelected
-                          ? "bg-emerald-50 text-[#146C43] border-[#146C43] shadow-xs ring-1 ring-[#146C43]"
+                          ? "bg-emerald-50 text-primary border-primary shadow-xs ring-1 ring-primary"
                           : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
                       }`}
                     >
@@ -214,7 +228,9 @@ export default function ProductDetailPage({
 
           {/* Deskripsi Singkat (12–13px) */}
           <div className="text-[12px] sm:text-[13px] leading-relaxed text-gray-600 bg-gray-50/70 p-3 rounded-xl border border-gray-100">
-            <h4 className="font-bold text-gray-900 mb-1 text-[13px]">Deskripsi Produk:</h4>
+            <h4 className="font-bold text-gray-900 mb-1 text-[13px]">
+              Deskripsi Produk:
+            </h4>
             <p>{product.description}</p>
           </div>
 
@@ -236,7 +252,8 @@ export default function ProductDetailPage({
           Rincian Tingkatan Harga Grosir
         </h3>
         <p className="text-xs text-gray-500">
-          Klik salah satu baris harga untuk memilih jumlah minimal kuantitas tersebut.
+          Klik salah satu baris harga untuk memilih jumlah minimal kuantitas
+          tersebut.
         </p>
         <TieredPriceTable
           product={product}

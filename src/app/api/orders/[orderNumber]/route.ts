@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: Promise<{ orderNumber: string }> }
+  { params }: { params: Promise<{ orderNumber: string }> },
 ) {
   try {
     const { orderNumber } = await params;
@@ -11,7 +11,7 @@ export async function GET(
     if (!orderNumber) {
       return NextResponse.json(
         { error: "Nomor order tidak valid" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -38,7 +38,7 @@ export async function GET(
     if (!order) {
       return NextResponse.json(
         { error: "Pesanan dengan nomor order tersebut tidak ditemukan" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -50,7 +50,7 @@ export async function GET(
     console.error("GET /api/orders/[orderNumber] error:", error);
     return NextResponse.json(
       { error: "Gagal mengambil data pesanan", message: error.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -7,12 +7,19 @@ import { normalizeWhatsAppNumber } from "@/lib/formatters";
 
 export const FloatingWhatsApp: React.FC = () => {
   const settings = useStoreSettings();
-  const phone = normalizeWhatsAppNumber(settings.nomorWhatsApp || "6287789923079") || "6287789923079";
-  const defaultMessage = process.env.NEXT_PUBLIC_WA_MESSAGE || "Halo, saya tertarik belanja di Khalifa Niaga";
+  const phone =
+    normalizeWhatsAppNumber(settings.nomorWhatsApp || "6287789923079") ||
+    "6287789923079";
+  const defaultMessage =
+    process.env.NEXT_PUBLIC_WA_MESSAGE ||
+    "Halo, saya tertarik belanja di Khalifa Niaga";
   const waLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(defaultMessage)}`;
 
   return (
-    <aside aria-label="WhatsApp Chat" className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40">
+    <aside
+      aria-label="WhatsApp Chat"
+      className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40"
+    >
       <a
         href={waLink}
         target="_blank"

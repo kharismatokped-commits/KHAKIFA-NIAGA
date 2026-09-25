@@ -4,7 +4,8 @@ import { AdminShell } from "@/components/admin/AdminShell";
 
 export const metadata: Metadata = {
   title: "Admin Panel — Khalifa Niaga Grosir",
-  description: "Dashboard manajemen produk, harga tier grosir, kategori, dan pesanan toko Khalifa Niaga.",
+  description:
+    "Dashboard manajemen produk, harga tier grosir, kategori, dan pesanan toko Khalifa Niaga.",
   robots: "noindex, nofollow",
 };
 

@@ -10,9 +10,13 @@ interface PopularSectionProps {
   products?: Product[];
 }
 
-export const PopularSection: React.FC<PopularSectionProps> = ({ products: initialProducts }) => {
+export const PopularSection: React.FC<PopularSectionProps> = ({
+  products: initialProducts,
+}) => {
   const [products, setProducts] = useState<Product[]>(initialProducts || []);
-  const [loading, setLoading] = useState(!initialProducts || initialProducts.length === 0);
+  const [loading, setLoading] = useState(
+    !initialProducts || initialProducts.length === 0,
+  );
 
   useEffect(() => {
     if (initialProducts && initialProducts.length > 0) {
@@ -33,7 +37,8 @@ export const PopularSection: React.FC<PopularSectionProps> = ({ products: initia
   }, [initialProducts]);
 
   const popularProducts = products.filter((p) => p.isPopular);
-  const displayProducts = popularProducts.length > 0 ? popularProducts : products.slice(0, 4);
+  const displayProducts =
+    popularProducts.length > 0 ? popularProducts : products.slice(0, 4);
 
   return (
     <div className="space-y-3">
@@ -54,7 +59,7 @@ export const PopularSection: React.FC<PopularSectionProps> = ({ products: initia
 
         <Link
           href="/katalog"
-          className="text-[12px] font-medium text-[#146C43] hover:underline flex items-center gap-0.5"
+          className="text-[12px] font-medium text-primary hover:underline flex items-center gap-0.5"
         >
           <span>Semua</span>
           <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.2} />

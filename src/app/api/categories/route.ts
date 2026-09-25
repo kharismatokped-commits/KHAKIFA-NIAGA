@@ -19,8 +19,12 @@ export async function GET() {
   } catch (error: any) {
     console.error("GET /api/categories error:", error);
     return NextResponse.json(
-      { success: false, error: "Gagal mengambil data kategori", message: error.message },
-      { status: 500 }
+      {
+        success: false,
+        error: "Gagal mengambil data kategori",
+        message: error.message,
+      },
+      { status: 500 },
     );
   }
 }

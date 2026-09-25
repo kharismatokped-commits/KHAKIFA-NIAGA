@@ -4,7 +4,18 @@ import React, { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Product } from "@/types/product";
-import { Search, Sparkles, X, LayoutGrid, BookOpen, Package, Home, Store, Grid, Loader2 } from "lucide-react";
+import {
+  Search,
+  Sparkles,
+  X,
+  LayoutGrid,
+  BookOpen,
+  Package,
+  Home,
+  Store,
+  Grid,
+  Loader2,
+} from "lucide-react";
 
 interface CategoryData {
   id: string;
@@ -33,10 +44,13 @@ function KatalogContent() {
   const initialQuery = searchParams.get("q") || "";
   const initialPromo = searchParams.get("promo") === "true";
 
-  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
+  const [selectedCategory, setSelectedCategory] =
+    useState<string>(initialCategory);
   const [searchQuery, setSearchQuery] = useState<string>(initialQuery);
   const [onlyPromo, setOnlyPromo] = useState<boolean>(initialPromo);
-  const [sortBy, setSortBy] = useState<"popular" | "price-asc" | "price-desc" | "name">("popular");
+  const [sortBy, setSortBy] = useState<
+    "popular" | "price-asc" | "price-desc" | "name"
+  >("popular");
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<CategoryData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -47,7 +61,9 @@ function KatalogContent() {
 
     Promise.all([
       fetch("/api/products?limit=100").then((res) => res.json()),
-      fetch("/api/categories").then((res) => res.json()).catch(() => ({ data: [] })),
+      fetch("/api/categories")
+        .then((res) => res.json())
+        .catch(() => ({ data: [] })),
     ])
       .then(([productsRes, categoriesRes]) => {
         if (productsRes.customerProducts) {
@@ -63,38 +79,45 @@ function KatalogContent() {
 
   // Filtering logic
   const filteredProducts = useMemo(() => {
-    return products.filter((product) => {
-      // Filter kategori
-      if (selectedCategory !== "all" && product.category !== selectedCategory) {
-        return false;
-      }
-
-      // Filter promo
-      if (onlyPromo && !product.isPromo) {
-        return false;
-      }
-
-      // Filter search
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase();
-        const matchName = product.name.toLowerCase().includes(query);
-        const matchSku = product.sku.toLowerCase().includes(query);
-        const matchDesc = product.description.toLowerCase().includes(query);
-        if (!matchName && !matchSku && !matchDesc) {
+    return products
+      .filter((product) => {
+        // Filter kategori
+        if (
+          selectedCategory !== "all" &&
+          product.category !== selectedCategory
+        ) {
           return false;
         }
-      }
 
-      return true;
-    }).sort((a, b) => {
-      const priceA = a.tieredPricesPcs[a.tieredPricesPcs.length - 1]?.price || 0;
-      const priceB = b.tieredPricesPcs[b.tieredPricesPcs.length - 1]?.price || 0;
+        // Filter promo
+        if (onlyPromo && !product.isPromo) {
+          return false;
+        }
 
-      if (sortBy === "price-asc") return priceA - priceB;
-      if (sortBy === "price-desc") return priceB - priceA;
-      if (sortBy === "name") return a.name.localeCompare(b.name);
-      return (b.isPopular ? 1 : 0) - (a.isPopular ? 1 : 0);
-    });
+        // Filter search
+        if (searchQuery.trim()) {
+          const query = searchQuery.toLowerCase();
+          const matchName = product.name.toLowerCase().includes(query);
+          const matchSku = product.sku.toLowerCase().includes(query);
+          const matchDesc = product.description.toLowerCase().includes(query);
+          if (!matchName && !matchSku && !matchDesc) {
+            return false;
+          }
+        }
+
+        return true;
+      })
+      .sort((a, b) => {
+        const priceA =
+          a.tieredPricesPcs[a.tieredPricesPcs.length - 1]?.price || 0;
+        const priceB =
+          b.tieredPricesPcs[b.tieredPricesPcs.length - 1]?.price || 0;
+
+        if (sortBy === "price-asc") return priceA - priceB;
+        if (sortBy === "price-desc") return priceB - priceA;
+        if (sortBy === "name") return a.name.localeCompare(b.name);
+        return (b.isPopular ? 1 : 0) - (a.isPopular ? 1 : 0);
+      });
   }, [products, selectedCategory, searchQuery, onlyPromo, sortBy]);
 
   const resetFilters = () => {
@@ -113,7 +136,8 @@ function KatalogContent() {
             Katalog Produk Grosir
           </h2>
           <p className="text-xs text-gray-500">
-            Kulakan barang dagangan toko dengan harga grosir bertingkat transparan
+            Kulakan barang dagangan toko dengan harga grosir bertingkat
+            transparan
           </p>
         </div>
 
@@ -124,7 +148,7 @@ function KatalogContent() {
             placeholder="Cari nama barang, jenis ATK, lakban, plastik..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full h-11 pl-10 pr-10 rounded-xl border border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#146C43] transition-all"
+            className="w-full h-11 pl-10 pr-10 rounded-xl border border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary transition-all"
           />
           <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5 pointer-events-none" />
           {searchQuery && (
@@ -144,7 +168,7 @@ function KatalogContent() {
             onClick={() => setSelectedCategory("all")}
             className={`min-h-[44px] px-4 py-2.5 rounded-xl font-medium whitespace-nowrap transition-colors shrink-0 flex items-center gap-2 ${
               selectedCategory === "all"
-                ? "bg-[#146C43] text-white shadow-xs"
+                ? "bg-primary text-white shadow-xs"
                 : "bg-white border border-gray-200 text-[#64748B] hover:bg-gray-50"
             }`}
           >
@@ -161,7 +185,7 @@ function KatalogContent() {
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`min-h-[44px] px-4 py-2.5 rounded-xl font-medium whitespace-nowrap transition-colors shrink-0 flex items-center gap-2 ${
                   isSelected
-                    ? "bg-[#146C43] text-white shadow-xs"
+                    ? "bg-primary text-white shadow-xs"
                     : "bg-white border border-gray-200 text-[#64748B] hover:bg-gray-50"
                 }`}
               >
@@ -196,7 +220,7 @@ function KatalogContent() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#146C43] min-h-[38px]"
+              className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary min-h-[38px]"
             >
               <option value="popular">Paling Populer</option>
               <option value="price-asc">Harga Grosir: Termurah</option>
@@ -210,8 +234,10 @@ function KatalogContent() {
       {/* Product List: 1 Kolom List Vertikal */}
       {isLoading ? (
         <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center space-y-3">
-          <Loader2 className="w-6 h-6 animate-spin text-[#146C43] mx-auto" />
-          <p className="text-xs text-gray-500 font-medium">Memuat katalog produk...</p>
+          <Loader2 className="w-6 h-6 animate-spin text-primary mx-auto" />
+          <p className="text-xs text-gray-500 font-medium">
+            Memuat katalog produk...
+          </p>
         </div>
       ) : filteredProducts.length > 0 ? (
         <div className="flex flex-col space-y-3">
@@ -228,11 +254,12 @@ function KatalogContent() {
             Tidak ada produk yang sesuai
           </h3>
           <p className="text-xs text-gray-500 max-w-sm mx-auto">
-            Coba ubah kata kunci pencarian atau pilih kategori lain untuk menemukan barang dagangan yang Anda cari.
+            Coba ubah kata kunci pencarian atau pilih kategori lain untuk
+            menemukan barang dagangan yang Anda cari.
           </p>
           <button
             onClick={resetFilters}
-            className="px-4 py-2 bg-emerald-50 text-[#146C43] font-bold text-xs rounded-xl hover:bg-emerald-100 transition-colors"
+            className="px-4 py-2 bg-emerald-50 text-primary font-bold text-xs rounded-xl hover:bg-emerald-100 transition-colors"
           >
             Reset Semua Filter
           </button>
@@ -244,7 +271,13 @@ function KatalogContent() {
 
 export default function KatalogPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-sm text-gray-500">Memuat katalog...</div>}>
+    <Suspense
+      fallback={
+        <div className="p-8 text-center text-sm text-gray-500">
+          Memuat katalog...
+        </div>
+      }
+    >
       <KatalogContent />
     </Suspense>
   );

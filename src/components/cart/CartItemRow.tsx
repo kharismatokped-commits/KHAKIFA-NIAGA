@@ -21,7 +21,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
   onToggleSelect,
 }) => {
   return (
-    <div className="bg-white rounded-2xl border border-gray-200/90 p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 transition-colors hover:border-[#146C43]">
+    <div className="bg-white rounded-2xl border border-gray-200/90 p-4 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 transition-colors hover:border-primary">
       {/* Kolom Kiri: Checkbox, Gambar, Info Produk */}
       <div className="flex items-start gap-3.5 flex-1 min-w-0">
         {/* Checkbox Besar */}
@@ -29,7 +29,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
           type="checkbox"
           checked={item.selected}
           onChange={onToggleSelect}
-          className="w-5 h-5 mt-1.5 rounded text-[#146C43] focus:ring-[#146C43] border-gray-300 cursor-pointer"
+          className="w-5 h-5 mt-1.5 rounded text-primary focus:ring-primary border-gray-300 cursor-pointer"
         />
 
         {/* Gambar */}
@@ -48,14 +48,14 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
           {/* Nama Produk 13–14px medium */}
           <Link
             href={`/produk/${item.productId}`}
-            className="font-heading font-medium text-gray-900 text-[13px] sm:text-[14px] hover:text-[#146C43] transition-colors line-clamp-2 leading-snug"
+            className="font-heading font-medium text-gray-900 text-[13px] sm:text-[14px] hover:text-primary transition-colors line-clamp-2 leading-snug"
           >
             {item.productName}
           </Link>
 
           <div className="flex flex-wrap items-center gap-2 mt-1.5 text-[12px] text-gray-600">
             {/* Satuan Badge */}
-            <span className="inline-flex items-center gap-1 font-medium text-[#146C43] bg-emerald-50 px-2 py-0.5 rounded text-[12px]">
+            <span className="inline-flex items-center gap-1 font-medium text-primary bg-emerald-50 px-2 py-0.5 rounded text-[12px]">
               {item.unitType === "PAK" ? (
                 <>
                   <Package className="w-3.5 h-3.5" strokeWidth={2} />
@@ -78,7 +78,10 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
           </div>
 
           <div className="mt-1 text-[12px] text-gray-500 font-normal">
-            Harga Satuan: <strong className="font-price font-bold text-gray-900">{formatRupiah(item.unitPrice)}</strong>
+            Harga Satuan:{" "}
+            <strong className="font-price font-bold text-gray-900">
+              {formatRupiah(item.unitPrice)}
+            </strong>
           </div>
         </div>
       </div>
@@ -112,7 +115,7 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
         {/* Subtotal: 16px bold (elemen harga paling menonjol) */}
         <div className="text-right min-w-[110px]">
           <div className="text-[11px] text-gray-400 font-normal">Subtotal:</div>
-          <div className="font-price font-bold text-[#146C43] text-[16px] tracking-tight">
+          <div className="font-price font-bold text-primary text-[16px] tracking-tight">
             {formatRupiah(item.subtotal)}
           </div>
         </div>

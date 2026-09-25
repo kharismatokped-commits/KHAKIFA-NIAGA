@@ -28,7 +28,7 @@ export interface CalculationResult {
  */
 export async function calculateServerCart(
   items: CartItemCalculationInput[],
-  db: typeof prisma | any = prisma
+  db: typeof prisma | any = prisma,
 ): Promise<CalculationResult> {
   const calculatedItems: CalculatedItemResult[] = [];
   let totalHarga = 0;
@@ -47,12 +47,14 @@ export async function calculateServerCart(
     });
 
     if (!variant) {
-      throw new Error(`Varian produk dengan ID ${item.productVariantId} tidak ditemukan.`);
+      throw new Error(
+        `Varian produk dengan ID ${item.productVariantId} tidak ditemukan.`,
+      );
     }
 
     if (!variant.priceTiers || variant.priceTiers.length === 0) {
       throw new Error(
-        `Tier harga untuk varian "${variant.namaVarian}" dengan kemasan "${item.jenisKemasan}" belum dikonfigurasi.`
+        `Tier harga untuk varian "${variant.namaVarian}" dengan kemasan "${item.jenisKemasan}" belum dikonfigurasi.`,
       );
     }
 
@@ -90,7 +92,7 @@ export async function calculateServerCart(
   // Menentukan jenis pesanan (eceran vs grosir)
   // Aturan: Jika ada minimal 1 item kemasan pak ATAU qty >= GROSIR_QTY_THRESHOLD -> grosir
   const isGrosir = calculatedItems.some(
-    (item) => item.jenisKemasan === "pak" || item.qty >= GROSIR_QTY_THRESHOLD
+    (item) => item.jenisKemasan === "pak" || item.qty >= GROSIR_QTY_THRESHOLD,
   );
 
   const orderType: OrderType = isGrosir ? "grosir" : "eceran";

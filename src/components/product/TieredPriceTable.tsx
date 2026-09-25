@@ -40,7 +40,7 @@ export const TieredPriceTable: React.FC<TieredPriceTableProps> = ({
         <div className="space-y-2.5">
           <div className="flex items-center justify-between px-1">
             <span className="font-heading font-bold text-sm text-gray-900 flex items-center gap-1.5">
-              <Box className="w-4 h-4 text-[#146C43]" />
+              <Box className="w-4 h-4 text-primary" />
               <span>Satuan {product.unitPcsName} (Eceran / Jumlah Sedang)</span>
             </span>
           </div>
@@ -62,10 +62,12 @@ export const TieredPriceTable: React.FC<TieredPriceTableProps> = ({
                 <button
                   key={`pcs-card-${idx}`}
                   type="button"
-                  onClick={() => onSelectTier && onSelectTier("PCS", tier.minQty)}
+                  onClick={() =>
+                    onSelectTier && onSelectTier("PCS", tier.minQty)
+                  }
                   className={`w-full text-left p-3.5 sm:p-4 rounded-2xl border-2 transition-all min-h-[72px] flex items-center justify-between gap-3 shadow-xs active:scale-[0.98] ${
                     isSelected
-                      ? "bg-[#146C43] text-white border-[#146C43] shadow-md ring-2 ring-emerald-300"
+                      ? "bg-primary text-white border-primary shadow-md ring-2 ring-emerald-300"
                       : "bg-white text-gray-900 border-gray-200 hover:border-emerald-300 hover:bg-emerald-50/30"
                   }`}
                 >
@@ -73,7 +75,7 @@ export const TieredPriceTable: React.FC<TieredPriceTableProps> = ({
                     <div
                       className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 border-2 transition-colors ${
                         isSelected
-                          ? "bg-white text-[#146C43] border-white"
+                          ? "bg-white text-primary border-white"
                           : "border-gray-300 bg-gray-100 text-transparent"
                       }`}
                     >
@@ -89,7 +91,9 @@ export const TieredPriceTable: React.FC<TieredPriceTableProps> = ({
                           isSelected ? "text-emerald-100" : "text-gray-500"
                         }`}
                       >
-                        {savings > 0 ? `Hemat ${savings}% per pcs` : "Harga Standar"}
+                        {savings > 0
+                          ? `Hemat ${savings}% per pcs`
+                          : "Harga Standar"}
                       </div>
                     </div>
                   </div>
@@ -97,7 +101,7 @@ export const TieredPriceTable: React.FC<TieredPriceTableProps> = ({
                   <div className="text-right shrink-0">
                     <div
                       className={`font-price font-bold text-[16px] tracking-tight ${
-                        isSelected ? "text-white" : "text-[#146C43]"
+                        isSelected ? "text-white" : "text-primary"
                       }`}
                     >
                       {formatRupiah(tier.price)}
@@ -124,7 +128,8 @@ export const TieredPriceTable: React.FC<TieredPriceTableProps> = ({
             <span className="font-heading font-bold text-sm text-gray-900 flex items-center gap-1.5">
               <Package className="w-4 h-4 text-amber-600" />
               <span>
-                Satuan {product.unitPackName} (Kulakan Grosir — 1 {product.unitPackName} = {product.packRatio} pcs)
+                Satuan {product.unitPackName} (Kulakan Grosir — 1{" "}
+                {product.unitPackName} = {product.packRatio} pcs)
               </span>
             </span>
             <span className="text-[11px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full flex items-center gap-1">
@@ -141,7 +146,9 @@ export const TieredPriceTable: React.FC<TieredPriceTableProps> = ({
                 (tier.maxQty === null || currentQty <= tier.maxQty);
 
               const savings = calculateSavings(basePackPrice, tier.price);
-              const pricePerPcsInPack = Math.round(tier.price / product.packRatio);
+              const pricePerPcsInPack = Math.round(
+                tier.price / product.packRatio,
+              );
               const rangeLabel =
                 tier.maxQty === null
                   ? `Beli ≥ ${tier.minQty} ${product.unitPackName}`
@@ -151,18 +158,20 @@ export const TieredPriceTable: React.FC<TieredPriceTableProps> = ({
                 <button
                   key={`pack-card-${idx}`}
                   type="button"
-                  onClick={() => onSelectTier && onSelectTier("PAK", tier.minQty)}
+                  onClick={() =>
+                    onSelectTier && onSelectTier("PAK", tier.minQty)
+                  }
                   className={`w-full text-left p-3.5 sm:p-4 rounded-2xl border-2 transition-all min-h-[72px] flex items-center justify-between gap-3 shadow-xs active:scale-[0.98] ${
                     isSelected
-                      ? "bg-[#146C43] text-white border-[#146C43] shadow-md ring-2 ring-emerald-300"
-                      : "bg-white text-gray-900 border-emerald-100 hover:border-[#146C43] hover:bg-emerald-50/40"
+                      ? "bg-primary text-white border-primary shadow-md ring-2 ring-emerald-300"
+                      : "bg-white text-gray-900 border-emerald-100 hover:border-primary hover:bg-emerald-50/40"
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <div
                       className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 border-2 transition-colors ${
                         isSelected
-                          ? "bg-white text-[#146C43] border-white"
+                          ? "bg-white text-primary border-white"
                           : "border-emerald-300 bg-emerald-50 text-transparent"
                       }`}
                     >
@@ -175,7 +184,9 @@ export const TieredPriceTable: React.FC<TieredPriceTableProps> = ({
                       </div>
                       <div
                         className={`text-[12px] mt-0.5 ${
-                          isSelected ? "text-emerald-100" : "text-emerald-700 font-medium"
+                          isSelected
+                            ? "text-emerald-100"
+                            : "text-emerald-700 font-medium"
                         }`}
                       >
                         ~{formatRupiah(pricePerPcsInPack)}/pcs
@@ -187,7 +198,7 @@ export const TieredPriceTable: React.FC<TieredPriceTableProps> = ({
                   <div className="text-right shrink-0">
                     <div
                       className={`font-price font-bold text-[16px] tracking-tight ${
-                        isSelected ? "text-white" : "text-[#146C43]"
+                        isSelected ? "text-white" : "text-primary"
                       }`}
                     >
                       {formatRupiah(tier.price)}

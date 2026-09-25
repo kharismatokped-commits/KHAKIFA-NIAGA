@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  Layers,
   Plus,
   Edit2,
   Trash2,
@@ -35,7 +34,11 @@ export default function AdminCategoriesPage() {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [formData, setFormData] = useState({ id: "", nama: "", ikon: "BookOpen" });
+  const [formData, setFormData] = useState({
+    id: "",
+    nama: "",
+    ikon: "BookOpen",
+  });
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [toastMessage, setToastMessage] = useState("");
@@ -105,7 +108,9 @@ export default function AdminCategoriesPage() {
       }
 
       setToastMessage(
-        editingCategory ? "Kategori berhasil diperbarui!" : "Kategori baru berhasil ditambahkan!"
+        editingCategory
+          ? "Kategori berhasil diperbarui!"
+          : "Kategori baru berhasil ditambahkan!",
       );
       setTimeout(() => setToastMessage(""), 3500);
       setIsModalOpen(false);
@@ -157,7 +162,7 @@ export default function AdminCategoriesPage() {
   return (
     <div className="space-y-6">
       {toastMessage && (
-        <div className="fixed top-4 right-4 z-50 bg-[#146C43] text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-4">
+        <div className="fixed top-4 right-4 z-50 bg-primary text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-4">
           <CheckCircle2 className="w-4 h-4 text-emerald-300" />
           <span>{toastMessage}</span>
         </div>
@@ -170,12 +175,13 @@ export default function AdminCategoriesPage() {
             Kategori Produk
           </h1>
           <p className="text-xs text-gray-500 mt-0.5">
-            Kelola pengelompokan produk toko (ATK, Plastik Kemasan, Sembako, Rumah Tangga).
+            Kelola pengelompokan produk toko (ATK, Plastik Kemasan, Sembako,
+            Rumah Tangga).
           </p>
         </div>
         <button
           onClick={openAddModal}
-          className="px-4 py-2.5 rounded-xl bg-[#146C43] hover:bg-[#0f5333] text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+          className="px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Tambah Kategori Baru</span>
@@ -186,7 +192,7 @@ export default function AdminCategoriesPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {loading ? (
           <div className="col-span-full p-12 text-center text-xs text-gray-400">
-            <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-[#146C43]" />
+            <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-primary" />
             Memuat data kategori...
           </div>
         ) : categories.length > 0 ? (
@@ -215,7 +221,7 @@ export default function AdminCategoriesPage() {
               <div className="flex items-center gap-1">
                 <button
                   onClick={() => openEditModal(cat)}
-                  className="p-1.5 rounded-lg bg-emerald-50 hover:bg-[#146C43] text-[#146C43] hover:text-white transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg bg-emerald-50 hover:bg-primary text-primary hover:text-white transition-colors cursor-pointer"
                   title="Edit Kategori"
                 >
                   <Edit2 className="w-3.5 h-3.5" />
@@ -270,8 +276,10 @@ export default function AdminCategoriesPage() {
                   required
                   placeholder="Misal: Alat Tulis Kantor (ATK)"
                   value={formData.nama}
-                  onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
-                  className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#146C43]/20 focus:border-[#146C43]"
+                  onChange={(e) =>
+                    setFormData({ ...formData, nama: e.target.value })
+                  }
+                  className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
               </div>
 
@@ -284,8 +292,10 @@ export default function AdminCategoriesPage() {
                     type="text"
                     placeholder="atk / plastik-kemasan / rumah-tangga"
                     value={formData.id}
-                    onChange={(e) => setFormData({ ...formData, id: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#146C43]/20"
+                    onChange={(e) =>
+                      setFormData({ ...formData, id: e.target.value })
+                    }
+                    className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                   <p className="text-[10px] text-gray-400 mt-1">
                     Jika dikosongkan, ID dibuat otomatis dari nama kategori.
@@ -302,15 +312,19 @@ export default function AdminCategoriesPage() {
                     <button
                       key={ic.name}
                       type="button"
-                      onClick={() => setFormData({ ...formData, ikon: ic.name })}
+                      onClick={() =>
+                        setFormData({ ...formData, ikon: ic.name })
+                      }
                       className={`p-2.5 rounded-xl border text-center flex flex-col items-center gap-1.5 transition-all cursor-pointer ${
                         formData.ikon === ic.name
-                          ? "border-[#146C43] bg-emerald-50/70 text-[#146C43] font-bold ring-1 ring-[#146C43]"
+                          ? "border-primary bg-emerald-50/70 text-primary font-bold ring-1 ring-primary"
                           : "border-gray-200 hover:bg-gray-50 text-gray-600"
                       }`}
                     >
                       {renderIcon(ic.name)}
-                      <span className="text-[10px] leading-tight">{ic.label}</span>
+                      <span className="text-[10px] leading-tight">
+                        {ic.label}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -327,7 +341,7 @@ export default function AdminCategoriesPage() {
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="px-5 py-2 rounded-xl bg-[#146C43] hover:bg-[#0f5333] text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-70 cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-70 cursor-pointer"
                 >
                   {isSaving ? (
                     <>

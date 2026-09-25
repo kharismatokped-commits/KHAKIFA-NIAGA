@@ -1,20 +1,17 @@
 "use client";
 
-import React, { useEffect, useState, useTransition } from "react";
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import {
-  Package,
   Plus,
   Search,
   Edit2,
   Trash2,
   Save,
   X,
-  Layers,
   AlertCircle,
   CheckCircle2,
   Loader2,
-  ExternalLink,
-  ChevronDown,
 } from "lucide-react";
 
 interface PriceTier {
@@ -121,14 +118,21 @@ export default function AdminProductsPage() {
       nama: "",
       deskripsi: "",
       categoryId: categories[0]?.id || "",
-      gambar: ["https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600&auto=format&fit=crop&q=80"],
+      gambar: [
+        "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600&auto=format&fit=crop&q=80",
+      ],
       variants: [
         {
           namaVarian: "Standar",
           priceTiers: [
             { jenisKemasan: "pcs", minQty: 1, maxQty: 9, hargaPerUnit: 10000 },
             { jenisKemasan: "pcs", minQty: 10, maxQty: 49, hargaPerUnit: 9000 },
-            { jenisKemasan: "pcs", minQty: 50, maxQty: null, hargaPerUnit: 8000 },
+            {
+              jenisKemasan: "pcs",
+              minQty: 50,
+              maxQty: null,
+              hargaPerUnit: 8000,
+            },
           ],
         },
       ],
@@ -171,7 +175,12 @@ export default function AdminProductsPage() {
           namaVarian: `Varian ${formData.variants.length + 1}`,
           priceTiers: [
             { jenisKemasan: "pcs", minQty: 1, maxQty: 9, hargaPerUnit: 10000 },
-            { jenisKemasan: "pcs", minQty: 10, maxQty: null, hargaPerUnit: 8500 },
+            {
+              jenisKemasan: "pcs",
+              minQty: 10,
+              maxQty: null,
+              hargaPerUnit: 8500,
+            },
           ],
         },
       ],
@@ -192,13 +201,19 @@ export default function AdminProductsPage() {
     const updated = [...formData.variants];
     const tiers = updated[vIndex].priceTiers;
     const lastTier = tiers[tiers.length - 1];
-    const newMin = lastTier ? (lastTier.maxQty ? lastTier.maxQty + 1 : lastTier.minQty + 10) : 1;
+    const newMin = lastTier
+      ? lastTier.maxQty
+        ? lastTier.maxQty + 1
+        : lastTier.minQty + 10
+      : 1;
 
     tiers.push({
       jenisKemasan: lastTier?.jenisKemasan || "pcs",
       minQty: newMin,
       maxQty: null,
-      hargaPerUnit: lastTier ? Math.max(100, lastTier.hargaPerUnit - 500) : 10000,
+      hargaPerUnit: lastTier
+        ? Math.max(100, lastTier.hargaPerUnit - 500)
+        : 10000,
     });
 
     setFormData({ ...formData, variants: updated });
@@ -218,7 +233,7 @@ export default function AdminProductsPage() {
     vIndex: number,
     tIndex: number,
     field: keyof PriceTier,
-    value: any
+    value: any,
   ) => {
     const updated = [...formData.variants];
     updated[vIndex].priceTiers[tIndex] = {
@@ -254,7 +269,9 @@ export default function AdminProductsPage() {
       }
 
       setSuccessToast(
-        editingProduct ? "Produk berhasil diperbarui!" : "Produk baru berhasil ditambahkan!"
+        editingProduct
+          ? "Produk berhasil diperbarui!"
+          : "Produk baru berhasil ditambahkan!",
       );
       setTimeout(() => setSuccessToast(""), 3500);
       setIsModalOpen(false);
@@ -289,7 +306,8 @@ export default function AdminProductsPage() {
 
   // Filtered List
   const filteredProducts = products.filter((p) => {
-    const matchCat = selectedCategory === "all" || p.categoryId === selectedCategory;
+    const matchCat =
+      selectedCategory === "all" || p.categoryId === selectedCategory;
     const matchSearch =
       p.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.deskripsi.toLowerCase().includes(searchQuery.toLowerCase());
@@ -300,7 +318,7 @@ export default function AdminProductsPage() {
     <div className="space-y-6">
       {/* Toast Alert */}
       {successToast && (
-        <div className="fixed top-4 right-4 z-50 bg-[#146C43] text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-4">
+        <div className="fixed top-4 right-4 z-50 bg-primary text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-4">
           <CheckCircle2 className="w-4 h-4 text-emerald-300" />
           <span>{successToast}</span>
         </div>
@@ -313,12 +331,13 @@ export default function AdminProductsPage() {
             Katalog Produk & Tier Harga
           </h1>
           <p className="text-xs text-gray-500 mt-0.5">
-            Atur harga bertingkat grosir otomatis untuk setiap barang dan kemasannya.
+            Atur harga bertingkat grosir otomatis untuk setiap barang dan
+            kemasannya.
           </p>
         </div>
         <button
           onClick={openAddModal}
-          className="px-4 py-2.5 rounded-xl bg-[#146C43] hover:bg-[#0f5333] text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+          className="px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-semibold flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Tambah Produk Baru</span>
@@ -334,16 +353,18 @@ export default function AdminProductsPage() {
             placeholder="Cari nama atau deskripsi produk..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#146C43]/20 focus:border-[#146C43]"
+            className="w-full pl-9 pr-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
           />
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-xs font-semibold text-gray-500 shrink-0">Kategori:</span>
+          <span className="text-xs font-semibold text-gray-500 shrink-0">
+            Kategori:
+          </span>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full sm:w-auto px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#146C43]/20"
+            className="w-full sm:w-auto px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
           >
             <option value="all">Semua Kategori</option>
             {categories.map((c) => (
@@ -359,7 +380,7 @@ export default function AdminProductsPage() {
       <div className="bg-white rounded-2xl border border-gray-100 shadow-xs overflow-hidden">
         {loading ? (
           <div className="p-12 text-center text-xs text-gray-400">
-            <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-[#146C43]" />
+            <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-primary" />
             Memuat katalog produk dari database...
           </div>
         ) : filteredProducts.length > 0 ? (
@@ -377,26 +398,44 @@ export default function AdminProductsPage() {
               <tbody className="divide-y divide-gray-100">
                 {filteredProducts.map((p) => {
                   const allTiers = p.variants.flatMap((v) => v.priceTiers);
-                  const minPrice = allTiers.length > 0 ? Math.min(...allTiers.map((t) => t.hargaPerUnit)) : 0;
-                  const maxPrice = allTiers.length > 0 ? Math.max(...allTiers.map((t) => t.hargaPerUnit)) : 0;
+                  const minPrice =
+                    allTiers.length > 0
+                      ? Math.min(...allTiers.map((t) => t.hargaPerUnit))
+                      : 0;
+                  const maxPrice =
+                    allTiers.length > 0
+                      ? Math.max(...allTiers.map((t) => t.hargaPerUnit))
+                      : 0;
 
                   return (
-                    <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
+                    <tr
+                      key={p.id}
+                      className="hover:bg-gray-50/50 transition-colors"
+                    >
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
-                          <img
-                            src={p.gambar[0] || "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=200"}
+                          <Image
+                            src={
+                              p.gambar[0] ||
+                              "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=200"
+                            }
                             alt={p.nama}
+                            width={44}
+                            height={44}
                             className="w-11 h-11 rounded-lg object-cover border border-gray-100 shrink-0"
                           />
                           <div>
-                            <div className="font-bold text-gray-900 line-clamp-1">{p.nama}</div>
-                            <div className="text-[11px] text-gray-400 line-clamp-1">{p.deskripsi}</div>
+                            <div className="font-bold text-gray-900 line-clamp-1">
+                              {p.nama}
+                            </div>
+                            <div className="text-[11px] text-gray-400 line-clamp-1">
+                              {p.deskripsi}
+                            </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-[#146C43] border border-emerald-100">
+                        <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-primary border border-emerald-100">
                           {p.category?.nama || p.categoryId}
                         </span>
                       </td>
@@ -422,7 +461,7 @@ export default function AdminProductsPage() {
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => openEditModal(p)}
-                            className="p-1.5 rounded-lg bg-emerald-50 hover:bg-[#146C43] text-[#146C43] hover:text-white transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg bg-emerald-50 hover:bg-primary text-primary hover:text-white transition-colors cursor-pointer"
                             title="Edit Produk & Tier Harga"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
@@ -457,10 +496,13 @@ export default function AdminProductsPage() {
             <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10 rounded-t-2xl">
               <div>
                 <h3 className="font-heading font-black text-base text-gray-900">
-                  {editingProduct ? "Edit Produk & Tier Harga" : "Tambah Produk Grosir Baru"}
+                  {editingProduct
+                    ? "Edit Produk & Tier Harga"
+                    : "Tambah Produk Grosir Baru"}
                 </h3>
                 <p className="text-xs text-gray-500">
-                  Kelola spesifikasi barang dan skema harga bertingkat untuk pembeli partai.
+                  Kelola spesifikasi barang dan skema harga bertingkat untuk
+                  pembeli partai.
                 </p>
               </div>
               <button
@@ -472,7 +514,10 @@ export default function AdminProductsPage() {
             </div>
 
             {/* Modal Body */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-6 overflow-y-auto flex-1">
+            <form
+              onSubmit={handleSubmit}
+              className="p-6 space-y-6 overflow-y-auto flex-1"
+            >
               {formError && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
@@ -496,8 +541,10 @@ export default function AdminProductsPage() {
                       required
                       placeholder="Contoh: Lakban Coklat Daimaru 48mm x 90 Yard"
                       value={formData.nama}
-                      onChange={(e) => setFormData({ ...formData, nama: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#146C43]/20 focus:border-[#146C43]"
+                      onChange={(e) =>
+                        setFormData({ ...formData, nama: e.target.value })
+                      }
+                      className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                     />
                   </div>
 
@@ -508,8 +555,10 @@ export default function AdminProductsPage() {
                     <select
                       required
                       value={formData.categoryId}
-                      onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#146C43]/20"
+                      onChange={(e) =>
+                        setFormData({ ...formData, categoryId: e.target.value })
+                      }
+                      className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
                     >
                       <option value="">Pilih Kategori...</option>
                       {categories.map((c) => (
@@ -530,8 +579,10 @@ export default function AdminProductsPage() {
                     required
                     placeholder="Deskripsi keunggulan, daya rekat, tebal, dll..."
                     value={formData.deskripsi}
-                    onChange={(e) => setFormData({ ...formData, deskripsi: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#146C43]/20 focus:border-[#146C43]"
+                    onChange={(e) =>
+                      setFormData({ ...formData, deskripsi: e.target.value })
+                    }
+                    className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                   />
                 </div>
 
@@ -543,8 +594,10 @@ export default function AdminProductsPage() {
                     type="url"
                     placeholder="https://images.unsplash.com/..."
                     value={formData.gambar[0] || ""}
-                    onChange={(e) => setFormData({ ...formData, gambar: [e.target.value] })}
-                    className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#146C43]/20"
+                    onChange={(e) =>
+                      setFormData({ ...formData, gambar: [e.target.value] })
+                    }
+                    className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
               </div>
@@ -558,7 +611,7 @@ export default function AdminProductsPage() {
                   <button
                     type="button"
                     onClick={addVariant}
-                    className="text-xs font-semibold text-[#146C43] hover:text-[#0f5333] flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-semibold text-primary hover:text-primary-dark flex items-center gap-1 cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Tambah Varian Lain</span>
@@ -585,7 +638,7 @@ export default function AdminProductsPage() {
                             setFormData({ ...formData, variants: updated });
                           }}
                           placeholder="Misal: Standar / Warna Hitam / Ukuran 24mm"
-                          className="w-full px-2.5 py-1.5 text-xs bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#146C43]"
+                          className="w-full px-2.5 py-1.5 text-xs bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
                         />
                       </div>
 
@@ -610,7 +663,7 @@ export default function AdminProductsPage() {
                         <button
                           type="button"
                           onClick={() => addPriceTier(vIndex)}
-                          className="text-[11px] font-bold text-[#146C43] hover:underline flex items-center gap-1 cursor-pointer"
+                          className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer"
                         >
                           <Plus className="w-3 h-3" />
                           <span>Tambah Baris Tier</span>
@@ -623,9 +676,13 @@ export default function AdminProductsPage() {
                             <tr>
                               <th className="px-3 py-2">Kemasan</th>
                               <th className="px-3 py-2">Min Qty</th>
-                              <th className="px-3 py-2">Maks Qty (Kosongkan jika &gt;)</th>
+                              <th className="px-3 py-2">
+                                Maks Qty (Kosongkan jika &gt;)
+                              </th>
                               <th className="px-3 py-2">Harga Satuan (Rp)</th>
-                              <th className="px-2 py-2 text-center w-10">Aksi</th>
+                              <th className="px-2 py-2 text-center w-10">
+                                Aksi
+                              </th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-100">
@@ -641,11 +698,11 @@ export default function AdminProductsPage() {
                                         vIndex,
                                         tIndex,
                                         "jenisKemasan",
-                                        e.target.value
+                                        e.target.value,
                                       )
                                     }
                                     placeholder="pcs / pak"
-                                    className="w-20 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#146C43]"
+                                    className="w-20 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary"
                                   />
                                 </td>
                                 <td className="px-3 py-1.5">
@@ -659,10 +716,10 @@ export default function AdminProductsPage() {
                                         vIndex,
                                         tIndex,
                                         "minQty",
-                                        parseInt(e.target.value) || 1
+                                        parseInt(e.target.value) || 1,
                                       )
                                     }
-                                    className="w-20 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#146C43]"
+                                    className="w-20 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary"
                                   />
                                 </td>
                                 <td className="px-3 py-1.5">
@@ -676,10 +733,12 @@ export default function AdminProductsPage() {
                                         vIndex,
                                         tIndex,
                                         "maxQty",
-                                        e.target.value ? parseInt(e.target.value) : null
+                                        e.target.value
+                                          ? parseInt(e.target.value)
+                                          : null,
                                       )
                                     }
-                                    className="w-24 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#146C43]"
+                                    className="w-24 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary"
                                   />
                                 </td>
                                 <td className="px-3 py-1.5">
@@ -698,10 +757,10 @@ export default function AdminProductsPage() {
                                           vIndex,
                                           tIndex,
                                           "hargaPerUnit",
-                                          parseInt(e.target.value) || 0
+                                          parseInt(e.target.value) || 0,
                                         )
                                       }
-                                      className="w-28 pl-7 pr-2 py-1 text-xs font-semibold text-gray-900 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#146C43]"
+                                      className="w-28 pl-7 pr-2 py-1 text-xs font-semibold text-gray-900 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary"
                                     />
                                   </div>
                                 </td>
@@ -709,7 +768,9 @@ export default function AdminProductsPage() {
                                   <button
                                     type="button"
                                     disabled={v.priceTiers.length <= 1}
-                                    onClick={() => removePriceTier(vIndex, tIndex)}
+                                    onClick={() =>
+                                      removePriceTier(vIndex, tIndex)
+                                    }
                                     className="text-gray-400 hover:text-red-600 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer p-1"
                                     title="Hapus Tier"
                                   >
@@ -738,7 +799,7 @@ export default function AdminProductsPage() {
                 <button
                   type="submit"
                   disabled={isSaving}
-                  className="px-5 py-2 rounded-xl bg-[#146C43] hover:bg-[#0f5333] text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-70 cursor-pointer"
+                  className="px-5 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-70 cursor-pointer"
                 >
                   {isSaving ? (
                     <>

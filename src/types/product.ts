@@ -1,4 +1,5 @@
-export type CategoryId = 'atk' | 'rumah-tangga' | 'plastik-kemasan' | 'kelontong' | 'lainnya';
+export type CategoryId =
+  "atk" | "rumah-tangga" | "plastik-kemasan" | "kelontong" | "lainnya";
 
 export interface Category {
   id: CategoryId;
@@ -48,7 +49,7 @@ export interface Product {
   variants?: ProductVariant[];
 }
 
-export type UnitType = 'PCS' | 'PAK';
+export type UnitType = "PCS" | "PAK";
 
 export interface CartItem {
   id: string; // unique item id in cart (combination of productId, variantId, unitType)

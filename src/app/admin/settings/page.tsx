@@ -2,17 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  Settings,
   Store,
   Phone,
-  MapPin,
   Megaphone,
   Save,
   CheckCircle2,
   AlertCircle,
   Loader2,
   RefreshCw,
-  ExternalLink,
 } from "lucide-react";
 
 interface StoreSettingsData {
@@ -31,7 +28,8 @@ export default function AdminSettingsPage() {
     nomorWhatsApp: "6287789923079",
     alamatToko: "Pasar Pagi Grosir Blok A No. 12, Jakarta",
     teksBannerJudul: "Solusi Belanja Grosir Cepat & Murah",
-    teksBannerSubjudul: "Katalog online harga bertingkat resmi. Pesan langsung terhubung ke WhatsApp toko.",
+    teksBannerSubjudul:
+      "Katalog online harga bertingkat resmi. Pesan langsung terhubung ke WhatsApp toko.",
   });
 
   const [loading, setLoading] = useState(true);
@@ -77,7 +75,9 @@ export default function AdminSettingsPage() {
         return;
       }
 
-      setToastMessage("Pengaturan toko berhasil disimpan! Tampilan aplikasi customer telah diperbarui.");
+      setToastMessage(
+        "Pengaturan toko berhasil disimpan! Tampilan aplikasi customer telah diperbarui.",
+      );
       setTimeout(() => setToastMessage(""), 4000);
       setFormData(data.data);
     } catch (err: any) {
@@ -91,7 +91,7 @@ export default function AdminSettingsPage() {
     <div className="space-y-6 max-w-4xl">
       {/* Toast Alert */}
       {toastMessage && (
-        <div className="fixed top-4 right-4 z-50 bg-[#146C43] text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-4">
+        <div className="fixed top-4 right-4 z-50 bg-primary text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 text-xs font-semibold animate-in fade-in slide-in-from-top-4">
           <CheckCircle2 className="w-4 h-4 text-emerald-300 shrink-0" />
           <span>{toastMessage}</span>
         </div>
@@ -104,7 +104,8 @@ export default function AdminSettingsPage() {
             Pengaturan Toko & Informasi Publik
           </h1>
           <p className="text-xs text-gray-500 mt-0.5">
-            Kelola identitas toko, nomor WhatsApp tujuan checkout pesanan, dan teks banner promosi beranda.
+            Kelola identitas toko, nomor WhatsApp tujuan checkout pesanan, dan
+            teks banner promosi beranda.
           </p>
         </div>
         <button
@@ -112,14 +113,16 @@ export default function AdminSettingsPage() {
           disabled={loading}
           className="p-2.5 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer self-start sm:self-auto"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-[#146C43]" : ""}`} />
+          <RefreshCw
+            className={`w-3.5 h-3.5 ${loading ? "animate-spin text-primary" : ""}`}
+          />
           <span>Reset Formulir</span>
         </button>
       </div>
 
       {loading ? (
         <div className="p-12 text-center text-xs text-gray-400 bg-white rounded-2xl border border-gray-100 shadow-xs">
-          <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-[#146C43]" />
+          <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-primary" />
           Memuat pengaturan toko dari database...
         </div>
       ) : (
@@ -149,9 +152,11 @@ export default function AdminSettingsPage() {
                   type="text"
                   required
                   value={formData.namaToko}
-                  onChange={(e) => setFormData({ ...formData, namaToko: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, namaToko: e.target.value })
+                  }
                   placeholder="Contoh: Khalifa Niaga"
-                  className="w-full px-3 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#146C43]/20 focus:border-[#146C43]"
+                  className="w-full px-3 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 />
                 <p className="text-[11px] text-gray-400 mt-1">
                   Tampil pada header aplikasi customer dan rincian pesanan.
@@ -168,13 +173,19 @@ export default function AdminSettingsPage() {
                     type="text"
                     required
                     value={formData.nomorWhatsApp}
-                    onChange={(e) => setFormData({ ...formData, nomorWhatsApp: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        nomorWhatsApp: e.target.value,
+                      })
+                    }
                     placeholder="Contoh: 6287789923079"
-                    className="w-full pl-9 pr-3 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#146C43]/20 focus:border-[#146C43] font-mono font-semibold"
+                    className="w-full pl-9 pr-3 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-mono font-semibold"
                   />
                 </div>
                 <p className="text-[11px] text-emerald-700 font-medium mt-1">
-                  Gunakan format internasional tanpa spasi/tanda plus (contoh: 6287789923079).
+                  Gunakan format internasional tanpa spasi/tanda plus (contoh:
+                  6287789923079).
                 </p>
               </div>
             </div>
@@ -187,9 +198,11 @@ export default function AdminSettingsPage() {
                 rows={2}
                 required
                 value={formData.alamatToko}
-                onChange={(e) => setFormData({ ...formData, alamatToko: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, alamatToko: e.target.value })
+                }
                 placeholder="Pasar Pagi Grosir Blok A No. 12, Jakarta"
-                className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#146C43]/20 focus:border-[#146C43]"
+                className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
           </div>
@@ -211,9 +224,11 @@ export default function AdminSettingsPage() {
                 type="text"
                 required
                 value={formData.teksBannerJudul}
-                onChange={(e) => setFormData({ ...formData, teksBannerJudul: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, teksBannerJudul: e.target.value })
+                }
                 placeholder="Contoh: Solusi Belanja Grosir Cepat & Murah"
-                className="w-full px-3 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#146C43]/20 focus:border-[#146C43]"
+                className="w-full px-3 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
 
@@ -225,9 +240,14 @@ export default function AdminSettingsPage() {
                 type="text"
                 required
                 value={formData.teksBannerSubjudul}
-                onChange={(e) => setFormData({ ...formData, teksBannerSubjudul: e.target.value })}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    teksBannerSubjudul: e.target.value,
+                  })
+                }
                 placeholder="Contoh: Katalog online harga bertingkat resmi. Pesan langsung terhubung ke WhatsApp toko."
-                className="w-full px-3 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#146C43]/20 focus:border-[#146C43]"
+                className="w-full px-3 py-2.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
               />
             </div>
 
@@ -236,12 +256,13 @@ export default function AdminSettingsPage() {
               <span className="text-[11px] font-bold text-gray-500 uppercase tracking-wider block mb-2">
                 Pratinjau Langsung Banner di Halaman Customer:
               </span>
-              <div className="bg-[#146C43] text-white rounded-xl p-4 sm:p-5 shadow-sm">
+              <div className="bg-primary text-white rounded-xl p-4 sm:p-5 shadow-sm">
                 <h3 className="font-heading font-black text-base sm:text-lg tracking-tight">
                   {formData.teksBannerJudul || "Judul Banner Toko"}
                 </h3>
                 <p className="text-xs sm:text-[13px] text-emerald-100 mt-1">
-                  {formData.teksBannerSubjudul || "Subjudul penjelas promosi toko"}
+                  {formData.teksBannerSubjudul ||
+                    "Subjudul penjelas promosi toko"}
                 </p>
                 <div className="mt-3 flex items-center gap-3 text-[11px] text-emerald-200 font-medium">
                   <span>✓ Harga Bersaing</span>
@@ -259,7 +280,7 @@ export default function AdminSettingsPage() {
             <button
               type="submit"
               disabled={isSaving}
-              className="px-6 py-3 rounded-xl bg-[#146C43] hover:bg-[#0f5333] text-white text-xs font-bold flex items-center gap-2 shadow-md shadow-emerald-900/20 transition-all disabled:opacity-70 cursor-pointer"
+              className="px-6 py-3 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold flex items-center gap-2 shadow-md shadow-emerald-900/20 transition-all disabled:opacity-70 cursor-pointer"
             >
               {isSaving ? (
                 <>

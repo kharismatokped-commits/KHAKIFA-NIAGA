@@ -23,21 +23,26 @@ export async function GET(request: NextRequest) {
     });
 
     // Kelompokkan berdasarkan kombinasi namaToko + noWhatsApp
-    const customerMap = new Map<string, {
-      id: string;
-      namaToko: string;
-      namaPemesan: string;
-      noWhatsApp: string;
-      alamat: string;
-      totalOrders: number;
-      totalSpent: number;
-      lastOrderDate: Date;
-      orders: any[];
-    }>();
+    const customerMap = new Map<
+      string,
+      {
+        id: string;
+        namaToko: string;
+        namaPemesan: string;
+        noWhatsApp: string;
+        alamat: string;
+        totalOrders: number;
+        totalSpent: number;
+        lastOrderDate: Date;
+        orders: any[];
+      }
+    >();
 
     for (const order of allOrders) {
       // Normalisasi key
-      const storeNameKey = (order.namaToko || "Pelanggan Tanpa Toko").trim().toLowerCase();
+      const storeNameKey = (order.namaToko || "Pelanggan Tanpa Toko")
+        .trim()
+        .toLowerCase();
       const phoneKey = order.noWhatsApp.replace(/[^0-9]/g, "");
       const key = `${storeNameKey}___${phoneKey}`;
 
@@ -85,7 +90,7 @@ export async function GET(request: NextRequest) {
         (c) =>
           c.namaToko.toLowerCase().includes(search) ||
           c.namaPemesan.toLowerCase().includes(search) ||
-          c.noWhatsApp.toLowerCase().includes(search)
+          c.noWhatsApp.toLowerCase().includes(search),
       );
     }
 
@@ -100,7 +105,7 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching customers:", error);
     return NextResponse.json(
       { success: false, error: "Gagal mengambil data pelanggan" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
