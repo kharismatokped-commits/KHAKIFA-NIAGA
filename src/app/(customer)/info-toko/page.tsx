@@ -14,8 +14,10 @@ import {
   RotateCcw,
   CheckCircle2,
   HelpCircle,
+  LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth-client";
 
 export default function InfoTokoPage() {
   const storeSettings = useStoreSettings();
@@ -146,15 +148,31 @@ export default function InfoTokoPage() {
           Jika Anda ingin mereset keranjang belanja atau menghapus data toko yang tersimpan di perangkat ini:
         </p>
 
-        <Button
-          type="button"
-          onClick={handleClearCache}
-          variant="outline"
-          size="sm"
-          className="text-xs text-red-600 hover:bg-red-50 hover:border-red-200"
-        >
-          {resetSuccess ? "Berhasil Direset!" : "Hapus Riwayat Keranjang & Data Saya"}
-        </Button>
+        <div className="flex flex-wrap gap-2 pt-1">
+          <Button
+            type="button"
+            onClick={handleClearCache}
+            variant="outline"
+            size="sm"
+            className="text-xs text-red-600 hover:bg-red-50 hover:border-red-200"
+          >
+            {resetSuccess ? "Berhasil Direset!" : "Hapus Riwayat Keranjang & Data Saya"}
+          </Button>
+
+          <Button
+            type="button"
+            onClick={async () => {
+              await authClient.signOut();
+              window.location.href = "/admin/login";
+            }}
+            variant="outline"
+            size="sm"
+            className="text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-1.5"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Keluar (Logout)</span>
+          </Button>
+        </div>
       </div>
     </div>
   );

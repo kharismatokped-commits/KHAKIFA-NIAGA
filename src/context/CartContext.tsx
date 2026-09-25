@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { CartItem, CustomerOrderInfo, Product, ProductVariant, UnitType } from "@/types/product";
 import { getUnitPrice, getOrderType, OrderType } from "@/lib/pricing";
-import { MOCK_PRODUCTS } from "@/data/mockProducts";
 
 interface CartContextType {
   items: CartItem[];
@@ -46,8 +45,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode; initialProducts
   // Products map for looking up tiered prices when qty changes in cart
   const [productsMap] = useState<Map<string, Product>>(() => {
     const map = new Map<string, Product>();
-    // Gabungkan MOCK_PRODUCTS sebagai basis data katalog
-    MOCK_PRODUCTS.forEach((p) => map.set(p.id, p));
     initialProducts.forEach((p) => map.set(p.id, p));
     return map;
   });
@@ -74,7 +71,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode; initialProducts
         const parsedItems: CartItem[] = JSON.parse(savedCart);
         // Validasi dan pastikan harga satuan tiap item dihitung independen dari qty item itu sendiri
         const validatedItems = parsedItems.map((item) => {
-          const prod = productsMap.get(item.productId) || MOCK_PRODUCTS.find((p) => p.id === item.productId);
+          const prod = productsMap.get(item.productId);
           if (prod) {
             const tiers = item.unitType === "PAK" ? prod.tieredPricesPack : prod.tieredPricesPcs;
             const unitPrice = getUnitPrice(tiers, item.qty);

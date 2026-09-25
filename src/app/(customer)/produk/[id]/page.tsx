@@ -4,12 +4,11 @@ import React, { useState, use } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { MOCK_PRODUCTS } from "@/data/mockProducts";
 import { Product, ProductVariant, UnitType } from "@/types/product";
 import { TieredPriceTable } from "@/components/product/TieredPriceTable";
 import { QuantityCalculator } from "@/components/product/QuantityCalculator";
 import { ProductCard } from "@/components/product/ProductCard";
-import { Star, ShieldCheck, ChevronRight, Package, Truck, ArrowLeft } from "lucide-react";
+import { Star, ShieldCheck, ChevronRight, Package, Truck, ArrowLeft, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function ProductDetailPage({
@@ -18,12 +17,18 @@ export default function ProductDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const resolvedParams = use(params);
-  const [product, setProduct] = useState<Product | undefined>(() =>
-    MOCK_PRODUCTS.find((p) => p.id === resolvedParams.id)
-  );
-  const [isLoadingProduct, setIsLoadingProduct] = useState(!product);
+  const [product, setProduct] = useState<Product | undefined>(undefined);
+  const [isLoadingProduct, setIsLoadingProduct] = useState(true);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+
+  // State untuk interaktivitas detail produk
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(undefined);
+  const [unitType, setUnitType] = useState<UnitType>("PCS");
+  const [qty, setQty] = useState<number>(1);
 
   React.useEffect(() => {
+    setIsLoadingProduct(true);
     fetch(`/api/products/${resolvedParams.id}`)
       .then((r) => r.json())
       .then((data) => {
@@ -32,19 +37,29 @@ export default function ProductDetailPage({
           if (data.customerProduct.variants && data.customerProduct.variants.length > 0) {
             setSelectedVariant(data.customerProduct.variants[0]);
           }
+          // Ambil produk terkait langsung dari API
+          fetch(`/api/products?category=${data.customerProduct.category}&limit=5`)
+            .then((res) => res.json())
+            .then((relData) => {
+              if (relData.customerProducts) {
+                setRelatedProducts(
+                  relData.customerProducts
+                    .filter((p: Product) => p.id !== data.customerProduct.id)
+                    .slice(0, 4)
+                );
+              }
+            })
+            .catch(() => {});
+        } else {
+          setProduct(undefined);
         }
       })
-      .catch((e) => console.warn("Fallback to mock:", e))
+      .catch((e) => {
+        console.error("Error fetching product detail:", e);
+        setProduct(undefined);
+      })
       .finally(() => setIsLoadingProduct(false));
   }, [resolvedParams.id]);
-
-  // State untuk interaktivitas detail produk
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(
-    product?.variants && product.variants.length > 0 ? product.variants[0] : undefined
-  );
-  const [unitType, setUnitType] = useState<UnitType>("PCS");
-  const [qty, setQty] = useState<number>(1);
 
   if (!product && !isLoadingProduct) {
     notFound();
@@ -52,16 +67,12 @@ export default function ProductDetailPage({
 
   if (!product) {
     return (
-      <div className="p-12 text-center text-xs text-gray-400">
-        Memuat detail produk...
+      <div className="p-16 text-center space-y-3 bg-white rounded-2xl border border-gray-100 my-6">
+        <Loader2 className="w-8 h-8 animate-spin text-[#146C43] mx-auto" />
+        <p className="text-xs text-gray-500 font-medium">Memuat rincian produk...</p>
       </div>
     );
   }
-
-  // Produk terkait
-  const relatedProducts = MOCK_PRODUCTS.filter(
-    (p) => p.category === product.category && p.id !== product.id
-  ).slice(0, 4);
 
   const handleSelectTierFromTable = (newUnit: UnitType, newQty: number) => {
     setUnitType(newUnit);

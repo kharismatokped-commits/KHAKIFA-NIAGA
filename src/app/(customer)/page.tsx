@@ -4,14 +4,13 @@ import { HeroBanner } from "@/components/home/HeroBanner";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { PopularSection } from "@/components/home/PopularSection";
 import { ArrowRight, Sparkles } from "lucide-react";
-import { MOCK_PRODUCTS } from "@/data/mockProducts";
 import { ProductCard } from "@/components/product/ProductCard";
-
+import { Product } from "@/types/product";
 import { prisma } from "@/lib/prisma";
 import { mapDbProductToCustomerProduct } from "@/lib/product-mapper";
 
 export default async function HomePage() {
-  let allProducts = MOCK_PRODUCTS;
+  let allProducts: Product[] = [];
 
   try {
     const dbProducts = await prisma.product.findMany({
@@ -32,7 +31,7 @@ export default async function HomePage() {
       allProducts = dbProducts.map(mapDbProductToCustomerProduct);
     }
   } catch (err) {
-    console.warn("Failed to load products from DB, using fallback mock:", err);
+    console.error("Failed to load products from DB:", err);
   }
 
   const promoProducts = allProducts.filter((p) => p.isPromo);
@@ -70,15 +69,21 @@ export default async function HomePage() {
         </div>
 
         {/* 1 Kolom List Vertikal */}
-        <div className="flex flex-col space-y-3">
-          {displayPromo.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
-        </div>
+        {displayPromo.length > 0 ? (
+          <div className="flex flex-col space-y-3">
+            {displayPromo.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        ) : (
+          <div className="p-8 text-center text-xs text-gray-400 bg-white rounded-2xl border border-gray-100">
+            Belum ada produk promo saat ini.
+          </div>
+        )}
       </div>
 
       {/* 4. Produk Populer & Terlaris (1 Kolom List Vertikal) */}
-      <PopularSection />
+      <PopularSection products={allProducts} />
 
       {/* 5. Edukasi Cara Order Grosir yang Ringkas */}
       <div className="bg-emerald-50/80 border border-emerald-100 rounded-2xl p-5 sm:p-6 space-y-4">

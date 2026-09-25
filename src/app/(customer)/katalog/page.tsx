@@ -1,15 +1,35 @@
 "use client";
 
-import React, { useState, useMemo, Suspense } from "react";
+import React, { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { MOCK_PRODUCTS, CATEGORIES } from "@/data/mockProducts";
 import { ProductCard } from "@/components/product/ProductCard";
-import { CategoryId } from "@/types/product";
-import { Search, Filter, Sparkles, X, LayoutGrid, BookOpen, Package, Home, Store, Grid } from "lucide-react";
+import { Product } from "@/types/product";
+import { Search, Sparkles, X, LayoutGrid, BookOpen, Package, Home, Store, Grid, Loader2 } from "lucide-react";
+
+interface CategoryData {
+  id: string;
+  nama: string;
+  ikon: string;
+}
+
+function getCategoryIcon(id: string) {
+  switch (id) {
+    case "atk":
+      return <BookOpen className="w-4 h-4" strokeWidth={2.2} />;
+    case "plastik-kemasan":
+      return <Package className="w-4 h-4" strokeWidth={2.2} />;
+    case "rumah-tangga":
+      return <Home className="w-4 h-4" strokeWidth={2.2} />;
+    case "kelontong":
+      return <Store className="w-4 h-4" strokeWidth={2.2} />;
+    default:
+      return <Grid className="w-4 h-4" strokeWidth={2.2} />;
+  }
+}
 
 function KatalogContent() {
   const searchParams = useSearchParams();
-  const initialCategory = (searchParams.get("kategori") as CategoryId) || "all";
+  const initialCategory = searchParams.get("kategori") || "all";
   const initialQuery = searchParams.get("q") || "";
   const initialPromo = searchParams.get("promo") === "true";
 
@@ -17,17 +37,28 @@ function KatalogContent() {
   const [searchQuery, setSearchQuery] = useState<string>(initialQuery);
   const [onlyPromo, setOnlyPromo] = useState<boolean>(initialPromo);
   const [sortBy, setSortBy] = useState<"popular" | "price-asc" | "price-desc" | "name">("popular");
-  const [products, setProducts] = useState(MOCK_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<CategoryData[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  React.useEffect(() => {
-    fetch("/api/products?limit=100")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.customerProducts && data.customerProducts.length > 0) {
-          setProducts(data.customerProducts);
+  // Fetch real categories and products from database/API
+  useEffect(() => {
+    setIsLoading(true);
+
+    Promise.all([
+      fetch("/api/products?limit=100").then((res) => res.json()),
+      fetch("/api/categories").then((res) => res.json()).catch(() => ({ data: [] })),
+    ])
+      .then(([productsRes, categoriesRes]) => {
+        if (productsRes.customerProducts) {
+          setProducts(productsRes.customerProducts);
+        }
+        if (categoriesRes.data && categoriesRes.data.length > 0) {
+          setCategories(categoriesRes.data);
         }
       })
-      .catch((err) => console.warn("Using fallback products:", err));
+      .catch((err) => console.error("Error loading catalogue data:", err))
+      .finally(() => setIsLoading(false));
   }, []);
 
   // Filtering logic
@@ -64,7 +95,7 @@ function KatalogContent() {
       if (sortBy === "name") return a.name.localeCompare(b.name);
       return (b.isPopular ? 1 : 0) - (a.isPopular ? 1 : 0);
     });
-  }, [selectedCategory, searchQuery, onlyPromo, sortBy]);
+  }, [products, selectedCategory, searchQuery, onlyPromo, sortBy]);
 
   const resetFilters = () => {
     setSelectedCategory("all");
@@ -106,7 +137,7 @@ function KatalogContent() {
           )}
         </div>
 
-        {/* Filter Categories Chips (12–13px) */}
+        {/* Filter Categories Chips */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-[12px] sm:text-[13px]">
           <button
             type="button"
@@ -121,7 +152,7 @@ function KatalogContent() {
             <span>Semua Produk ({products.length})</span>
           </button>
 
-          {CATEGORIES.map((cat) => {
+          {categories.map((cat) => {
             const isSelected = selectedCategory === cat.id;
             return (
               <button
@@ -134,12 +165,8 @@ function KatalogContent() {
                     : "bg-white border border-gray-200 text-[#64748B] hover:bg-gray-50"
                 }`}
               >
-                {cat.id === "atk" && <BookOpen className="w-4 h-4" strokeWidth={2.2} />}
-                {cat.id === "plastik-kemasan" && <Package className="w-4 h-4" strokeWidth={2.2} />}
-                {cat.id === "rumah-tangga" && <Home className="w-4 h-4" strokeWidth={2.2} />}
-                {cat.id === "kelontong" && <Store className="w-4 h-4" strokeWidth={2.2} />}
-                {cat.id === "lainnya" && <Grid className="w-4 h-4" strokeWidth={2.2} />}
-                <span>{cat.name}</span>
+                {getCategoryIcon(cat.id)}
+                <span>{cat.nama}</span>
               </button>
             );
           })}
@@ -181,25 +208,31 @@ function KatalogContent() {
       </div>
 
       {/* Product List: 1 Kolom List Vertikal */}
-      {filteredProducts.length > 0 ? (
+      {isLoading ? (
+        <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center space-y-3">
+          <Loader2 className="w-6 h-6 animate-spin text-[#146C43] mx-auto" />
+          <p className="text-xs text-gray-500 font-medium">Memuat katalog produk...</p>
+        </div>
+      ) : filteredProducts.length > 0 ? (
         <div className="flex flex-col space-y-3">
           {filteredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center max-w-md mx-auto space-y-3">
-          <div className="w-12 h-12 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center mx-auto">
-            <Filter className="w-6 h-6" />
+        <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center space-y-3">
+          <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 mx-auto">
+            <Search className="w-6 h-6" />
           </div>
-          <h3 className="font-bold text-gray-900 text-base">Tidak ada produk ditemukan</h3>
-          <p className="text-xs text-gray-500 leading-relaxed">
-            Tidak ada produk yang cocok dengan kata kunci atau filter yang Anda pilih. Silakan coba kata kunci lain.
+          <h3 className="font-heading font-bold text-base text-gray-800">
+            Tidak ada produk yang sesuai
+          </h3>
+          <p className="text-xs text-gray-500 max-w-sm mx-auto">
+            Coba ubah kata kunci pencarian atau pilih kategori lain untuk menemukan barang dagangan yang Anda cari.
           </p>
           <button
-            type="button"
             onClick={resetFilters}
-            className="px-4 py-2 bg-[#146C43] text-white rounded-lg text-xs font-bold hover:bg-[#115b38] transition-colors"
+            className="px-4 py-2 bg-emerald-50 text-[#146C43] font-bold text-xs rounded-xl hover:bg-emerald-100 transition-colors"
           >
             Reset Semua Filter
           </button>

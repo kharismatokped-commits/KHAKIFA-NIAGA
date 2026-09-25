@@ -1,11 +1,39 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { MOCK_PRODUCTS } from "@/data/mockProducts";
+import { Product } from "@/types/product";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Sparkles, ArrowRight } from "lucide-react";
 
-export const PopularSection: React.FC = () => {
-  const popularProducts = MOCK_PRODUCTS.filter((p) => p.isPopular);
+interface PopularSectionProps {
+  products?: Product[];
+}
+
+export const PopularSection: React.FC<PopularSectionProps> = ({ products: initialProducts }) => {
+  const [products, setProducts] = useState<Product[]>(initialProducts || []);
+  const [loading, setLoading] = useState(!initialProducts || initialProducts.length === 0);
+
+  useEffect(() => {
+    if (initialProducts && initialProducts.length > 0) {
+      setProducts(initialProducts);
+      setLoading(false);
+      return;
+    }
+
+    fetch("/api/products?limit=8")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.customerProducts) {
+          setProducts(data.customerProducts);
+        }
+      })
+      .catch((err) => console.error("Error fetching popular products:", err))
+      .finally(() => setLoading(false));
+  }, [initialProducts]);
+
+  const popularProducts = products.filter((p) => p.isPopular);
+  const displayProducts = popularProducts.length > 0 ? popularProducts : products.slice(0, 4);
 
   return (
     <div className="space-y-3">
@@ -34,11 +62,21 @@ export const PopularSection: React.FC = () => {
       </div>
 
       {/* 1 Kolom List Vertikal */}
-      <div className="flex flex-col space-y-3">
-        {popularProducts.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="p-8 text-center text-xs text-gray-400 bg-white rounded-2xl border border-gray-100">
+          Memuat produk terlaris...
+        </div>
+      ) : displayProducts.length > 0 ? (
+        <div className="flex flex-col space-y-3">
+          {displayProducts.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      ) : (
+        <div className="p-8 text-center text-xs text-gray-400 bg-white rounded-2xl border border-gray-100">
+          Belum ada produk rekomendasi yang tersedia.
+        </div>
+      )}
     </div>
   );
 };

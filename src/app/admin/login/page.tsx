@@ -8,10 +8,10 @@ import { Lock, Mail, ShieldCheck, ArrowRight, AlertCircle, Loader2 } from "lucid
 function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/admin/dashboard";
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
 
   const [email, setEmail] = useState("admin@khalifaniaga.com");
-  const [password, setPassword] = useState("AdminGrosir2026!");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -50,10 +50,10 @@ function AdminLoginForm() {
             KN
           </div>
           <h1 className="font-heading font-black text-xl text-gray-900 tracking-tight">
-            Khalifa Niaga Admin
+            Masuk ke Khalifa Niaga
           </h1>
           <p className="text-xs text-gray-500 mt-1">
-            Masuk untuk mengelola katalog, tier harga, dan pesanan toko.
+            Silakan masuk dengan akun terdaftar untuk mengakses seluruh aplikasi dan katalog.
           </p>
         </div>
 
