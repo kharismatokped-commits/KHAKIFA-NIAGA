@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700;800;900&family=Roboto:wght@400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+
+    --card: 140 10% 97%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    /* Brand Primary Hijau Tua #146C43 */
+    --primary: 153 69% 25%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 140 10% 95%;
+    --secondary-foreground: 153 69% 20%;
+
+    --muted: 210 10% 93%;
+    --muted-foreground: 215 14% 45%;
+
+    --accent: 140 25% 92%;
+    --accent-foreground: 153 69% 20%;
+
+    --destructive: 0 79% 56%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 15% 91%;
+    --input: 214 15% 91%;
+    --ring: 153 69% 25%;
+
+    --radius: 0.65rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-inter, 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif);
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Poppins untuk semua Judul (h1 - h6) */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-poppins, 'Poppins', 'Roboto', sans-serif);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* Inter untuk tabel, deskripsi & teks detail */
+  p, table, input, textarea, select {
+    font-family: var(--font-inter, 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif);
+  }
+}
+
+/* Utilitas font harga dan tombol (Poppins) */
+.font-price, .font-heading {
+  font-family: var(--font-poppins, 'Poppins', 'Roboto', sans-serif);
+}
+
+.font-body, .font-table {
+  font-family: var(--font-inter, 'Inter', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif);
+}
+
+/* Custom styling for WhatsApp button & animations */
+.whatsapp-pulse {
+  animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(37, 211, 102, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+  }
+}

@@ -1,0 +1,175 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  nama     String
+  ikon     String
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Product {
+  id           String           @id @default(cuid())
+  nama         String
+  deskripsi    String           @db.Text
+  categoryId   String
+  category     Category         @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  rating       Float            @default(5.0)
+  jumlahUlasan Int              @default(0)
+  gambar       String[]         @default([])
+  variants     ProductVariant[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryId])
+}
+
+model ProductVariant {
+  id           String      @id @default(cuid())
+  productId    String
+  product      Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  namaVarian   String      // misal warna/model/ukuran
+  gambarVarian String?
+  priceTiers   PriceTier[]
+  orderItems   OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productId])
+}
+
+model PriceTier {
+  id               String         @id @default(cuid())
+  productVariantId String
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+  jenisKemasan     String         // "pcs" atau "pak"
+  minQty           Int
+  maxQty           Int?           // Nullable untuk tier terbuka seperti "50+"
+  hargaPerUnit     Int            // Harga dalam Rupiah
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([productVariantId])
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  nomorOrder   String      @unique // format: #KN-XXXXXX-XXX
+  namaToko     String
+  namaPemesan  String
+  noWhatsApp   String
+  alamat       String      @db.Text
+  catatan      String?     @db.Text
+  jenisPesanan String      // "eceran" atau "grosir"
+  totalHarga   Int         // Total harga semua item (dalam Rupiah)
+  status       String      @default("pending") // pending, dikonfirmasi, diproses, selesai, dibatalkan
+  items        OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OrderItem {
+  id               String         @id @default(cuid())
+  orderId          String
+  order            Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productVariantId String
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Restrict)
+  jenisKemasan     String         // "pcs" atau "pak"
+  qty              Int
+  hargaPerUnit     Int            // Snapshot harga saat checkout, bukan referensi live
+  subtotal         Int            // qty * hargaPerUnit
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+  @@index([productVariantId])
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean
+  image         String?
+  createdAt     DateTime
+  updatedAt     DateTime
+  sessions      Session[]
+  accounts      Account[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+model StoreSettings {
+  id                 String   @id @default("default")
+  namaToko           String   @default("Khalifa Niaga")
+  nomorWhatsApp      String   @default("6287789923079")
+  alamatToko         String   @default("Pasar Pagi Grosir Blok A No. 12, Jakarta")
+  teksBannerJudul    String   @default("Solusi Belanja Grosir Cepat & Murah")
+  teksBannerSubjudul String   @default("Katalog online harga bertingkat resmi. Pesan langsung terhubung ke WhatsApp toko.")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("store_settings")
+}
+
