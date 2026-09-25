@@ -20,7 +20,8 @@ import { Button } from "@/components/ui/button";
 export default function InfoTokoPage() {
   const storeSettings = useStoreSettings();
   const [resetSuccess, setResetSuccess] = useState(false);
-  const waUrl = `https://wa.me/${normalizeWhatsAppNumber(storeSettings.nomorWhatsApp)}?text=${encodeURIComponent(`Halo admin ${storeSettings.namaToko}, saya ingin tanya informasi seputar toko.`)}`;
+  const phone = normalizeWhatsAppNumber(storeSettings.nomorWhatsApp || "6287789923079") || "6287789923079";
+  const waUrl = `https://wa.me/${phone}`;
 
   const handleClearCache = () => {
     try {

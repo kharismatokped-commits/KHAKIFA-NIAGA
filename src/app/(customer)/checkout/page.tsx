@@ -327,7 +327,7 @@ export default function CheckoutPage() {
             >
               <MessageCircle className="w-5 h-5" strokeWidth={2.2} />
               <span>
-                {orderType === "grosir" ? "Pesan Grosir lewat WhatsApp" : "Pesan lewat WhatsApp"} (+{DEFAULT_STORE_WHATSAPP})
+                {orderType === "grosir" ? "Pesan Grosir lewat WhatsApp" : "Pesan lewat WhatsApp"} (+{storeSettings.nomorWhatsApp || DEFAULT_STORE_WHATSAPP})
               </span>
             </Button>
             <p className="text-[12px] text-center text-gray-500 mt-2 font-normal">

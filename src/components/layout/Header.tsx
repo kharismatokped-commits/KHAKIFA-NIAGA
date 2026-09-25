@@ -55,7 +55,8 @@ export const Header: React.FC = () => {
     }
   };
 
-  const waUrl = `https://wa.me/${normalizeWhatsAppNumber(storeSettings.nomorWhatsApp)}?text=${encodeURIComponent(`Halo admin ${storeSettings.namaToko}, saya ingin tanya info grosir.`)}`;
+  const phone = normalizeWhatsAppNumber(storeSettings.nomorWhatsApp || "6287789923079") || "6287789923079";
+  const waUrl = `https://wa.me/${phone}`;
 
   return (
     <>
@@ -93,8 +94,20 @@ export const Header: React.FC = () => {
                 </div>
               </Link>
 
-              {/* Sisi Kanan: Trolley Keranjang (Badge Merah) + Tombol Hamburger */}
-              <div className="flex items-center gap-3">
+              {/* Sisi Kanan: WhatsApp (Desktop) + Trolley Keranjang (Badge Merah) + Tombol Hamburger */}
+              <div className="flex items-center gap-2.5 sm:gap-3">
+                {/* Tombol WhatsApp Desktop */}
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-bold rounded-xl shadow-xs transition-colors"
+                  aria-label="Chat WhatsApp Admin"
+                >
+                  <MessageCircle className="w-4 h-4 fill-white text-white" />
+                  <span>WhatsApp</span>
+                </a>
+
                 {/* Ikon Keranjang Trolley dengan Badge Angka Merah */}
                 <Link
                   href="/keranjang"

@@ -4,6 +4,7 @@ import { MOCK_PRODUCTS } from "@/data/mockProducts";
 import { Header } from "@/components/layout/Header";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Footer } from "@/components/layout/Footer";
+import { FloatingWhatsApp } from "@/components/layout/FloatingWhatsApp";
 
 export default function CustomerLayout({
   children,
@@ -18,6 +19,7 @@ export default function CustomerLayout({
           {children}
         </main>
         <Footer />
+        <FloatingWhatsApp />
         <BottomNav />
       </div>
     </CartProvider>

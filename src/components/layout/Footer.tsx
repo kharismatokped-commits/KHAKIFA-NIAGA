@@ -5,7 +5,8 @@ import { MessageCircle, MapPin, Clock, ShieldCheck, CheckCircle2 } from "lucide-
 import { normalizeWhatsAppNumber } from "@/lib/formatters";
 
 export const Footer: React.FC = () => {
-  const waUrl = `https://wa.me/${normalizeWhatsAppNumber(DEFAULT_STORE_WHATSAPP)}?text=${encodeURIComponent("Halo admin Khalifa Niaga, saya ingin tanya informasi produk grosir.")}`;
+  const phone = normalizeWhatsAppNumber(DEFAULT_STORE_WHATSAPP) || "6287789923079";
+  const waUrl = `https://wa.me/${phone}`;
 
   return (
     <footer className="bg-gray-900 text-gray-300 pt-10 pb-24 sm:pb-12 mt-12 border-t border-gray-800 text-sm">
