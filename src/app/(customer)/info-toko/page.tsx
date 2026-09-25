@@ -21,7 +21,8 @@ export default function InfoTokoPage() {
   const storeSettings = useStoreSettings();
   const [resetSuccess, setResetSuccess] = useState(false);
   const phone = normalizeWhatsAppNumber(storeSettings.nomorWhatsApp || "6287789923079") || "6287789923079";
-  const waUrl = `https://wa.me/${phone}`;
+  const defaultMessage = process.env.NEXT_PUBLIC_WA_MESSAGE || "Halo, saya tertarik belanja di Khalifa Niaga";
+  const waLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(defaultMessage)}`;
 
   const handleClearCache = () => {
     try {
@@ -88,7 +89,7 @@ export default function InfoTokoPage() {
 
         <div className="pt-2">
           <a
-            href={waUrl}
+            href={waLink}
             target="_blank"
             rel="noopener noreferrer"
             className="block text-center w-full py-2.5 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-xl font-bold text-xs shadow-xs transition-colors"

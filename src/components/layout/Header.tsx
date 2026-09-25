@@ -56,7 +56,8 @@ export const Header: React.FC = () => {
   };
 
   const phone = normalizeWhatsAppNumber(storeSettings.nomorWhatsApp || "6287789923079") || "6287789923079";
-  const waUrl = `https://wa.me/${phone}`;
+  const defaultMessage = process.env.NEXT_PUBLIC_WA_MESSAGE || "Halo, saya tertarik belanja di Khalifa Niaga";
+  const waLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(defaultMessage)}`;
 
   return (
     <>
@@ -98,7 +99,7 @@ export const Header: React.FC = () => {
               <div className="flex items-center gap-2.5 sm:gap-3">
                 {/* Tombol WhatsApp Desktop */}
                 <a
-                  href={waUrl}
+                  href={waLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-bold rounded-xl shadow-xs transition-colors"
@@ -231,7 +232,7 @@ export const Header: React.FC = () => {
 
             <div className="pt-4 border-t border-gray-100">
               <a
-                href={waUrl}
+                href={waLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full py-3 bg-[#146C43] text-white rounded-xl font-heading font-bold text-xs flex items-center justify-center gap-2 shadow-sm"

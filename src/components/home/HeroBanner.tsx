@@ -8,7 +8,8 @@ import { MessageCircle } from "lucide-react";
 export const HeroBanner: React.FC = () => {
   const settings = useStoreSettings();
   const phone = normalizeWhatsAppNumber(settings.nomorWhatsApp || "6287789923079") || "6287789923079";
-  const waUrl = `https://wa.me/${phone}`;
+  const defaultMessage = process.env.NEXT_PUBLIC_WA_MESSAGE || "Halo, saya tertarik belanja di Khalifa Niaga";
+  const waLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(defaultMessage)}`;
 
   return (
     <div className="relative overflow-hidden rounded-2xl bg-[#157948] text-white px-4 py-3.5 sm:px-6 sm:py-4 shadow-xs">
@@ -49,17 +50,17 @@ export const HeroBanner: React.FC = () => {
           </div>
         </div>
 
-        {/* CTA Button menuju WhatsApp Deep Link */}
+        {/* CTA Button menuju WhatsApp */}
         <div className="shrink-0 pt-1 sm:pt-0">
           <a
-            href={waUrl}
+            href={waLink}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-[#146C43] hover:bg-emerald-50 rounded-xl font-heading font-bold text-xs shadow-md transition-all hover:scale-[1.02] active:scale-95 whitespace-nowrap min-h-[40px]"
-            aria-label="Hubungi WhatsApp Toko"
+            aria-label="Hubungi via WhatsApp"
           >
             <MessageCircle className="w-4 h-4 text-[#25D366] fill-[#25D366]" />
-            <span>Chat WhatsApp</span>
+            <span>Hubungi via WhatsApp</span>
           </a>
         </div>
       </div>

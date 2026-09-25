@@ -6,7 +6,8 @@ import { normalizeWhatsAppNumber } from "@/lib/formatters";
 
 export const Footer: React.FC = () => {
   const phone = normalizeWhatsAppNumber(DEFAULT_STORE_WHATSAPP) || "6287789923079";
-  const waUrl = `https://wa.me/${phone}`;
+  const defaultMessage = process.env.NEXT_PUBLIC_WA_MESSAGE || "Halo, saya tertarik belanja di Khalifa Niaga";
+  const waLink = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(defaultMessage)}`;
 
   return (
     <footer className="bg-gray-900 text-gray-300 pt-10 pb-24 sm:pb-12 mt-12 border-t border-gray-800 text-sm">
@@ -71,7 +72,7 @@ export const Footer: React.FC = () => {
 
           <div className="mt-4">
             <a
-              href={waUrl}
+              href={waLink}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-lg text-xs font-bold transition-colors"
