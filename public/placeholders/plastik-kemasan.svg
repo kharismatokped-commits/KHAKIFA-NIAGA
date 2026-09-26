@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-pk" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCF8F5"/>
+      <stop offset="100%" stop-color="#F8EFEA"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Card -->
+  <rect width="400" height="400" rx="36" fill="url(#bg-pk)"/>
+  
+  <!-- Subtle Badge Circle -->
+  <circle cx="200" cy="180" r="100" fill="#FCE7D6" opacity="0.6"/>
+  <circle cx="200" cy="180" r="80" fill="#FFFFFF" opacity="0.9"/>
+  
+  <!-- Box / Package Isometric-like -->
+  <path d="M200 130 L255 160 L255 220 L200 250 L145 220 L145 160 Z" fill="none" stroke="#D97706" stroke-width="8" stroke-linejoin="round"/>
+  <line x1="200" y1="130" x2="200" y2="250" stroke="#D97706" stroke-width="8" stroke-linecap="round"/>
+  <line x1="145" y1="160" x2="200" y2="190" stroke="#D97706" stroke-width="8" stroke-linecap="round"/>
+  <line x1="255" y1="160" x2="200" y2="190" stroke="#D97706" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- Tape strip on top -->
+  <path d="M185 145 L215 162 L200 171 L170 154 Z" fill="#F59E0B" opacity="0.7"/>
+  
+  <!-- Label -->
+  <rect x="95" y="305" width="210" height="34" rx="17" fill="#D97706" opacity="0.1"/>
+  <text x="200" y="327" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#D97706" text-anchor="middle" letter-spacing="0.5">
+    PLASTIK &amp; KEMASAN
+  </text>
+</svg>

@@ -9,10 +9,21 @@ import { useCart } from "@/context/CartContext";
 import { Star, Package, ShoppingCart, Check, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getPlaceholderByCategory } from "@/lib/placeholders";
 
 export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
+
+  const imageSrc =
+    product.images &&
+    product.images.length > 0 &&
+    product.images[0] &&
+    !product.images[0].includes("photo-1583485088034")
+      ? product.images[0]
+      : getPlaceholderByCategory(product.categoryCode || product.category);
+
+  const isPlaceholder = imageSrc.startsWith("/placeholders/");
 
   // Ambil harga tier grosir terendah (paling murah) dan harga eceran awal
   const lowestPcsPrice =
@@ -48,13 +59,17 @@ export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
           className="flex items-start sm:items-center gap-3.5 flex-1 min-w-0 group"
         >
           {/* Foto Produk Besar (±100px) */}
-          <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gray-50 overflow-hidden shrink-0 border border-gray-100">
+          <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gray-50 overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center">
             <Image
-              src={product.images[0]}
+              src={imageSrc}
               alt={product.name}
               fill
               sizes="(max-width: 640px) 100px, 120px"
-              className="object-cover group-hover:scale-105 transition-transform duration-300"
+              className={`${
+                isPlaceholder
+                  ? "object-contain p-2 bg-[#F9FBFA]"
+                  : "object-cover"
+              } group-hover:scale-105 transition-transform duration-300`}
             />
             {product.promoTag && (
               <div className="absolute top-1.5 left-1.5 z-10">

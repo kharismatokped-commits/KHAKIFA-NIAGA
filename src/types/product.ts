@@ -26,8 +26,10 @@ export interface Product {
   name: string;
   sku: string;
   category: CategoryId;
+  categoryCode?: string;
   description: string;
   images: string[];
+  isPlaceholder?: boolean;
   rating: number;
   reviewCount: number;
   minOrder: number;

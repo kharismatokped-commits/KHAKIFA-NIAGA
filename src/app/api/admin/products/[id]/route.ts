@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
+export const dynamic = "force-dynamic";
+
 const priceTierSchema = z.object({
   jenisKemasan: z.string().min(1, "Jenis kemasan wajib diisi"),
   minQty: z.number().int().min(1, "Min Qty minimal 1"),
@@ -12,6 +14,8 @@ const priceTierSchema = z.object({
 const variantSchema = z.object({
   id: z.string().optional(),
   namaVarian: z.string().min(1, "Nama varian wajib diisi"),
+  satuan: z.string().nullable().optional(),
+  konversi: z.number().int().optional(),
   gambarVarian: z.string().nullable().optional(),
   priceTiers: z
     .array(priceTierSchema)
@@ -20,7 +24,7 @@ const variantSchema = z.object({
 
 const updateProductSchema = z.object({
   nama: z.string().min(2, "Nama produk minimal 2 karakter"),
-  deskripsi: z.string().min(5, "Deskripsi produk minimal 5 karakter"),
+  deskripsi: z.string().nullable().optional().default(""),
   categoryId: z.string().min(1, "Kategori wajib dipilih"),
   gambar: z.array(z.string()).default([]),
   variants: z.array(variantSchema).min(1, "Produk minimal memiliki 1 varian"),
@@ -78,7 +82,7 @@ export async function PUT(
         where: { id },
         data: {
           nama: validated.nama,
-          deskripsi: validated.deskripsi,
+          deskripsi: validated.deskripsi || null,
           categoryId: validated.categoryId,
           gambar: validated.gambar,
         },
@@ -103,10 +107,13 @@ export async function PUT(
 
       // 3. Masukkan varian dan tier baru
       for (const variant of validated.variants) {
+        const satuanVal = variant.satuan || variant.namaVarian.toLowerCase();
         const createdVariant = await tx.productVariant.create({
           data: {
             productId: id,
             namaVarian: variant.namaVarian,
+            satuan: satuanVal,
+            konversi: variant.konversi || 1,
             gambarVarian: variant.gambarVarian || null,
           },
         });
@@ -115,7 +122,7 @@ export async function PUT(
           await tx.priceTier.create({
             data: {
               productVariantId: createdVariant.id,
-              jenisKemasan: tier.jenisKemasan,
+              jenisKemasan: tier.jenisKemasan || satuanVal,
               minQty: tier.minQty,
               maxQty: tier.maxQty ?? null,
               hargaPerUnit: tier.hargaPerUnit,
@@ -163,7 +170,6 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    // Cek apakah ada order item yang mengacu pada varian produk ini
     const variants = await prisma.productVariant.findMany({
       where: { productId: id },
       select: { id: true },
@@ -185,7 +191,6 @@ export async function DELETE(
       );
     }
 
-    // Hapus cascading
     await prisma.$transaction(async (tx) => {
       await tx.priceTier.deleteMany({
         where: { productVariantId: { in: variantIds } },

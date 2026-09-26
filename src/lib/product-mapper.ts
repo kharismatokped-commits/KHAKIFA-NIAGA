@@ -1,4 +1,5 @@
 import { Product, PriceTier, CategoryId } from "@/types/product";
+import { getPlaceholderByCategory } from "@/lib/placeholders";
 
 export function mapDbProductToCustomerProduct(db: any): Product {
   const allTiers = db.variants?.flatMap((v: any) => v.priceTiers || []) || [];
@@ -36,18 +37,31 @@ export function mapDbProductToCustomerProduct(db: any): Product {
           }))
         : [{ minQty: 1, maxQty: null, price: 5000 }];
 
+  const categoryCode =
+    db.category?.kodeAsal || db.category?.nama || db.categoryId || "atk";
+
+  const hasRealImage =
+    db.gambar &&
+    Array.isArray(db.gambar) &&
+    db.gambar.length > 0 &&
+    db.gambar[0] &&
+    typeof db.gambar[0] === "string" &&
+    db.gambar[0].trim() !== "" &&
+    !db.gambar[0].includes("photo-1583485088034-697b5bc54ccd");
+
+  const images = hasRealImage
+    ? db.gambar
+    : [getPlaceholderByCategory(categoryCode)];
+
   return {
     id: db.id,
     name: db.nama,
     sku: (db.id || "SKU").toUpperCase(),
     category: (db.categoryId || "atk") as CategoryId,
+    categoryCode: db.category?.kodeAsal || undefined,
     description: db.deskripsi || "Produk grosir resmi berkualitas.",
-    images:
-      db.gambar && db.gambar.length > 0
-        ? db.gambar
-        : [
-            "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600",
-          ],
+    images: images,
+    isPlaceholder: !hasRealImage,
     rating: db.rating || 5.0,
     reviewCount: db.jumlahUlasan || 0,
     minOrder: 1,

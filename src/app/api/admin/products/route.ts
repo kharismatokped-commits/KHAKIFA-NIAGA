@@ -15,6 +15,8 @@ const priceTierSchema = z.object({
 const variantSchema = z.object({
   id: z.string().optional(),
   namaVarian: z.string().min(1, "Nama varian wajib diisi"),
+  satuan: z.string().optional(),
+  konversi: z.number().int().optional(),
   gambarVarian: z.string().nullable().optional(),
   priceTiers: z
     .array(priceTierSchema)
@@ -24,7 +26,7 @@ const variantSchema = z.object({
 const productSchema = z.object({
   id: z.string().optional(),
   nama: z.string().min(2, "Nama produk minimal 2 karakter"),
-  deskripsi: z.string().min(5, "Deskripsi produk minimal 5 karakter"),
+  deskripsi: z.string().optional().default(""),
   categoryId: z.string().min(1, "Kategori wajib dipilih"),
   gambar: z.array(z.string()).default([]),
   variants: z.array(variantSchema).min(1, "Produk minimal memiliki 1 varian"),
@@ -96,12 +98,7 @@ export async function POST(request: NextRequest) {
           nama: validated.nama,
           deskripsi: validated.deskripsi,
           categoryId: validated.categoryId,
-          gambar:
-            validated.gambar.length > 0
-              ? validated.gambar
-              : [
-                  "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600&auto=format&fit=crop&q=80",
-                ],
+          gambar: validated.gambar.filter(Boolean),
         },
       });
 
@@ -110,6 +107,8 @@ export async function POST(request: NextRequest) {
           data: {
             productId: createdProduct.id,
             namaVarian: variant.namaVarian,
+            satuan: variant.satuan || "pcs",
+            konversi: variant.konversi || 1,
             gambarVarian: variant.gambarVarian || null,
           },
         });

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg-atk" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F2F9F5"/>
+      <stop offset="100%" stop-color="#E5F4EC"/>
+    </linearGradient>
+    <linearGradient id="primary-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1B7A4A"/>
+      <stop offset="100%" stop-color="#146C43"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background Card -->
+  <rect width="400" height="400" rx="36" fill="url(#bg-atk)"/>
+  
+  <!-- Subtle Badge Circle -->
+  <circle cx="200" cy="180" r="100" fill="#D3EFE1" opacity="0.6"/>
+  <circle cx="200" cy="180" r="80" fill="#FFFFFF" opacity="0.9"/>
+  
+  <!-- Notebook / Document Icon -->
+  <rect x="150" y="125" width="85" height="110" rx="8" fill="none" stroke="#146C43" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Lines in Notebook -->
+  <line x1="170" y1="155" x2="215" y2="155" stroke="#1B7A4A" stroke-width="6" stroke-linecap="round"/>
+  <line x1="170" y1="180" x2="215" y2="180" stroke="#1B7A4A" stroke-width="6" stroke-linecap="round"/>
+  <line x1="170" y1="205" x2="200" y2="205" stroke="#1B7A4A" stroke-width="6" stroke-linecap="round"/>
+  
+  <!-- Pencil / Pen angled -->
+  <g transform="translate(205, 115) rotate(45)">
+    <rect x="-10" y="-30" width="20" height="70" rx="4" fill="#F59E0B" stroke="#146C43" stroke-width="6"/>
+    <!-- Pencil Tip -->
+    <path d="M-10,40 L10,40 L0,58 Z" fill="#146C43"/>
+    <!-- Pencil Eraser -->
+    <rect x="-10" y="-45" width="20" height="15" rx="3" fill="#EF4444" stroke="#146C43" stroke-width="6"/>
+  </g>
+  
+  <!-- Label -->
+  <rect x="110" y="305" width="180" height="34" rx="17" fill="#146C43" opacity="0.1"/>
+  <text x="200" y="327" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="700" fill="#146C43" text-anchor="middle" letter-spacing="0.5">
+    ALAT TULIS KANTOR
+  </text>
+</svg>

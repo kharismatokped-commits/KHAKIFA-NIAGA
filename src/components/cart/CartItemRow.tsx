@@ -33,13 +33,17 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
         />
 
         {/* Gambar */}
-        <div className="relative w-20 h-20 sm:w-20 sm:h-20 rounded-xl bg-gray-50 overflow-hidden shrink-0 border border-gray-100">
+        <div className="relative w-20 h-20 sm:w-20 sm:h-20 rounded-xl bg-gray-50 overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center">
           <Image
             src={item.image}
             alt={item.productName}
             fill
             sizes="80px"
-            className="object-cover"
+            className={
+              item.image?.startsWith("/placeholders/")
+                ? "object-contain p-2 bg-[#F9FBFA]"
+                : "object-cover"
+            }
           />
         </div>
 

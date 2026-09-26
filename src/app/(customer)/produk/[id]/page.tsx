@@ -10,6 +10,7 @@ import { QuantityCalculator } from "@/components/product/QuantityCalculator";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Star, ShieldCheck, ChevronRight, Truck, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { getPlaceholderByCategory } from "@/lib/placeholders";
 
 export default function ProductDetailPage({
   params,
@@ -112,23 +113,45 @@ export default function ProductDetailPage({
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-xs">
         {/* Kolom Kiri: Galeri Foto Produk */}
         <div className="md:col-span-5 space-y-3">
-          <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-gray-50 border border-gray-100">
-            <Image
-              src={product.images[activeImageIndex] || product.images[0]}
-              alt={product.name}
-              fill
-              priority
-              sizes="(max-width: 768px) 100vw, 40vw"
-              className="object-cover"
-            />
-            {product.promoTag && (
-              <div className="absolute top-3 left-3">
-                <Badge variant="promo" className="text-xs font-black uppercase">
-                  {product.promoTag}
-                </Badge>
+          {(() => {
+            const currentImageSrc =
+              product.images &&
+              product.images.length > 0 &&
+              product.images[activeImageIndex] &&
+              !product.images[activeImageIndex].includes("photo-1583485088034")
+                ? product.images[activeImageIndex]
+                : getPlaceholderByCategory(
+                    product.categoryCode || product.category,
+                  );
+            const isPlaceholder = currentImageSrc.startsWith("/placeholders/");
+
+            return (
+              <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-gray-50 border border-gray-100 flex items-center justify-center">
+                <Image
+                  src={currentImageSrc}
+                  alt={product.name}
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 40vw"
+                  className={
+                    isPlaceholder
+                      ? "object-contain p-8 bg-[#F9FBFA]"
+                      : "object-cover"
+                  }
+                />
+                {product.promoTag && (
+                  <div className="absolute top-3 left-3 z-10">
+                    <Badge
+                      variant="promo"
+                      className="text-xs font-black uppercase"
+                    >
+                      {product.promoTag}
+                    </Badge>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            );
+          })()}
 
           {/* Thumbnail list jika gambar > 1 */}
           {product.images.length > 1 && (

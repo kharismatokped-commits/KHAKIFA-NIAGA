@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Plus,
   Search,
@@ -12,7 +13,11 @@ import {
   AlertCircle,
   CheckCircle2,
   Loader2,
+  Upload,
+  Image as ImageIcon,
+  ExternalLink,
 } from "lucide-react";
+import { getPlaceholderByCategory } from "@/lib/placeholders";
 
 interface PriceTier {
   id?: string;
@@ -25,6 +30,8 @@ interface PriceTier {
 interface Variant {
   id?: string;
   namaVarian: string;
+  satuan?: string;
+  konversi?: number;
   gambarVarian?: string | null;
   priceTiers: PriceTier[];
 }
@@ -38,6 +45,7 @@ interface Product {
   category?: {
     id: string;
     nama: string;
+    kodeAsal?: string | null;
   };
   variants: Variant[];
 }
@@ -45,6 +53,7 @@ interface Product {
 interface Category {
   id: string;
   nama: string;
+  kodeAsal?: string | null;
 }
 
 export default function AdminProductsPage() {
@@ -53,11 +62,14 @@ export default function AdminProductsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [photoFilter, setPhotoFilter] = useState("all"); // "all" | "no_photo" | "has_photo"
 
   // State Modal Form
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
   const [formError, setFormError] = useState("");
   const [successToast, setSuccessToast] = useState("");
 
@@ -111,16 +123,47 @@ export default function AdminProductsPage() {
     fetchData();
   }, []);
 
+  const handleModalFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      setIsUploading(true);
+      setUploadError("");
+      const body = new FormData();
+      body.append("file", file);
+
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body,
+      });
+
+      const data = await res.json();
+      if (data.success && data.url) {
+        setFormData((prev) => ({
+          ...prev,
+          gambar: [data.url],
+        }));
+      } else {
+        setUploadError(data.error || "Gagal mengunggah gambar.");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setUploadError(err.message || "Gagal menghubungi server upload.");
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const openAddModal = () => {
     setEditingProduct(null);
     setFormError("");
+    setUploadError("");
     setFormData({
       nama: "",
       deskripsi: "",
       categoryId: categories[0]?.id || "",
-      gambar: [
-        "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600&auto=format&fit=crop&q=80",
-      ],
+      gambar: [],
       variants: [
         {
           namaVarian: "Standar",
@@ -143,15 +186,18 @@ export default function AdminProductsPage() {
   const openEditModal = (product: Product) => {
     setEditingProduct(product);
     setFormError("");
+    setUploadError("");
     setFormData({
       id: product.id,
       nama: product.nama,
       deskripsi: product.deskripsi,
       categoryId: product.categoryId,
-      gambar: product.gambar.length > 0 ? product.gambar : [""],
+      gambar: product.gambar && product.gambar.length > 0 ? product.gambar : [],
       variants: product.variants.map((v) => ({
         id: v.id,
         namaVarian: v.namaVarian,
+        satuan: v.satuan,
+        konversi: v.konversi,
         gambarVarian: v.gambarVarian,
         priceTiers: v.priceTiers.map((t) => ({
           id: t.id,
@@ -304,6 +350,10 @@ export default function AdminProductsPage() {
     }
   };
 
+  const noPhotoCount = products.filter(
+    (p) => !p.gambar || p.gambar.length === 0 || !p.gambar[0],
+  ).length;
+
   // Filtered List
   const filteredProducts = products.filter((p) => {
     const matchCat =
@@ -311,7 +361,12 @@ export default function AdminProductsPage() {
     const matchSearch =
       p.nama.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.deskripsi.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchCat && matchSearch;
+    const hasPhoto = Boolean(p.gambar && p.gambar.length > 0 && p.gambar[0]);
+    const matchPhoto =
+      photoFilter === "all" ||
+      (photoFilter === "no_photo" && !hasPhoto) ||
+      (photoFilter === "has_photo" && hasPhoto);
+    return matchCat && matchSearch && matchPhoto;
   });
 
   return (
@@ -357,22 +412,39 @@ export default function AdminProductsPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-xs font-semibold text-gray-500 shrink-0">
-            Kategori:
-          </span>
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full sm:w-auto px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-          >
-            <option value="all">Semua Kategori</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.nama}
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-gray-500 shrink-0">
+              Kategori:
+            </span>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="all">Semua Kategori</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.nama}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-gray-500 shrink-0">
+              Status Foto:
+            </span>
+            <select
+              value={photoFilter}
+              onChange={(e) => setPhotoFilter(e.target.value)}
+              className="px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="all">Semua ({products.length})</option>
+              <option value="no_photo">⚠️ Belum Ada Foto ({noPhotoCount})</option>
+              <option value="has_photo">✓ Sudah Ada Foto ({products.length - noPhotoCount})</option>
+            </select>
+          </div>
         </div>
       </div>
 
@@ -406,6 +478,12 @@ export default function AdminProductsPage() {
                     allTiers.length > 0
                       ? Math.max(...allTiers.map((t) => t.hargaPerUnit))
                       : 0;
+                  const hasPhoto = Boolean(p.gambar && p.gambar.length > 0 && p.gambar[0]);
+                  const imageSrc = hasPhoto
+                    ? p.gambar[0]
+                    : getPlaceholderByCategory(
+                        p.category?.kodeAsal || p.category?.nama || p.categoryId,
+                      );
 
                   return (
                     <tr
@@ -414,22 +492,36 @@ export default function AdminProductsPage() {
                     >
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
-                          <Image
-                            src={
-                              p.gambar[0] ||
-                              "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=200"
-                            }
-                            alt={p.nama}
-                            width={44}
-                            height={44}
-                            className="w-11 h-11 rounded-lg object-cover border border-gray-100 shrink-0"
-                          />
+                          <div className="relative w-11 h-11 rounded-lg overflow-hidden border border-gray-100 shrink-0 bg-gray-50 flex items-center justify-center">
+                            <Image
+                              src={imageSrc}
+                              alt={p.nama}
+                              fill
+                              sizes="44px"
+                              className={
+                                hasPhoto
+                                  ? "object-cover"
+                                  : "object-contain p-1 bg-[#F9FBFA]"
+                              }
+                            />
+                          </div>
                           <div>
                             <div className="font-bold text-gray-900 line-clamp-1">
                               {p.nama}
                             </div>
-                            <div className="text-[11px] text-gray-400 line-clamp-1">
-                              {p.deskripsi}
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              {hasPhoto ? (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-primary border border-emerald-200">
+                                  ✓ Foto Asli
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                                  Belum ada foto
+                                </span>
+                              )}
+                              <span className="text-[11px] text-gray-400 line-clamp-1">
+                                {p.deskripsi || "Tanpa deskripsi"}
+                              </span>
                             </div>
                           </div>
                         </div>
@@ -459,10 +551,18 @@ export default function AdminProductsPage() {
                       </td>
                       <td className="px-5 py-3.5 text-right">
                         <div className="flex items-center justify-end gap-1.5">
+                          <Link
+                            href={`/admin/products/${p.id}/edit`}
+                            className="p-1.5 rounded-lg bg-emerald-50 hover:bg-primary text-primary hover:text-white transition-colors flex items-center gap-1 text-[11px] font-semibold px-2"
+                            title="Edit Lengkap & Upload Foto"
+                          >
+                            <Upload className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Foto / Edit</span>
+                          </Link>
                           <button
                             onClick={() => openEditModal(p)}
-                            className="p-1.5 rounded-lg bg-emerald-50 hover:bg-primary text-primary hover:text-white transition-colors cursor-pointer"
-                            title="Edit Produk & Tier Harga"
+                            className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-200 text-gray-700 transition-colors cursor-pointer"
+                            title="Edit Cepat (Modal)"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
@@ -586,19 +686,106 @@ export default function AdminProductsPage() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    URL Gambar Produk (Utama)
-                  </label>
-                  <input
-                    type="url"
-                    placeholder="https://images.unsplash.com/..."
-                    value={formData.gambar[0] || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, gambar: [e.target.value] })
-                    }
-                    className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
+                {/* Gambar Produk & Upload */}
+                <div className="p-3.5 bg-gray-50 border border-gray-200 rounded-xl space-y-3">
+                  <div className="flex items-center justify-between">
+                    <label className="block text-xs font-bold text-gray-800">
+                      Foto Produk
+                    </label>
+                    {formData.gambar[0] ? (
+                      <span className="text-[10px] font-bold text-primary bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                        ✓ Foto Tersedia
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                        Menggunakan placeholder kategori
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="relative w-20 h-20 rounded-xl overflow-hidden bg-white border border-gray-200 shrink-0 flex items-center justify-center shadow-2xs">
+                      {(() => {
+                        const selectedCat = categories.find(
+                          (c) => c.id === formData.categoryId,
+                        );
+                        const placeholderSrc = getPlaceholderByCategory(
+                          selectedCat?.kodeAsal || selectedCat?.nama || formData.categoryId,
+                        );
+                        const currentSrc = formData.gambar[0] || placeholderSrc;
+                        return (
+                          <Image
+                            src={currentSrc}
+                            alt="Foto Produk"
+                            fill
+                            sizes="80px"
+                            className={
+                              formData.gambar[0]
+                                ? "object-cover"
+                                : "object-contain p-2 bg-[#F9FBFA]"
+                            }
+                          />
+                        );
+                      })()}
+                    </div>
+
+                    <div className="flex-1 space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <label className="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary-dark text-white text-xs font-semibold shadow-2xs transition-colors">
+                          {isUploading ? (
+                            <>
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              <span>Mengupload...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Upload className="w-3.5 h-3.5" />
+                              <span>Upload File Gambar</span>
+                            </>
+                          )}
+                          <input
+                            type="file"
+                            accept="image/*"
+                            disabled={isUploading}
+                            onChange={handleModalFileUpload}
+                            className="hidden"
+                          />
+                        </label>
+                        {formData.gambar[0] && (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setFormData({ ...formData, gambar: [] })
+                            }
+                            className="px-2.5 py-1.5 text-xs text-red-600 hover:text-red-700 font-medium hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                          >
+                            Hapus Foto
+                          </button>
+                        )}
+                      </div>
+
+                      {uploadError && (
+                        <p className="text-[11px] text-red-600 font-medium">
+                          {uploadError}
+                        </p>
+                      )}
+
+                      <div className="pt-1">
+                        <input
+                          type="url"
+                          placeholder="Atau tempel URL gambar langsung..."
+                          value={formData.gambar[0] || ""}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              gambar: e.target.value ? [e.target.value] : [],
+                            })
+                          }
+                          className="w-full px-2.5 py-1.5 text-[11px] bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-primary"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
