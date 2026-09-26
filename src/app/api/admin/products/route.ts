@@ -91,53 +91,56 @@ export async function POST(request: NextRequest) {
         "-" +
         Math.random().toString(36).substring(2, 6);
 
-    const product = await prisma.$transaction(async (tx) => {
-      const createdProduct = await tx.product.create({
-        data: {
-          id,
-          nama: validated.nama,
-          deskripsi: validated.deskripsi,
-          categoryId: validated.categoryId,
-          gambar: validated.gambar.filter(Boolean),
-        },
-      });
-
-      for (const variant of validated.variants) {
-        const createdVariant = await tx.productVariant.create({
+    const product = await prisma.$transaction(
+      async (tx) => {
+        const createdProduct = await tx.product.create({
           data: {
-            productId: createdProduct.id,
-            namaVarian: variant.namaVarian,
-            satuan: variant.satuan || "pcs",
-            konversi: variant.konversi || 1,
-            gambarVarian: variant.gambarVarian || null,
+            id,
+            nama: validated.nama,
+            deskripsi: validated.deskripsi,
+            categoryId: validated.categoryId,
+            gambar: validated.gambar.filter(Boolean),
           },
         });
 
-        for (const tier of variant.priceTiers) {
-          await tx.priceTier.create({
+        for (const variant of validated.variants) {
+          const satuanVal = variant.satuan || variant.namaVarian.toLowerCase();
+          await tx.productVariant.create({
             data: {
-              productVariantId: createdVariant.id,
-              jenisKemasan: tier.jenisKemasan,
-              minQty: tier.minQty,
-              maxQty: tier.maxQty ?? null,
-              hargaPerUnit: tier.hargaPerUnit,
+              productId: createdProduct.id,
+              namaVarian: variant.namaVarian,
+              satuan: satuanVal,
+              konversi: variant.konversi || 1,
+              gambarVarian: variant.gambarVarian || null,
+              priceTiers: {
+                create: variant.priceTiers.map((tier) => ({
+                  jenisKemasan: tier.jenisKemasan || satuanVal,
+                  minQty: tier.minQty,
+                  maxQty: tier.maxQty ?? null,
+                  hargaPerUnit: tier.hargaPerUnit,
+                })),
+              },
             },
           });
         }
-      }
 
-      return await tx.product.findUnique({
-        where: { id: createdProduct.id },
-        include: {
-          category: true,
-          variants: {
-            include: {
-              priceTiers: true,
+        return await tx.product.findUnique({
+          where: { id: createdProduct.id },
+          include: {
+            category: true,
+            variants: {
+              include: {
+                priceTiers: true,
+              },
             },
           },
-        },
-      });
-    });
+        });
+      },
+      {
+        maxWait: 15000,
+        timeout: 30000,
+      },
+    );
 
     return NextResponse.json({ success: true, data: product }, { status: 201 });
   } catch (error: any) {

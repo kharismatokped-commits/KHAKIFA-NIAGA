@@ -77,74 +77,69 @@ export async function PUT(
     const body = await request.json();
     const validated = updateProductSchema.parse(body);
 
-    const updated = await prisma.$transaction(async (tx) => {
-      // 1. Update basic info
-      await tx.product.update({
-        where: { id },
-        data: {
-          nama: validated.nama,
-          deskripsi: validated.deskripsi || null,
-          categoryId: validated.categoryId,
-          gambar: validated.gambar,
-          isPromo: validated.isPromo,
-        },
-      });
-
-      // 2. Ambil id varian lama
-      const oldVariants = await tx.productVariant.findMany({
-        where: { productId: id },
-        select: { id: true },
-      });
-      const oldVariantIds = oldVariants.map((v) => v.id);
-
-      // Hapus tier lama
-      await tx.priceTier.deleteMany({
-        where: { productVariantId: { in: oldVariantIds } },
-      });
-
-      // Hapus varian lama
-      await tx.productVariant.deleteMany({
-        where: { productId: id },
-      });
-
-      // 3. Masukkan varian dan tier baru
-      for (const variant of validated.variants) {
-        const satuanVal = variant.satuan || variant.namaVarian.toLowerCase();
-        const createdVariant = await tx.productVariant.create({
+    const updated = await prisma.$transaction(
+      async (tx) => {
+        // 1. Update basic info
+        await tx.product.update({
+          where: { id },
           data: {
-            productId: id,
-            namaVarian: variant.namaVarian,
-            satuan: satuanVal,
-            konversi: variant.konversi || 1,
-            gambarVarian: variant.gambarVarian || null,
+            nama: validated.nama,
+            deskripsi: validated.deskripsi || null,
+            categoryId: validated.categoryId,
+            gambar: validated.gambar,
+            isPromo: validated.isPromo,
           },
         });
 
-        for (const tier of variant.priceTiers) {
-          await tx.priceTier.create({
+        // 2. Hapus tier lama langsung via relasi productVariant.productId
+        await tx.priceTier.deleteMany({
+          where: { productVariant: { productId: id } },
+        });
+
+        // Hapus varian lama
+        await tx.productVariant.deleteMany({
+          where: { productId: id },
+        });
+
+        // 3. Masukkan varian dan tier baru sekaligus (nested create dalam 1 query per varian)
+        for (const variant of validated.variants) {
+          const satuanVal = variant.satuan || variant.namaVarian.toLowerCase();
+          await tx.productVariant.create({
             data: {
-              productVariantId: createdVariant.id,
-              jenisKemasan: tier.jenisKemasan || satuanVal,
-              minQty: tier.minQty,
-              maxQty: tier.maxQty ?? null,
-              hargaPerUnit: tier.hargaPerUnit,
+              productId: id,
+              namaVarian: variant.namaVarian,
+              satuan: satuanVal,
+              konversi: variant.konversi || 1,
+              gambarVarian: variant.gambarVarian || null,
+              priceTiers: {
+                create: variant.priceTiers.map((tier) => ({
+                  jenisKemasan: tier.jenisKemasan || satuanVal,
+                  minQty: tier.minQty,
+                  maxQty: tier.maxQty ?? null,
+                  hargaPerUnit: tier.hargaPerUnit,
+                })),
+              },
             },
           });
         }
-      }
 
-      return await tx.product.findUnique({
-        where: { id },
-        include: {
-          category: true,
-          variants: {
-            include: {
-              priceTiers: true,
+        return await tx.product.findUnique({
+          where: { id },
+          include: {
+            category: true,
+            variants: {
+              include: {
+                priceTiers: true,
+              },
             },
           },
-        },
-      });
-    });
+        });
+      },
+      {
+        maxWait: 15000,
+        timeout: 30000,
+      },
+    );
 
     return NextResponse.json({ success: true, data: updated });
   } catch (error: any) {
@@ -159,7 +154,10 @@ export async function PUT(
     }
     console.error("Error updating product:", error);
     return NextResponse.json(
-      { success: false, error: "Gagal memperbarui produk" },
+      {
+        success: false,
+        error: error.message || "Gagal memperbarui produk",
+      },
       { status: 500 },
     );
   }
