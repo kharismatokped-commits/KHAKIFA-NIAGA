@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Product, ProductVariant, UnitType } from "@/types/product";
 import { formatRupiah } from "@/lib/formatters";
 import { getUnitPrice, getNextTierRecommendation } from "@/lib/pricing";
@@ -12,6 +13,7 @@ import {
   ShoppingCart,
   Check,
   TrendingDown,
+  Zap,
 } from "lucide-react";
 
 interface QuantityCalculatorProps {
@@ -29,6 +31,7 @@ export const QuantityCalculator: React.FC<QuantityCalculatorProps> = ({
   qty,
   onQtyChange,
 }) => {
+  const router = useRouter();
   const { addItem } = useCart();
   const [addedSuccess, setAddedSuccess] = useState(false);
 
@@ -63,6 +66,11 @@ export const QuantityCalculator: React.FC<QuantityCalculatorProps> = ({
     setTimeout(() => {
       setAddedSuccess(false);
     }, 1800);
+  };
+
+  const handleDirectOrder = () => {
+    addItem(product, "PCS", qty, selectedVariant);
+    router.push("/checkout");
   };
 
   return (
@@ -138,7 +146,7 @@ export const QuantityCalculator: React.FC<QuantityCalculatorProps> = ({
         )}
       </div>
 
-      {/* Rincian Harga & Tombol Tambah Keranjang */}
+      {/* Rincian Harga & Tombol Aksi */}
       <div className="pt-3 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="text-[11px] sm:text-xs text-gray-500">
@@ -149,27 +157,41 @@ export const QuantityCalculator: React.FC<QuantityCalculatorProps> = ({
           </div>
         </div>
 
-        <Button
-          type="button"
-          onClick={handleAddToCart}
-          className={`h-12 px-6 rounded-xl font-heading font-bold text-sm tracking-normal transition-all shadow-sm ${
-            addedSuccess
-              ? "bg-primary-dark text-white ring-2 ring-emerald-300"
-              : "bg-primary hover:bg-primary-dark text-white"
-          }`}
-        >
-          {addedSuccess ? (
-            <span className="flex items-center gap-2">
-              <Check className="w-4 h-4 stroke-[3]" />
-              <span>Masuk Keranjang!</span>
-            </span>
-          ) : (
-            <span className="flex items-center gap-2">
-              <ShoppingCart className="w-4 h-4 strokeWidth={2.2}" />
-              <span>+ Masukkan ke Keranjang</span>
-            </span>
-          )}
-        </Button>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          {/* Tombol Simpan ke Keranjang Saja */}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleAddToCart}
+            className={`flex-1 sm:flex-none h-11 sm:h-12 px-3 sm:px-4 rounded-xl border-gray-200 text-gray-700 hover:text-primary text-xs sm:text-sm font-bold transition-all shadow-2xs ${
+              addedSuccess
+                ? "bg-emerald-50 text-emerald-700 border-emerald-300 ring-1 ring-emerald-300"
+                : "bg-white hover:bg-gray-50"
+            }`}
+          >
+            {addedSuccess ? (
+              <span className="flex items-center gap-1.5 text-emerald-600">
+                <Check className="w-4 h-4 stroke-[3]" />
+                <span>Masuk Keranjang!</span>
+              </span>
+            ) : (
+              <span className="flex items-center gap-1.5">
+                <ShoppingCart className="w-4 h-4 strokeWidth={2.2}" />
+                <span>+ Keranjang</span>
+              </span>
+            )}
+          </Button>
+
+          {/* Tombol Utama: Pesan Sekarang -> Langsung ke Formulir Pemesanan */}
+          <Button
+            type="button"
+            onClick={handleDirectOrder}
+            className="flex-1 sm:flex-none h-11 sm:h-12 px-4 sm:px-6 rounded-xl bg-primary hover:bg-primary-dark text-white font-heading font-black text-xs sm:text-sm tracking-tight transition-all shadow-sm active:scale-[0.98] flex items-center justify-center gap-1.5"
+          >
+            <Zap className="w-4 h-4 fill-amber-300 text-amber-300 shrink-0" />
+            <span>Pesan Sekarang</span>
+          </Button>
+        </div>
       </div>
     </div>
   );
