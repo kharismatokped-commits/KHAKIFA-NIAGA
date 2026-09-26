@@ -3,8 +3,10 @@ import { Product, PriceTier, CategoryId } from "@/types/product";
 export function mapDbProductToCustomerProduct(db: any): Product {
   const allTiers = db.variants?.flatMap((v: any) => v.priceTiers || []) || [];
 
-  const pcsTiers: PriceTier[] = allTiers
-    .filter((t: any) => t.jenisKemasan.toLowerCase() === "pcs")
+  const primarySatuan = db.variants?.[0]?.satuan?.toLowerCase() || "pcs";
+
+  const primaryTiers: PriceTier[] = allTiers
+    .filter((t: any) => (t.jenisKemasan || "").toLowerCase() === primarySatuan)
     .map((t: any) => ({
       minQty: t.minQty,
       maxQty: t.maxQty,
@@ -12,7 +14,11 @@ export function mapDbProductToCustomerProduct(db: any): Product {
     }));
 
   const pakTiers: PriceTier[] = allTiers
-    .filter((t: any) => t.jenisKemasan.toLowerCase() === "pak")
+    .filter(
+      (t: any) =>
+        (t.jenisKemasan || "").toLowerCase() === "pak" &&
+        primarySatuan !== "pak",
+    )
     .map((t: any) => ({
       minQty: t.minQty,
       maxQty: t.maxQty,
@@ -20,8 +26,8 @@ export function mapDbProductToCustomerProduct(db: any): Product {
     }));
 
   const defaultPcsTiers: PriceTier[] =
-    pcsTiers.length > 0
-      ? pcsTiers
+    primaryTiers.length > 0
+      ? primaryTiers
       : allTiers.length > 0
         ? allTiers.map((t: any) => ({
             minQty: t.minQty,
@@ -35,7 +41,7 @@ export function mapDbProductToCustomerProduct(db: any): Product {
     name: db.nama,
     sku: (db.id || "SKU").toUpperCase(),
     category: (db.categoryId || "atk") as CategoryId,
-    description: db.deskripsi,
+    description: db.deskripsi || "Produk grosir resmi berkualitas.",
     images:
       db.gambar && db.gambar.length > 0
         ? db.gambar
@@ -49,16 +55,16 @@ export function mapDbProductToCustomerProduct(db: any): Product {
     isPromo: true,
     promoTag: "Grosir Termurah",
     hasPcs: true,
-    unitPcsName: "PCS",
+    unitPcsName: primarySatuan.toUpperCase(),
     tieredPricesPcs: defaultPcsTiers,
     hasPack: pakTiers.length > 0,
     unitPackName: "PAK",
-    packRatio: 12,
+    packRatio: db.variants?.[0]?.konversi || 12,
     tieredPricesPack: pakTiers,
     variants:
       db.variants?.map((v: any) => ({
         id: v.id,
-        name: v.namaVarian,
+        name: v.namaVarian || v.satuan?.toUpperCase() || "Standar",
         image: v.gambarVarian || undefined,
       })) || [],
   };

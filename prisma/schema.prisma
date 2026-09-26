@@ -9,19 +9,20 @@ datasource db {
 }
 
 model Category {
-  id       String    @id @default(cuid())
-  nama     String
-  ikon     String
-  products Product[]
+  id        String    @id @default(cuid())
+  nama      String
+  ikon      String    @default("LayoutGrid")
+  kodeAsal  String?   @unique
+  products  Product[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Product {
   id           String           @id @default(cuid())
-  nama         String
-  deskripsi    String           @db.Text
+  nama         String           @unique
+  deskripsi    String?          @db.Text
   categoryId   String
   category     Category         @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   rating       Float            @default(5.0)
@@ -29,8 +30,8 @@ model Product {
   gambar       String[]         @default([])
   variants     ProductVariant[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
 
   @@index([categoryId])
 }
@@ -39,14 +40,17 @@ model ProductVariant {
   id           String      @id @default(cuid())
   productId    String
   product      Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
-  namaVarian   String      // misal warna/model/ukuran
+  namaVarian   String      @default("Standar") // misal warna/model/ukuran
+  satuan       String?
+  konversi     Int         @default(1)
   gambarVarian String?
   priceTiers   PriceTier[]
   orderItems   OrderItem[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
+  @@unique([productId, satuan])
   @@index([productId])
 }
 
@@ -54,13 +58,13 @@ model PriceTier {
   id               String         @id @default(cuid())
   productVariantId String
   productVariant   ProductVariant @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
-  jenisKemasan     String         // "pcs" atau "pak"
+  jenisKemasan     String         @default("pcs") // "pcs", "pak", "ktk", "lsn", dll
   minQty           Int
   maxQty           Int?           // Nullable untuk tier terbuka seperti "50+"
   hargaPerUnit     Int            // Harga dalam Rupiah
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
   @@index([productVariantId])
 }
