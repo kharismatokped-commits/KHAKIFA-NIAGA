@@ -59,7 +59,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     e.stopPropagation();
 
     if (hasMultipleVariants) {
-      router.push(`/produk/${product.id}`);
+      setIsSheetOpen(true);
       return;
     }
 
@@ -73,15 +73,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     setTimeout(() => setAdded(false), 1500);
   };
 
-  // Aksi 2: Pesan Sekarang -> Mengarah ke Halaman Detail Produk (/produk/[id])
-  const handleDirectOrder = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    router.push(`/produk/${product.id}`);
-  };
-
   const handleOpenSheet = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsSheetOpen(true);
   };
 
@@ -89,10 +83,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     return (
       <>
         <div className="bg-white rounded-2xl border border-gray-200/90 hover:border-primary p-2.5 sm:p-3 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
-          {/* Klik kartu langsung menuju ke Halaman Detail Produk */}
-          <Link
-            href={`/produk/${product.id}`}
+          {/* Klik kartu langsung membuka Sheet Keterangan + Pesan Cepat (Tanpa Foto, Super Gesit) */}
+          <div
+            onClick={handleOpenSheet}
             className="block cursor-pointer focus:outline-hidden"
+            role="button"
+            tabIndex={0}
             aria-label={`Buka detail dan pesan ${product.name}`}
           >
             {/* Foto Produk: aspect-[4/3] */}
@@ -158,18 +154,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               <FileText className="w-2.5 h-2.5" />
               <span>Lihat Detail & Grosir</span>
             </div>
-          </Link>
+          </div>
 
           {/* Tombol Aksi: Pesan Sekarang & + Keranjang */}
           <div className="mt-2.5 pt-2 border-t border-gray-100/80 space-y-1.5">
-            {/* Tombol Utama: Pesan Sekarang -> Mengarah ke Detail Produk */}
-            <Link
-              href={`/produk/${product.id}`}
+            {/* Tombol Utama: Pesan Sekarang -> Buka Sheet Pesan Cepat (Tanpa Foto, Super Gesit) */}
+            <Button
+              type="button"
+              onClick={handleOpenSheet}
               className="w-full min-h-[36px] h-9 px-2 rounded-xl bg-primary hover:bg-primary-dark text-white font-heading font-black text-xs tracking-tight transition-all shadow-xs active:scale-[0.98] flex items-center justify-center gap-1.5"
             >
               <Zap className="w-3.5 h-3.5 fill-amber-300 text-amber-300 shrink-0" />
               <span>Pesan Sekarang</span>
-            </Link>
+            </Button>
 
             {/* Tombol Sekunder: + Keranjang -> Tetap di halaman */}
             <Button
@@ -214,10 +211,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     <>
       <div className="bg-white rounded-2xl border border-gray-200/90 hover:border-primary p-3 sm:p-4 shadow-xs hover:shadow-md transition-all duration-200">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-          {/* Kolom Kiri & Tengah: Foto + Informasi Produk (Klik buka halaman detail) */}
-          <Link
-            href={`/produk/${product.id}`}
+          {/* Kolom Kiri & Tengah: Foto + Informasi Produk (Klik buka sheet keterangan) */}
+          <div
+            onClick={handleOpenSheet}
             className="flex items-start sm:items-center gap-3.5 flex-1 min-w-0 group cursor-pointer"
+            role="button"
+            tabIndex={0}
           >
             {/* Foto Produk */}
             <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gray-50 overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center">
@@ -289,17 +288,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 {product.description || "Klik untuk lihat keterangan lengkap & tingkat harga grosir."}
               </p>
             </div>
-          </Link>
+          </div>
 
           {/* Kolom Kanan: Tombol Aksi Langsung */}
           <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100 shrink-0">
-            <Link
-              href={`/produk/${product.id}`}
+            <button
+              type="button"
+              onClick={handleOpenSheet}
               className="text-[12px] font-medium text-primary hover:underline flex items-center gap-1 sm:mb-1 order-3 sm:order-1"
             >
               <FileText className="w-3.5 h-3.5" />
               <span>Lihat Detail & Harga</span>
-            </Link>
+            </button>
 
             <div className="flex items-center gap-2 w-full sm:w-auto order-1 sm:order-2">
               {/* Tombol + Keranjang */}
@@ -326,13 +326,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               </Button>
 
               {/* Tombol Pesan Sekarang */}
-              <Link
-                href={`/produk/${product.id}`}
+              <Button
+                type="button"
+                onClick={handleOpenSheet}
                 className="flex-1 sm:flex-none min-h-[40px] h-10 px-4 rounded-xl bg-primary hover:bg-primary-dark text-white font-heading font-black text-xs sm:text-sm tracking-tight transition-all shadow-sm active:scale-[0.98] flex items-center justify-center gap-1.5"
               >
                 <Zap className="w-3.5 h-3.5 fill-amber-300 text-amber-300 shrink-0" />
                 <span>Pesan Sekarang</span>
-              </Link>
+              </Button>
             </div>
           </div>
         </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Product, ProductVariant } from "@/types/product";
 import { formatRupiah } from "@/lib/formatters";
@@ -21,7 +20,6 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getPlaceholderByCategory } from "@/lib/placeholders";
 
 interface ProductQuickOrderSheetProps {
   product: Product;
@@ -89,14 +87,6 @@ export const ProductQuickOrderSheet: React.FC<ProductQuickOrderSheetProps> = ({
   const totalSavings = (basePrice - unitPrice) * qty;
   const nextTier = getNextTierRecommendation(tiers, qty);
 
-  const imageSrc =
-    selectedVariant?.image ||
-    (product.images && product.images.length > 0 && product.images[0] && !product.images[0].includes("photo-1583485088034")
-      ? product.images[0]
-      : getPlaceholderByCategory(product.categoryCode || product.category));
-
-  const isPlaceholder = imageSrc.startsWith("/placeholders/");
-
   // Cek apakah ada varian jenis asli (bukan hanya 1 varian standar)
   const hasRealVariants = Boolean(product.variants && product.variants.length > 1);
 
@@ -159,55 +149,43 @@ export const ProductQuickOrderSheet: React.FC<ProductQuickOrderSheetProps> = ({
         </div>
 
         {/* Content Scrollable */}
-        <div className="p-5 overflow-y-auto space-y-4 flex-1">
-          {/* Bagian Foto & Info Pokok */}
-          <div className="flex gap-4 items-start">
-            <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gray-50 overflow-hidden shrink-0 border border-gray-200 flex items-center justify-center shadow-xs">
-              <Image
-                src={imageSrc}
-                alt={product.name}
-                fill
-                sizes="120px"
-                className={isPlaceholder ? "object-contain p-2 bg-[#F9FBFA]" : "object-cover"}
-              />
+        <div className="p-4 sm:p-5 overflow-y-auto space-y-3.5 flex-1">
+          {/* Info Pokok Produk (Tanpa foto: ultra cepat, ringan & tidak lelet) */}
+          <div className="bg-emerald-50/60 p-3.5 sm:p-4 rounded-2xl border border-emerald-100/90 space-y-2">
+            <div className="flex items-center gap-1.5 text-xs text-gray-500 flex-wrap">
+              <div className="flex items-center gap-1 shrink-0">
+                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                <span className="font-bold text-gray-800">{product.rating}</span>
+                <span className="text-gray-400 text-[11px] whitespace-nowrap">
+                  ({product.reviewCount} ulasan)
+                </span>
+              </div>
+              {product.categoryCode && (
+                <>
+                  <span className="text-gray-300">•</span>
+                  <span className="text-[11px] text-gray-600 uppercase font-bold bg-white/90 px-2 py-0.5 rounded border border-gray-200">
+                    {product.categoryCode}
+                  </span>
+                </>
+              )}
             </div>
 
-            <div className="flex-1 min-w-0">
-              {/* Rating & Info Rapi (mencegah teks ulasan patah baris) */}
-              <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-1 flex-wrap">
-                <div className="flex items-center gap-1 shrink-0">
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
-                  <span className="font-bold text-gray-800">{product.rating}</span>
-                  <span className="text-gray-400 text-[11px] whitespace-nowrap">
-                    ({product.reviewCount} ulasan)
-                  </span>
-                </div>
-                {product.categoryCode && (
-                  <>
-                    <span className="text-gray-300">•</span>
-                    <span className="text-[11px] text-gray-500 uppercase font-medium">
-                      {product.categoryCode}
-                    </span>
-                  </>
-                )}
-              </div>
+            <h2 className="font-heading font-black text-base sm:text-lg text-gray-900 leading-snug">
+              {product.name}
+            </h2>
 
-              <h2 className="font-heading font-black text-base sm:text-lg text-gray-900 leading-snug line-clamp-2">
-                {product.name}
-              </h2>
+            <div className="flex items-baseline gap-2 pt-1 border-t border-emerald-200/60">
+              <span className="text-xs text-gray-600 font-medium">Harga Grosir:</span>
+              <span className="font-price font-black text-primary text-xl sm:text-2xl tracking-tight">
+                {formatRupiah(unitPrice)}
+              </span>
+              <span className="text-xs text-gray-500 font-medium">/pcs</span>
 
-              <div className="mt-1.5 flex items-baseline gap-2">
-                <span className="font-price font-black text-primary text-xl sm:text-2xl tracking-tight">
-                  {formatRupiah(unitPrice)}
+              {unitPrice < basePrice && (
+                <span className="text-xs font-bold text-emerald-700 bg-white/90 px-2.5 py-0.5 rounded-md border border-emerald-200 ml-auto shadow-2xs">
+                  Hemat {savingsPercent}%
                 </span>
-                <span className="text-xs text-gray-500 font-medium">/pcs</span>
-
-                {unitPrice < basePrice && (
-                  <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
-                    Hemat {savingsPercent}%
-                  </span>
-                )}
-              </div>
+              )}
             </div>
           </div>
 
