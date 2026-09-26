@@ -62,9 +62,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   if (variant === "grid") {
     return (
-      <div className="bg-white rounded-2xl border border-gray-200/90 hover:border-primary p-3 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
+      <div className="bg-white rounded-2xl border border-gray-200/90 hover:border-primary p-2.5 sm:p-3 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
         <Link href={`/produk/${product.id}`} className="block">
-          <div className="relative aspect-square w-full rounded-xl bg-gray-50 overflow-hidden mb-2 border border-gray-100 flex items-center justify-center">
+          {/* Foto Produk: aspect-[4/3] (dikurangi ~20% dari square agar proporsional & muat lebih banyak di layar HP) */}
+          <div className="relative aspect-[4/3] w-full rounded-xl bg-gray-50 overflow-hidden mb-1.5 border border-gray-100 flex items-center justify-center">
             <Image
               src={imageSrc}
               alt={product.name}
@@ -74,25 +75,28 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 isPlaceholder ? "object-contain p-2 bg-[#F9FBFA]" : "object-cover"
               } group-hover:scale-105 transition-transform duration-300`}
             />
-            {product.promoTag && (
+            {/* Badge kondisional: HANYA tampil jika isPromo === true */}
+            {product.isPromo && (
               <div className="absolute top-1.5 left-1.5 z-10">
                 <Badge
                   variant="promo"
-                  className="text-[9px] px-1.5 py-0.2 font-extrabold uppercase shadow-xs"
+                  className="text-[9px] px-1.5 py-0.2 font-extrabold uppercase shadow-xs tracking-tight"
                 >
-                  {product.promoTag}
+                  {product.promoTag || "GROSIR TERMURAH"}
                 </Badge>
               </div>
             )}
           </div>
 
-          <div className="flex items-center gap-1 text-[11px] text-gray-500 mb-1">
+          {/* Baris Rating & Ulasan Rapat */}
+          <div className="flex items-center gap-1 text-[11px] text-gray-500 mb-0.5">
             <Star className="w-3 h-3 fill-amber-400 text-amber-500" />
             <span className="font-bold text-gray-700">{product.rating}</span>
             <span className="text-gray-400">({product.reviewCount})</span>
           </div>
 
-          <h3 className="font-heading font-medium text-gray-900 text-xs sm:text-[13px] leading-snug line-clamp-2 group-hover:text-primary transition-colors min-h-[34px]">
+          {/* Nama Produk 13px line-clamp-2 */}
+          <h3 className="font-heading font-medium text-gray-900 text-xs sm:text-[13px] leading-snug line-clamp-2 group-hover:text-primary transition-colors min-h-[32px]">
             {highlightQuery ? (
               <HighlightText text={product.name} query={highlightQuery} />
             ) : (
@@ -100,20 +104,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             )}
           </h3>
 
-          <div className="mt-1.5">
-            <div className="text-[10px] text-gray-500">Mulai dari</div>
-            <div className="flex items-baseline gap-1">
-              <span className="font-price font-bold text-primary text-sm sm:text-base tracking-tight">
-                {formatRupiah(lowestPcsPrice)}
-              </span>
-              <span className="text-[10px] text-gray-500">
-                /{product.unitPcsName}
-              </span>
-            </div>
+          {/* Baris Harga Rapat (Ukuran font tetap sama persis: text-sm sm:text-base font-bold) */}
+          <div className="mt-1 flex items-baseline gap-1">
+            <span className="text-[10px] text-gray-500 font-medium">Mulai</span>
+            <span className="font-price font-bold text-primary text-sm sm:text-base tracking-tight">
+              {formatRupiah(lowestPcsPrice)}
+            </span>
+            <span className="text-[10px] text-gray-500">
+              /{product.unitPcsName}
+            </span>
           </div>
         </Link>
 
-        <div className="mt-3 pt-2 border-t border-gray-50">
+        {/* Tombol + Keranjang tetap full-width dan tinggi sama untuk kemudahan tap */}
+        <div className="mt-2.5 pt-2 border-t border-gray-100/80">
           <Button
             type="button"
             onClick={handleQuickAdd}
@@ -162,13 +166,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                   : "object-cover"
               } group-hover:scale-105 transition-transform duration-300`}
             />
-            {product.promoTag && (
+            {product.isPromo && (
               <div className="absolute top-1.5 left-1.5 z-10">
                 <Badge
                   variant="promo"
                   className="text-[9px] px-1.5 py-0.2 font-extrabold uppercase shadow-xs"
                 >
-                  {product.promoTag}
+                  {product.promoTag || "GROSIR TERMURAH"}
                 </Badge>
               </div>
             )}

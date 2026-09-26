@@ -27,6 +27,7 @@ const updateProductSchema = z.object({
   deskripsi: z.string().nullable().optional().default(""),
   categoryId: z.string().min(1, "Kategori wajib dipilih"),
   gambar: z.array(z.string()).default([]),
+  isPromo: z.boolean().optional().default(false),
   variants: z.array(variantSchema).min(1, "Produk minimal memiliki 1 varian"),
 });
 
@@ -85,6 +86,7 @@ export async function PUT(
           deskripsi: validated.deskripsi || null,
           categoryId: validated.categoryId,
           gambar: validated.gambar,
+          isPromo: validated.isPromo,
         },
       });
 

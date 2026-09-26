@@ -63,6 +63,7 @@ export default function EditProductPage({
     deskripsi: string;
     categoryId: string;
     gambar: string[];
+    isPromo: boolean;
     variants: Variant[];
   }>({
     id: productId,
@@ -70,6 +71,7 @@ export default function EditProductPage({
     deskripsi: "",
     categoryId: "",
     gambar: [],
+    isPromo: false,
     variants: [],
   });
 
@@ -97,6 +99,7 @@ export default function EditProductPage({
             deskripsi: p.deskripsi || "",
             categoryId: p.categoryId,
             gambar: p.gambar || [],
+            isPromo: Boolean(p.isPromo),
             variants:
               p.variants && p.variants.length > 0
                 ? p.variants.map((v: any) => ({
@@ -539,6 +542,28 @@ export default function EditProductPage({
               placeholder="Keterangan isi kemasan, merek, spesifikasi..."
               className="w-full px-3 py-2 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
             />
+          </div>
+
+          {/* Checkbox Tandai sebagai Promo */}
+          <div className="pt-3 border-t border-gray-100">
+            <label className="flex items-start gap-2.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={formData.isPromo}
+                onChange={(e) =>
+                  setFormData({ ...formData, isPromo: e.target.checked })
+                }
+                className="w-4 h-4 mt-0.5 rounded text-primary focus:ring-primary border-gray-300 cursor-pointer"
+              />
+              <div>
+                <span className="text-xs font-bold text-gray-800">
+                  Tandai sebagai promo
+                </span>
+                <p className="text-[11px] text-gray-500 mt-0.5">
+                  Menampilkan badge &quot;GROSIR TERMURAH&quot; pada kartu produk di halaman katalog dan beranda.
+                </p>
+              </div>
+            </label>
           </div>
         </div>
 
