@@ -9,6 +9,14 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 hari
+    updateAge: 60 * 60 * 24, // 1 hari
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // 5 menit cache cookie sesi
+    },
+  },
   secret:
     process.env.BETTER_AUTH_SECRET ||
     "925b97d06cb78c6471e437417a07e37896f2c80727fa147f3c8ab42582ca143b",

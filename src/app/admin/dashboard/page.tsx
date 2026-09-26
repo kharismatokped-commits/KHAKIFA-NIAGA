@@ -37,10 +37,10 @@ export default function AdminDashboardPage() {
   const [stats, setStats] = useState<StatsData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchStats = async () => {
+  const fetchStats = async (fresh = false) => {
     try {
       setLoading(true);
-      const res = await fetch("/api/admin/stats");
+      const res = await fetch(`/api/admin/stats${fresh ? "?fresh=true" : ""}`);
       const json = await res.json();
       if (json.success) {
         setStats(json.data);
@@ -108,7 +108,7 @@ export default function AdminDashboardPage() {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={fetchStats}
+            onClick={() => fetchStats(true)}
             disabled={loading}
             className="p-2 rounded-xl bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
           >

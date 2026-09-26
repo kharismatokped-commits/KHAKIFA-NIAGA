@@ -36,37 +36,92 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
-    const search = searchParams.get("search");
+    const search = searchParams.get("search")?.trim();
+    const photo = searchParams.get("photo"); // "all" | "no_photo" | "has_photo"
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const skip = (page - 1) * limit;
 
     const where: any = {};
-    if (category) {
+    if (category && category !== "all") {
       where.categoryId = category;
     }
     if (search) {
       where.OR = [
         { nama: { contains: search, mode: "insensitive" } },
         { deskripsi: { contains: search, mode: "insensitive" } },
-      ];
-    }
-
-    const products = await prisma.product.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      include: {
-        category: true,
-        variants: {
-          include: {
-            priceTiers: {
-              orderBy: { minQty: "asc" },
+        {
+          variants: {
+            some: {
+              namaVarian: { contains: search, mode: "insensitive" },
             },
           },
         },
-      },
-    });
+      ];
+    }
+    if (photo === "no_photo") {
+      where.gambar = { isEmpty: true };
+    } else if (photo === "has_photo") {
+      where.gambar = { isEmpty: false };
+    }
+
+    const [total, products, totalNoPhoto, totalAll] = await Promise.all([
+      prisma.product.count({ where }),
+      prisma.product.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          nama: true,
+          deskripsi: true,
+          categoryId: true,
+          gambar: true,
+          isPromo: true,
+          createdAt: true,
+          category: {
+            select: {
+              id: true,
+              nama: true,
+              kodeAsal: true,
+            },
+          },
+          variants: {
+            select: {
+              id: true,
+              namaVarian: true,
+              satuan: true,
+              konversi: true,
+              priceTiers: {
+                select: {
+                  id: true,
+                  jenisKemasan: true,
+                  minQty: true,
+                  maxQty: true,
+                  hargaPerUnit: true,
+                },
+                orderBy: { minQty: "asc" },
+              },
+            },
+          },
+        },
+      }),
+      prisma.product.count({ where: { gambar: { isEmpty: true } } }),
+      prisma.product.count(),
+    ]);
 
     return NextResponse.json({
       success: true,
       data: products,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+        noPhotoCount: totalNoPhoto,
+        totalAll,
+      },
     });
   } catch (error) {
     console.error("Error fetching admin products:", error);
