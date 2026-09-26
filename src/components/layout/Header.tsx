@@ -162,11 +162,16 @@ export const Header: React.FC = () => {
             <div className="flex items-center justify-between gap-3 pb-1">
               {/* Sisi Kiri: Logo KN & Identitas Toko */}
               <Link href="/" className="flex items-center gap-3 group shrink-0">
-                {/* Logo Kotak Squircle Gradient Hijau-Zaitun */}
-                <div className="w-12 h-12 rounded-[18px] bg-gradient-to-br from-[#207a4a] via-[#359055] to-[#8c9c34] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0">
-                  <span className="font-heading font-black text-white text-xl tracking-wider select-none">
-                    KN
-                  </span>
+                {/* Logo Baru Khalifa Niaga */}
+                <div className="w-12 h-12 rounded-[14px] bg-white border border-gray-100 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0 p-1 overflow-hidden">
+                  <Image
+                    src="/logo-mark.png"
+                    alt="Logo Khalifa Niaga"
+                    width={44}
+                    height={44}
+                    className="w-full h-full object-contain"
+                    priority
+                  />
                 </div>
 
                 {/* Teks Nama & Subtitle */}
@@ -368,8 +373,14 @@ export const Header: React.FC = () => {
             <div>
               <div className="flex items-center justify-between pb-4 border-b border-gray-100">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#207a4a] to-[#8c9c34] flex items-center justify-center text-white font-black text-sm">
-                    KN
+                  <div className="w-8 h-8 rounded-lg bg-white border border-gray-100 flex items-center justify-center p-0.5 shadow-2xs overflow-hidden">
+                    <Image
+                      src="/logo-mark.png"
+                      alt="Logo Khalifa Niaga"
+                      width={28}
+                      height={28}
+                      className="w-full h-full object-contain"
+                    />
                   </div>
                   <span className="font-heading font-black text-sm text-gray-900">
                     Menu Grosir

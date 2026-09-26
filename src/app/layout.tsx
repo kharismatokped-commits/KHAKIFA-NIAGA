@@ -7,6 +7,13 @@ export const metadata: Metadata = {
   title: "Khalifa Niaga — Grosir Alat Tulis, Plastik & Kelontong",
   description:
     "Aplikasi katalog grosir online dengan harga bertingkat otomatis dan checkout langsung ke WhatsApp toko. Belanja kulakan lebih cepat, murah & terpercaya.",
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: "/icon.png",
+  },
 };
 
 export const viewport: Viewport = {

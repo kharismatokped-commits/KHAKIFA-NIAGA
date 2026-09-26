@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { CheckCheck, Copy, Check } from "lucide-react";
 import { STORE_NAME, DEFAULT_STORE_WHATSAPP } from "@/lib/whatsapp";
 
@@ -24,8 +25,14 @@ export const WhatsAppPreview: React.FC<WhatsAppPreviewProps> = ({
       {/* WA Header */}
       <div className="bg-[#075E54] text-white px-4 py-2.5 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-[#128C7E] flex items-center justify-center font-bold text-xs">
-            KN
+          <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center p-0.5 shrink-0 overflow-hidden shadow-2xs">
+            <Image
+              src="/logo-mark.png"
+              alt="Logo Khalifa Niaga"
+              width={24}
+              height={24}
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
             <div className="font-bold text-xs flex items-center gap-1">

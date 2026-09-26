@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
@@ -89,8 +90,14 @@ export function AdminShell({ children }: AdminShellProps) {
       {/* Mobile Header */}
       <header className="md:hidden bg-primary text-white px-4 py-3 flex items-center justify-between sticky top-0 z-40 shadow-sm">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center font-bold text-white shadow-inner">
-            KN
+          <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center p-0.5 shadow-sm shrink-0 overflow-hidden">
+            <Image
+              src="/logo-mark.png"
+              alt="Logo Khalifa Niaga"
+              width={28}
+              height={28}
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
             <span className="font-heading font-bold text-sm tracking-tight block">
@@ -125,8 +132,14 @@ export function AdminShell({ children }: AdminShellProps) {
         <div>
           {/* Logo Brand Header Desktop */}
           <div className="hidden md:flex items-center gap-3 px-6 py-5 border-b border-gray-100 bg-primary text-white">
-            <div className="w-9 h-9 rounded-lg bg-emerald-600 flex items-center justify-center font-black text-white text-base shadow-sm">
-              KN
+            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center p-1 shadow-sm shrink-0 overflow-hidden">
+              <Image
+                src="/logo-mark.png"
+                alt="Logo Khalifa Niaga"
+                width={36}
+                height={36}
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
               <h1 className="font-heading font-black text-sm tracking-tight leading-tight">

@@ -7,6 +7,12 @@ export const metadata: Metadata = {
   description:
     "Dashboard manajemen produk, harga tier grosir, kategori, dan pesanan toko Khalifa Niaga.",
   robots: "noindex, nofollow",
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+  },
 };
 
 export default function AdminLayout({

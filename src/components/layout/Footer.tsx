@@ -1,4 +1,5 @@
 import React from "react";
+import Image from "next/image";
 import { STORE_NAME, DEFAULT_STORE_WHATSAPP } from "@/lib/whatsapp";
 import {
   MessageCircle,
@@ -23,8 +24,14 @@ export const Footer: React.FC = () => {
         {/* Kolom 1: Profil Toko */}
         <div>
           <div className="flex items-center gap-2 text-white font-black text-lg mb-2">
-            <span className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center text-white text-sm">
-              KN
+            <span className="w-8 h-8 rounded-lg bg-white flex items-center justify-center p-0.5 shrink-0 overflow-hidden">
+              <Image
+                src="/logo-mark.png"
+                alt="Logo Khalifa Niaga"
+                width={28}
+                height={28}
+                className="w-full h-full object-contain"
+              />
             </span>
             <span>{STORE_NAME}</span>
           </div>

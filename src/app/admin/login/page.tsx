@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, Suspense } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import {
@@ -55,8 +56,15 @@ function AdminLoginForm() {
       <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-gray-100 p-6 sm:p-8">
         {/* Header Branding */}
         <div className="text-center mb-6">
-          <div className="w-14 h-14 bg-primary rounded-2xl mx-auto flex items-center justify-center font-heading font-black text-2xl text-white shadow-lg shadow-emerald-900/30 mb-3">
-            KN
+          <div className="w-16 h-16 bg-white border border-gray-100 rounded-2xl mx-auto flex items-center justify-center p-2 shadow-md mb-3 overflow-hidden">
+            <Image
+              src="/logo-mark.png"
+              alt="Logo Khalifa Niaga"
+              width={52}
+              height={52}
+              className="w-full h-full object-contain"
+              priority
+            />
           </div>
           <h1 className="font-heading font-black text-xl text-gray-900 tracking-tight">
             Masuk ke Khalifa Niaga
