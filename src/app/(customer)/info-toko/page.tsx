@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { normalizeWhatsAppNumber } from "@/lib/formatters";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import {
@@ -43,8 +44,15 @@ export default function InfoTokoPage() {
     <div className="space-y-6 pb-20 sm:pb-12 max-w-2xl mx-auto">
       {/* Header Profile */}
       <div className="bg-gradient-to-r from-primary to-primary-light rounded-2xl p-6 text-white text-center shadow-md">
-        <div className="w-16 h-16 rounded-2xl bg-white text-primary flex items-center justify-center mx-auto mb-3 shadow-md">
-          <Store className="w-9 h-9" />
+        <div className="w-20 h-20 rounded-2xl bg-white flex items-center justify-center mx-auto mb-3 shadow-md p-2 overflow-hidden">
+          <Image
+            src="/logo-mark.png"
+            alt="Logo Khalifa Niaga"
+            width={64}
+            height={64}
+            className="w-full h-full object-contain"
+            priority
+          />
         </div>
         <h2 className="text-xl font-black">{storeSettings.namaToko}</h2>
         <p className="text-xs text-emerald-100 mt-1">
