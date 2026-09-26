@@ -58,27 +58,21 @@ export const CartItemRow: React.FC<CartItemRowProps> = ({
           </Link>
 
           <div className="flex flex-wrap items-center gap-2 mt-1.5 text-[12px] text-gray-600">
-            {/* Satuan Badge */}
-            <span className="inline-flex items-center gap-1 font-medium text-primary bg-emerald-50 px-2 py-0.5 rounded text-[12px]">
-              {item.unitType === "PAK" ? (
-                <>
-                  <Package className="w-3.5 h-3.5" strokeWidth={2} />
-                  <span>PAK (Isi {item.packRatio} pcs)</span>
-                </>
-              ) : (
-                <>
-                  <Box className="w-3.5 h-3.5" strokeWidth={2} />
-                  <span>PCS</span>
-                </>
-              )}
+            {/* Satuan Tunggal PCS */}
+            <span className="inline-flex items-center gap-1 font-semibold text-primary bg-emerald-50 px-2 py-0.5 rounded text-[11px]">
+              <Box className="w-3.5 h-3.5" strokeWidth={2} />
+              <span>Satuan Pcs</span>
             </span>
 
-            {/* Varian */}
-            {item.variantName && (
-              <span className="bg-gray-100 px-2 py-0.5 rounded text-[12px] text-gray-700 font-medium">
-                Varian: {item.variantName}
-              </span>
-            )}
+            {/* Varian Jenis Asli */}
+            {item.variantName &&
+              !["standar", "default", "pcs", "-pcs", "pak", "ktk"].includes(
+                item.variantName.toLowerCase(),
+              ) && (
+                <span className="bg-gray-100 px-2 py-0.5 rounded text-[11px] text-gray-700 font-semibold">
+                  Varian: {item.variantName}
+                </span>
+              )}
           </div>
 
           <div className="mt-1 text-[12px] text-gray-500 font-normal">

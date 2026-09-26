@@ -212,11 +212,11 @@ export default function ProductDetailPage({
             </h1>
           </div>
 
-          {/* Pilihan Varian (Model / Warna) jika ada */}
-          {product.variants && product.variants.length > 0 && (
+          {/* Pilihan Varian Jenis Produk jika ada */}
+          {product.variants && product.variants.length > 1 && (
             <div className="space-y-2 pt-2 border-t border-gray-100">
               <div className="text-[12px] sm:text-[13px] font-medium text-gray-700">
-                Pilih Varian:{" "}
+                Pilih Varian Jenis / Tipe:{" "}
                 <span className="text-primary font-bold">
                   {selectedVariant?.name}
                 </span>

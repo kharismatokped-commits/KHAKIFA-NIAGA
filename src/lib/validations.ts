@@ -2,9 +2,7 @@ import { z } from "zod";
 
 export const CartItemCalculationInputSchema = z.object({
   productVariantId: z.string().min(1, "productVariantId wajib diisi"),
-  jenisKemasan: z.enum(["pcs", "pak"], {
-    message: "jenisKemasan harus 'pcs' atau 'pak'",
-  }),
+  jenisKemasan: z.string().default("pcs"),
   qty: z.number().int().positive("Kuantitas (qty) harus lebih dari 0"),
 });
 

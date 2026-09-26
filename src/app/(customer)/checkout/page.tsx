@@ -394,9 +394,7 @@ export default function CheckoutPage() {
                       {item.variantName ? ` (${item.variantName})` : ""}
                     </div>
                     <div className="text-[11px] text-gray-500">
-                      {item.qty} {item.unitType}{" "}
-                      {item.unitType === "PAK" && `(isi ${item.packRatio})`} ×{" "}
-                      {formatRupiah(item.unitPrice)}
+                      {item.qty} pcs × {formatRupiah(item.unitPrice)}
                     </div>
                   </div>
                   <span className="font-bold text-gray-900 shrink-0">

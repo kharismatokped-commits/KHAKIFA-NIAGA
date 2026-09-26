@@ -46,14 +46,16 @@ export function buildWhatsAppMessage(
   lines.push(`📋 *DETAIL BARANG:*`);
 
   items.forEach((item, index) => {
-    const variantStr = item.variantName ? ` (${item.variantName})` : "";
-    const unitDetail =
-      item.unitType === "PAK" ? `PAK (isi ${item.packRatio} pcs)` : "PCS";
+    const isRealVariant =
+      item.variantName &&
+      !["standar", "default", "pcs", "-pcs", "pak", "ktk"].includes(
+        item.variantName.toLowerCase(),
+      );
+    const variantStr = isRealVariant ? ` (Varian: ${item.variantName})` : "";
 
     lines.push(`${index + 1}. *${item.productName}*${variantStr}`);
-    lines.push(`   Satuan : ${unitDetail}`);
     lines.push(
-      `   Jumlah : ${item.qty} ${item.unitType} × ${formatRupiah(item.unitPrice)}`,
+      `   Jumlah : ${item.qty} pcs × ${formatRupiah(item.unitPrice)}`,
     );
     lines.push(`   Subtotal: *${formatRupiah(item.subtotal)}*`);
   });

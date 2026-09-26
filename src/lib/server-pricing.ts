@@ -8,7 +8,7 @@ export interface CalculatedItemResult {
   productName: string;
   variantName: string;
   gambar?: string;
-  jenisKemasan: "pcs" | "pak";
+  jenisKemasan: string;
   qty: number;
   hargaPerUnit: number;
   subtotal: number;
@@ -22,7 +22,7 @@ export interface CalculationResult {
 }
 
 /**
- * Menghitung harga pesanan secara aman di sisi server.
+ * Menghitung harga pesanan secara aman di sisi server berskala tunggal (PCS).
  * Mengambil tier harga langsung dari database Prisma dan menentukan tier yang aktif
  * berdasarkan kuantitas masing-masing item secara independen.
  */
@@ -38,9 +38,16 @@ export async function calculateServerCart(
     const variant = await db.productVariant.findUnique({
       where: { id: item.productVariantId },
       include: {
-        product: true,
+        product: {
+          include: {
+            variants: {
+              include: {
+                priceTiers: { orderBy: { minQty: "asc" } },
+              },
+            },
+          },
+        },
         priceTiers: {
-          where: { jenisKemasan: item.jenisKemasan },
           orderBy: { minQty: "asc" },
         },
       },
@@ -52,16 +59,25 @@ export async function calculateServerCart(
       );
     }
 
-    if (!variant.priceTiers || variant.priceTiers.length === 0) {
+    // Ambil price tiers dari varian ini, atau fallback ke varian lain dari produk yang sama
+    let tiers = variant.priceTiers;
+    if (!tiers || tiers.length === 0) {
+      const allProductTiers =
+        variant.product?.variants?.flatMap((v: any) => v.priceTiers || []) || [];
+      tiers = allProductTiers;
+    }
+
+    if (!tiers || tiers.length === 0) {
       throw new Error(
-        `Tier harga untuk varian "${variant.namaVarian}" dengan kemasan "${item.jenisKemasan}" belum dikonfigurasi.`,
+        `Tier harga untuk produk "${variant.product.nama}" belum dikonfigurasi.`,
       );
     }
 
-    // Cari tier yang cocok berdasarkan qty item ini sendiri
-    const tiers = variant.priceTiers;
-    let matchedTier = tiers[0];
+    // Urutkan ascending berdasarkan minQty
+    tiers.sort((a: any, b: any) => a.minQty - b.minQty);
 
+    // Cari tier yang cocok berdasarkan qty item ini sendiri (dalam satuan pcs)
+    let matchedTier = tiers[0];
     for (const tier of tiers) {
       if (item.qty >= tier.minQty) {
         if (tier.maxQty === null || item.qty <= tier.maxQty) {
@@ -80,9 +96,9 @@ export async function calculateServerCart(
       productVariantId: variant.id,
       productId: variant.productId,
       productName: variant.product.nama,
-      variantName: variant.namaVarian,
+      variantName: variant.namaVarian || "Standar",
       gambar: variant.gambarVarian || variant.product.gambar[0] || "",
-      jenisKemasan: item.jenisKemasan,
+      jenisKemasan: "pcs",
       qty: item.qty,
       hargaPerUnit,
       subtotal,
@@ -90,9 +106,9 @@ export async function calculateServerCart(
   }
 
   // Menentukan jenis pesanan (eceran vs grosir)
-  // Aturan: Jika ada minimal 1 item kemasan pak ATAU qty >= GROSIR_QTY_THRESHOLD -> grosir
+  // Aturan: Jika ada minimal 1 item dengan qty >= GROSIR_QTY_THRESHOLD -> grosir
   const isGrosir = calculatedItems.some(
-    (item) => item.jenisKemasan === "pak" || item.qty >= GROSIR_QTY_THRESHOLD,
+    (item) => item.qty >= GROSIR_QTY_THRESHOLD,
   );
 
   const orderType: OrderType = isGrosir ? "grosir" : "eceran";

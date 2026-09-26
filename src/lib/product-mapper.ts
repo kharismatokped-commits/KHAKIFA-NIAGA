@@ -1,41 +1,89 @@
 import { Product, PriceTier, CategoryId } from "@/types/product";
 import { getPlaceholderByCategory } from "@/lib/placeholders";
 
+// Daftar unit kemasan dari POS yang BUKAN varian jenis produk
+const PACKAGING_UNITS = new Set([
+  "pcs",
+  "-pcs",
+  "pak",
+  "ktk",
+  "dus",
+  "lsn",
+  "lusin",
+  "slop",
+  "bal",
+  "ikat",
+  "rim",
+  "rtg",
+  "renteng",
+  "buah",
+  "lembar",
+  "standar",
+  "default",
+  "unit",
+  "gross",
+  "pack",
+  "box",
+]);
+
+function isGenuineProductVariant(name?: string | null): boolean {
+  if (!name) return false;
+  const clean = name.trim().toLowerCase();
+  return !PACKAGING_UNITS.has(clean) && !clean.startsWith("-pcs") && clean !== "";
+}
+
 export function mapDbProductToCustomerProduct(db: any): Product {
-  const allTiers = db.variants?.flatMap((v: any) => v.priceTiers || []) || [];
+  // 1. Ambil variant utama untuk ID acuan transaksi
+  const primaryVariant =
+    db.variants?.find(
+      (v: any) =>
+        (v.satuan || "").toLowerCase() === "pcs" ||
+        (v.satuan || "").toLowerCase() === "-pcs" ||
+        v.konversi === 1,
+    ) || db.variants?.[0];
 
-  const primarySatuan = db.variants?.[0]?.satuan?.toLowerCase() || "pcs";
+  // 2. Kumpulkan tingkat harga (tiers) berskala pcs
+  let rawTiers = primaryVariant?.priceTiers || [];
 
-  const primaryTiers: PriceTier[] = allTiers
-    .filter((t: any) => (t.jenisKemasan || "").toLowerCase() === primarySatuan)
-    .map((t: any) => ({
+  // Jika variant utama tidak ada tiers, ambil dari variant manapun yang ada
+  if (!rawTiers || rawTiers.length === 0) {
+    const allTiers = db.variants?.flatMap((v: any) => v.priceTiers || []) || [];
+    rawTiers = allTiers;
+  }
+
+  let pcsTiers: PriceTier[] = [];
+  if (rawTiers && rawTiers.length > 0) {
+    pcsTiers = rawTiers.map((t: any) => ({
       minQty: t.minQty,
       maxQty: t.maxQty,
       price: t.hargaPerUnit,
     }));
+  } else {
+    pcsTiers = [{ minQty: 1, maxQty: null, price: 5000 }];
+  }
 
-  const pakTiers: PriceTier[] = allTiers
-    .filter(
-      (t: any) =>
-        (t.jenisKemasan || "").toLowerCase() === "pak" &&
-        primarySatuan !== "pak",
-    )
-    .map((t: any) => ({
-      minQty: t.minQty,
-      maxQty: t.maxQty,
-      price: t.hargaPerUnit,
-    }));
+  // Urutkan ascending berdasarkan minQty
+  pcsTiers.sort((a, b) => a.minQty - b.minQty);
 
-  const defaultPcsTiers: PriceTier[] =
-    primaryTiers.length > 0
-      ? primaryTiers
-      : allTiers.length > 0
-        ? allTiers.map((t: any) => ({
-            minQty: t.minQty,
-            maxQty: t.maxQty,
-            price: t.hargaPerUnit,
-          }))
-        : [{ minQty: 1, maxQty: null, price: 5000 }];
+  // 3. Saring varian: HANYA varian jenis produk asli (misal warna/tipe/model), BUKAN kemasan
+  const genuineDbVariants = (db.variants || []).filter((v: any) =>
+    isGenuineProductVariant(v.namaVarian),
+  );
+
+  const mappedVariants =
+    genuineDbVariants.length > 0
+      ? genuineDbVariants.map((v: any) => ({
+          id: v.id,
+          name: v.namaVarian,
+          image: v.gambarVarian || undefined,
+        }))
+      : [
+          {
+            id: primaryVariant?.id || db.id,
+            name: "Standar",
+            image: primaryVariant?.gambarVarian || undefined,
+          },
+        ];
 
   const categoryCode =
     db.category?.kodeAsal || db.category?.nama || db.categoryId || "atk";
@@ -68,18 +116,19 @@ export function mapDbProductToCustomerProduct(db: any): Product {
     isPopular: true,
     isPromo: Boolean(db.isPromo),
     promoTag: db.isPromo ? "GROSIR TERMURAH" : undefined,
+
+    // Cukup 1 satuan standar: PCS
     hasPcs: true,
-    unitPcsName: primarySatuan.toUpperCase(),
-    tieredPricesPcs: defaultPcsTiers,
-    hasPack: pakTiers.length > 0,
-    unitPackName: "PAK",
-    packRatio: db.variants?.[0]?.konversi || 12,
-    tieredPricesPack: pakTiers,
-    variants:
-      db.variants?.map((v: any) => ({
-        id: v.id,
-        name: v.namaVarian || v.satuan?.toUpperCase() || "Standar",
-        image: v.gambarVarian || undefined,
-      })) || [],
+    unitPcsName: "pcs",
+    tieredPricesPcs: pcsTiers,
+
+    // Konsep banyak satuan (PAK / DUS) dihilangkan
+    hasPack: false,
+    unitPackName: "pcs",
+    packRatio: 1,
+    tieredPricesPack: [],
+
+    // Varian yang benar-benar jenis produk
+    variants: mappedVariants,
   };
 }

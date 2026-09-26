@@ -12,15 +12,13 @@ import {
   ShoppingCart,
   Check,
   TrendingDown,
-  Package,
-  Box,
 } from "lucide-react";
 
 interface QuantityCalculatorProps {
   product: Product;
   selectedVariant?: ProductVariant;
-  unitType: UnitType;
-  onUnitTypeChange: (unit: UnitType) => void;
+  unitType?: UnitType;
+  onUnitTypeChange?: (unit: UnitType) => void;
   qty: number;
   onQtyChange: (newQty: number) => void;
 }
@@ -28,22 +26,17 @@ interface QuantityCalculatorProps {
 export const QuantityCalculator: React.FC<QuantityCalculatorProps> = ({
   product,
   selectedVariant,
-  unitType,
-  onUnitTypeChange,
   qty,
   onQtyChange,
 }) => {
   const { addItem } = useCart();
   const [addedSuccess, setAddedSuccess] = useState(false);
 
-  const tiers =
-    unitType === "PAK" ? product.tieredPricesPack : product.tieredPricesPcs;
+  // Tunggal: selalu satuan pcs
+  const tiers = product.tieredPricesPcs || [];
   const unitPrice = getUnitPrice(tiers, qty);
   const subtotal = qty * unitPrice;
   const nextTier = getNextTierRecommendation(tiers, qty);
-
-  const unitLabel =
-    unitType === "PAK" ? product.unitPackName : product.unitPcsName;
 
   const handleIncrement = () => {
     onQtyChange(qty + 1);
@@ -65,7 +58,7 @@ export const QuantityCalculator: React.FC<QuantityCalculatorProps> = ({
   };
 
   const handleAddToCart = () => {
-    addItem(product, unitType, qty, selectedVariant);
+    addItem(product, "PCS", qty, selectedVariant);
     setAddedSuccess(true);
     setTimeout(() => {
       setAddedSuccess(false);
@@ -74,54 +67,14 @@ export const QuantityCalculator: React.FC<QuantityCalculatorProps> = ({
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-xs space-y-4">
-      {/* Tab Pilihan Satuan Kemasan: PCS vs PAK */}
-      <div>
-        <label className="text-xs font-bold text-gray-700 block mb-2">
-          Pilih Satuan Kemasan:
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          {product.hasPcs && (
-            <button
-              type="button"
-              onClick={() => onUnitTypeChange("PCS")}
-              className={`flex items-center justify-center gap-2 p-3 rounded-lg border text-[12px] sm:text-[13px] font-medium transition-all ${
-                unitType === "PCS"
-                  ? "bg-primary text-white border-primary shadow-xs"
-                  : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-              }`}
-            >
-              <Box className="w-4 h-4" strokeWidth={2.2} />
-              <span>Satuan {product.unitPcsName}</span>
-            </button>
-          )}
-
-          {product.hasPack && (
-            <button
-              type="button"
-              onClick={() => onUnitTypeChange("PAK")}
-              className={`flex items-center justify-center gap-2 p-3 rounded-lg border text-[12px] sm:text-[13px] font-medium transition-all ${
-                unitType === "PAK"
-                  ? "bg-primary text-white border-primary shadow-xs"
-                  : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-              }`}
-            >
-              <Package className="w-4 h-4" strokeWidth={2.2} />
-              <span>
-                Satuan {product.unitPackName} (Isi {product.packRatio})
-              </span>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Stepper Jumlah */}
+      {/* Stepper Jumlah Pembelian */}
       <div>
         <div className="flex items-center justify-between mb-2">
           <label className="text-[12px] sm:text-[13px] font-medium text-gray-700">
-            Atur Jumlah Pembelian ({unitLabel}):
+            Atur Jumlah Pembelian (Pcs):
           </label>
           <span className="text-[13px] font-bold text-primary">
-            Harga Satuan: {formatRupiah(unitPrice)}/{unitLabel}
+            Harga Satuan: {formatRupiah(unitPrice)}/pcs
           </span>
         </div>
 
@@ -134,106 +87,87 @@ export const QuantityCalculator: React.FC<QuantityCalculatorProps> = ({
               className="w-12 h-12 flex items-center justify-center text-gray-700 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               aria-label="Kurangi Jumlah"
             >
-              <Minus className="w-5 h-5" strokeWidth={2.2} />
+              <Minus className="w-4 h-4" />
             </button>
+
             <input
               type="number"
               min="1"
               value={qty}
               onChange={handleDirectInput}
-              className="w-18 h-12 text-center font-bold text-[16px] text-gray-900 focus:outline-none"
+              className="w-16 h-12 text-center font-heading font-bold text-base text-gray-900 border-x border-gray-200 focus:outline-hidden"
+              aria-label="Jumlah Pembelian Pcs"
             />
+
             <button
               type="button"
               onClick={handleIncrement}
               className="w-12 h-12 flex items-center justify-center text-gray-700 hover:bg-gray-100 transition-colors"
               aria-label="Tambah Jumlah"
             >
-              <Plus className="w-5 h-5" strokeWidth={2.2} />
+              <Plus className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Quick preset buttons */}
-          <div className="flex flex-wrap items-center gap-2 flex-1">
-            {[10, 24, 50, 100].map((preset) => (
+          {/* Quick presets */}
+          <div className="flex items-center gap-1.5 flex-1 overflow-x-auto no-scrollbar">
+            {[5, 10, 25, 50, 100].map((preset) => (
               <button
                 key={preset}
                 type="button"
-                onClick={() => onQtyChange(preset)}
-                className={`min-h-[44px] px-3.5 py-2 rounded-xl text-[12px] sm:text-[13px] font-medium border transition-colors ${
-                  qty === preset
-                    ? "bg-emerald-50 text-primary border-primary shadow-xs"
-                    : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100"
-                }`}
+                onClick={() => onQtyChange(qty + preset)}
+                className="px-2.5 py-2.5 rounded-lg text-xs font-semibold bg-gray-100 hover:bg-emerald-100 hover:text-primary text-gray-700 border border-gray-200 transition-all shrink-0 active:scale-95"
               >
                 +{preset}
               </button>
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Rekomendasi Upsell Tier Berikutnya */}
-      {nextTier && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between text-[12px] sm:text-[13px] text-amber-900">
-          <div className="flex items-center gap-2">
-            <TrendingDown
-              className="w-4 h-4 text-[#F57C00] shrink-0"
-              strokeWidth={2.2}
-            />
+        {/* Rekomendasi Hemat Grosir */}
+        {nextTier && (
+          <div className="mt-2.5 p-2 bg-emerald-50 border border-emerald-100 rounded-lg flex items-center gap-2 text-emerald-800 text-[11px] sm:text-xs">
+            <TrendingDown className="w-4 h-4 text-primary shrink-0" />
             <span>
-              Tambah{" "}
-              <strong>
-                {nextTier.moreNeeded} {unitLabel}
-              </strong>{" "}
-              lagi untuk dapat harga{" "}
-              <strong>{formatRupiah(nextTier.nextPrice)}</strong>!
+              Beli <strong>{nextTier.moreNeeded} pcs</strong> lagi untuk dapat
+              harga grosir{" "}
+              <strong>{formatRupiah(nextTier.nextPrice)}/pcs</strong> (Hemat{" "}
+              {nextTier.potentialSavings}%)!
             </span>
           </div>
-          <button
-            type="button"
-            onClick={() => onQtyChange(nextTier.targetQty)}
-            className="text-[12px] sm:text-[13px] font-bold text-[#F57C00] underline hover:text-amber-800 shrink-0 ml-2"
-          >
-            Ambil Diskon
-          </button>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Kalkulasi Total & Tombol Tambah ke Keranjang */}
+      {/* Rincian Harga & Tombol Tambah Keranjang */}
       <div className="pt-3 border-t border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <div className="text-[12px] text-gray-500 font-normal">
-            Subtotal Pesanan:
+          <div className="text-[11px] sm:text-xs text-gray-500">
+            Total Estimasi ({qty} pcs):
           </div>
-          <div className="font-price text-[16px] sm:text-[18px] font-bold text-primary tracking-tight">
+          <div className="font-heading font-black text-lg sm:text-xl text-primary font-price tracking-tight">
             {formatRupiah(subtotal)}
-          </div>
-          <div className="text-[11px] sm:text-[12px] text-gray-500 font-normal">
-            ({qty} {unitLabel} × {formatRupiah(unitPrice)})
           </div>
         </div>
 
         <Button
           type="button"
           onClick={handleAddToCart}
-          size="lg"
-          className={`w-full sm:w-auto min-w-[220px] min-h-[48px] h-12 text-[13px] sm:text-[14px] font-medium shadow-md transition-all ${
+          className={`h-12 px-6 rounded-xl font-heading font-bold text-sm tracking-normal transition-all shadow-sm ${
             addedSuccess
-              ? "bg-primary-dark hover:bg-primary-darker text-white ring-2 ring-emerald-300"
+              ? "bg-primary-dark text-white ring-2 ring-emerald-300"
               : "bg-primary hover:bg-primary-dark text-white"
           }`}
         >
           {addedSuccess ? (
-            <>
-              <Check className="w-5 h-5 stroke-[3]" />
-              <span>Berhasil Ditambahkan!</span>
-            </>
+            <span className="flex items-center gap-2">
+              <Check className="w-4 h-4 stroke-[3]" />
+              <span>Masuk Keranjang!</span>
+            </span>
           ) : (
-            <>
-              <ShoppingCart className="w-5 h-5" strokeWidth={2.2} />
+            <span className="flex items-center gap-2">
+              <ShoppingCart className="w-4 h-4 strokeWidth={2.2}" />
               <span>+ Masukkan ke Keranjang</span>
-            </>
+            </span>
           )}
         </Button>
       </div>
