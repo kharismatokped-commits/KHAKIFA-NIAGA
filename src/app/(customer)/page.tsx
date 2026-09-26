@@ -1,5 +1,6 @@
 import React from "react";
 import { HeroBanner } from "@/components/home/HeroBanner";
+import { ProductVideoShowcase } from "@/components/home/ProductVideoShowcase";
 import { RepeatOrderSection } from "@/components/home/RepeatOrderSection";
 import { CategoryGrid } from "@/components/home/CategoryGrid";
 import { PopularSection } from "@/components/home/PopularSection";
@@ -37,10 +38,13 @@ export default async function HomePage() {
 
   return (
     <div className="space-y-5 sm:space-y-6 pb-12">
-      {/* 1. Hero Promo Banner */}
+      {/* 1. Hero Promo Banner dengan Video Logo Background */}
       <HeroBanner />
 
-      {/* 2. Pesan Lagi (Khusus repeat customer, otomatis tersembunyi untuk new visitor) */}
+      {/* 2. Showcase Video Produk Unggulan */}
+      <ProductVideoShowcase />
+
+      {/* 3. Pesan Lagi (Khusus repeat customer, otomatis tersembunyi untuk new visitor) */}
       <RepeatOrderSection />
 
       {/* 3. Kategori Scroll Horizontal (1 Baris, Maks 7 Kategori + Tombol Semua Kategori) */}
