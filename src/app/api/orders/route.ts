@@ -32,10 +32,13 @@ export async function POST(request: NextRequest) {
       const calculation = await calculateServerCart(items, tx);
 
       // 2. Simpan Order bersama OrderItem[] dengan harga snapshot
+      const effectiveNamaToko =
+        namaToko && namaToko.trim() ? namaToko.trim() : namaPemesan;
+
       const order = await tx.order.create({
         data: {
           nomorOrder,
-          namaToko,
+          namaToko: effectiveNamaToko,
           namaPemesan,
           noWhatsApp,
           alamat,

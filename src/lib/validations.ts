@@ -15,7 +15,7 @@ export const CartCalculationRequestSchema = z.object({
 });
 
 export const CreateOrderRequestSchema = z.object({
-  namaToko: z.string().trim().min(1, "Nama toko / nama usaha wajib diisi"),
+  namaToko: z.string().trim().optional(),
   namaPemesan: z.string().trim().min(1, "Nama pemesan wajib diisi"),
   noWhatsApp: z
     .string()

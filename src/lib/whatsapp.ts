@@ -33,7 +33,9 @@ export function buildWhatsAppMessage(
   );
   lines.push(``);
   lines.push(`📦 *DATA PEMESAN:*`);
-  lines.push(`• Nama Toko   : ${customer.storeName}`);
+  if (type === "grosir" && customer.storeName && customer.storeName.trim()) {
+    lines.push(`• Nama Toko   : ${customer.storeName.trim()}`);
+  }
   lines.push(`• Nama Pemesan: ${customer.customerName}`);
   lines.push(`• No. WhatsApp: ${customer.whatsappNumber}`);
   lines.push(`• Alamat Kirim: ${customer.address}`);

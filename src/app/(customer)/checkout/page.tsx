@@ -17,7 +17,7 @@ import { WhatsAppPreview } from "@/components/cart/WhatsAppPreview";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Store, MessageCircle, ArrowLeft, AlertCircle } from "lucide-react";
+import { Store, User, MessageCircle, ArrowLeft, AlertCircle } from "lucide-react";
 
 export default function CheckoutPage() {
   const {
@@ -54,7 +54,10 @@ export default function CheckoutPage() {
   const currentMessageText = buildWhatsAppMessage(
     orderNumber,
     {
-      storeName: storeName || "[Nama Toko Belum Diisi]",
+      storeName:
+        orderType === "grosir"
+          ? storeName || "[Nama Toko Belum Diisi]"
+          : "",
       customerName: customerName || "[Nama Pemesan]",
       whatsappNumber: whatsappNumber || "[Nomor WhatsApp]",
       address: address || "[Alamat Belum Diisi]",
@@ -68,7 +71,7 @@ export default function CheckoutPage() {
 
   const validateForm = () => {
     const errs: Record<string, string> = {};
-    if (!storeName.trim()) {
+    if (orderType === "grosir" && !storeName.trim()) {
       errs.storeName = "Nama toko / nama usaha wajib diisi";
     }
     if (!customerName.trim()) {
@@ -99,8 +102,11 @@ export default function CheckoutPage() {
       localStorage.setItem("khalifa_customer_wa", cleanPhone);
     }
 
+    const effectiveStoreName =
+      orderType === "grosir" ? storeName.trim() : customerName.trim();
+
     updateCustomerInfo({
-      storeName: storeName.trim(),
+      storeName: effectiveStoreName,
       customerName: customerName.trim(),
       whatsappNumber: whatsappNumber.trim(),
       address: address.trim(),
@@ -125,7 +131,7 @@ export default function CheckoutPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        namaToko: storeName.trim(),
+        namaToko: effectiveStoreName,
         namaPemesan: customerName.trim(),
         noWhatsApp: cleanPhone,
         alamat: address.trim(),
@@ -137,7 +143,7 @@ export default function CheckoutPage() {
     const finalMessage = buildWhatsAppMessage(
       orderNumber,
       {
-        storeName: storeName.trim(),
+        storeName: orderType === "grosir" ? storeName.trim() : "",
         customerName: customerName.trim(),
         whatsappNumber: whatsappNumber.trim(),
         address: address.trim(),
@@ -213,44 +219,63 @@ export default function CheckoutPage() {
         >
           <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-xs space-y-4">
             <h3 className="font-extrabold text-sm text-gray-900 flex items-center gap-2 pb-2 border-b border-gray-100">
-              <Store className="w-4 h-4 text-primary" />
-              <span>Data Toko & Pemesan</span>
+              {orderType === "grosir" ? (
+                <>
+                  <Store className="w-4 h-4 text-primary" />
+                  <span>Data Toko & Pemesan</span>
+                </>
+              ) : (
+                <>
+                  <User className="w-4 h-4 text-primary" />
+                  <span>Data Pemesan</span>
+                </>
+              )}
             </h3>
 
-            {/* Nama Toko */}
-            <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-700 flex items-center gap-1">
-                <span>Nama Toko / Usaha</span>
-                <span className="text-red-500">*</span>
-              </label>
-              <Input
-                placeholder="Contoh: Toko Berkah Mandiri / Warung Bu Siti"
-                value={storeName}
-                onChange={(e) => {
-                  setStoreName(e.target.value);
-                  if (errors.storeName) setErrors({ ...errors, storeName: "" });
-                }}
-                className={
-                  errors.storeName
-                    ? "border-red-400 focus-visible:ring-red-400"
-                    : ""
-                }
-              />
-              {errors.storeName && (
-                <p className="text-[11px] text-red-500 font-medium">
-                  {errors.storeName}
-                </p>
-              )}
-            </div>
+            {/* Nama Toko (Hanya tampil jika pesanan Grosir) */}
+            {orderType === "grosir" && (
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-700 flex items-center gap-1">
+                  <span>Nama Toko / Usaha</span>
+                  <span className="text-red-500">*</span>
+                </label>
+                <Input
+                  placeholder="Contoh: Toko Berkah Mandiri / Warung Bu Siti"
+                  value={storeName}
+                  onChange={(e) => {
+                    setStoreName(e.target.value);
+                    if (errors.storeName) setErrors({ ...errors, storeName: "" });
+                  }}
+                  className={
+                    errors.storeName
+                      ? "border-red-400 focus-visible:ring-red-400"
+                      : ""
+                  }
+                />
+                {errors.storeName && (
+                  <p className="text-[11px] text-red-500 font-medium">
+                    {errors.storeName}
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Nama Pemesan (1 Kolom per Baris) */}
             <div className="space-y-1.5">
               <label className="text-xs sm:text-sm font-bold text-gray-700 flex items-center gap-1">
-                <span>Nama Pemilik / Pemesan</span>
+                <span>
+                  {orderType === "grosir"
+                    ? "Nama Pemilik / Pemesan"
+                    : "Nama Pemesan"}
+                </span>
                 <span className="text-red-500">*</span>
               </label>
               <Input
-                placeholder="Contoh: Bpk. Ahmad Subarjo"
+                placeholder={
+                  orderType === "grosir"
+                    ? "Contoh: Bpk. Ahmad Subarjo"
+                    : "Contoh: Budi Santoso"
+                }
                 value={customerName}
                 onChange={(e) => {
                   setCustomerName(e.target.value);
