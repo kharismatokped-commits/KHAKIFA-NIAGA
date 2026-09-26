@@ -14,62 +14,92 @@ import {
   BookOpen,
   Package,
   Home,
-  Store,
-  Grid,
+  Zap,
+  Gamepad2,
+  Trophy,
   Loader2,
   CheckCircle2,
+  ChevronDown,
 } from "lucide-react";
 
 interface CategoryData {
   id: string;
   nama: string;
-  ikon: string;
+  kodeAsal?: string | null;
+  ikon?: string;
+  _count?: {
+    products: number;
+  };
 }
 
-function getCategoryIcon(id: string) {
-  switch (id) {
-    case "atk":
-      return <BookOpen className="w-4 h-4" strokeWidth={2.2} />;
-    case "plastik-kemasan":
-      return <Package className="w-4 h-4" strokeWidth={2.2} />;
-    case "rumah-tangga":
-      return <Home className="w-4 h-4" strokeWidth={2.2} />;
-    case "kelontong":
-      return <Store className="w-4 h-4" strokeWidth={2.2} />;
-    default:
-      return <Grid className="w-4 h-4" strokeWidth={2.2} />;
+function getCategoryIcon(cat: CategoryData) {
+  const code = (cat.kodeAsal || "").toUpperCase();
+  const name = (cat.nama || "").toLowerCase();
+
+  if (code === "ATK" || name.includes("tulis") || name.includes("atk")) {
+    return <BookOpen className="w-4 h-4 shrink-0" strokeWidth={2.2} />;
   }
+  if (code === "RT" || name.includes("rumah") || name.includes("tangga")) {
+    return <Home className="w-4 h-4 shrink-0" strokeWidth={2.2} />;
+  }
+  if (code === "PLASTIK" || name.includes("plastik") || name.includes("kemasan")) {
+    return <Package className="w-4 h-4 shrink-0" strokeWidth={2.2} />;
+  }
+  if (code === "LT" || name.includes("listrik") || name.includes("perkakas")) {
+    return <Zap className="w-4 h-4 shrink-0" strokeWidth={2.2} />;
+  }
+  if (code === "MNA" || name.includes("mainan")) {
+    return <Gamepad2 className="w-4 h-4 shrink-0" strokeWidth={2.2} />;
+  }
+  if (code === "OLR" || name.includes("olahraga")) {
+    return <Trophy className="w-4 h-4 shrink-0" strokeWidth={2.2} />;
+  }
+  return <LayoutGrid className="w-4 h-4 shrink-0" strokeWidth={2.2} />;
 }
+
+const PAGE_SIZE = 20;
 
 function KatalogContent() {
   const searchParams = useSearchParams();
-  const initialCategory = searchParams.get("kategori") || "all";
+  const initialCategory = searchParams.get("kategori");
   const initialQuery = searchParams.get("q") || "";
   const initialPromo = searchParams.get("promo") === "true";
 
-  const [selectedCategory, setSelectedCategory] =
-    useState<string>(initialCategory);
+  // Multi-select category chips: array of category IDs
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
+    return initialCategory && initialCategory !== "all"
+      ? [initialCategory]
+      : [];
+  });
+
   const [searchQuery, setSearchQuery] = useState<string>(initialQuery);
   const [onlyPromo, setOnlyPromo] = useState<boolean>(initialPromo);
   const [sortBy, setSortBy] = useState<
     "popular" | "price-asc" | "price-desc" | "name"
   >("popular");
+
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<CategoryData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
 
-  // Debounced search query (±300ms)
+  // Pagination states
+  const [page, setPage] = useState<number>(1);
+  const [totalProducts, setTotalProducts] = useState<number>(0);
+  const [hasMore, setHasMore] = useState<boolean>(false);
+
+  // Debounced search query (300ms)
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-  // Update searchQuery jika parameter URL q berubah
+  // Update jika query string URL berubah
   useEffect(() => {
     const qFromUrl = searchParams.get("q");
     if (qFromUrl !== null) {
       setSearchQuery((prev) => (prev !== qFromUrl ? qFromUrl : prev));
     }
     const catFromUrl = searchParams.get("kategori");
-    if (catFromUrl !== null) {
-      setSelectedCategory((prev) => (prev !== catFromUrl ? catFromUrl : prev));
+    if (catFromUrl !== null && catFromUrl !== "all") {
+      setSelectedCategories([catFromUrl]);
     }
   }, [searchParams]);
 
@@ -79,39 +109,45 @@ function KatalogContent() {
       .then((res) => res.json())
       .then((res) => {
         if (res.data && res.data.length > 0) {
-          setCategories(res.data);
+          const sorted = [...res.data].sort((a, b) => {
+            const countA = a._count?.products ?? 0;
+            const countB = b._count?.products ?? 0;
+            return countB - countA;
+          });
+          setCategories(sorted);
         }
       })
       .catch((err) => console.error("Error loading categories:", err));
   }, []);
 
-  // Fetch produk dari backend API dengan debounced search & smart pg_trgm ranking
+  // Fetch produk halaman 1 saat filter atau query berubah
   useEffect(() => {
     let isCancelled = false;
     setIsLoading(true);
+    setPage(1);
 
     const params = new URLSearchParams();
-    if (selectedCategory && selectedCategory !== "all") {
-      params.set("category", selectedCategory);
+    if (selectedCategories.length > 0) {
+      params.set("category", selectedCategories.join(","));
     }
 
     const trimmedQuery = debouncedSearchQuery.trim();
     if (trimmedQuery) {
       params.set("q", trimmedQuery);
-      params.set("limit", "20"); // Maksimal 20 hasil pencarian teratas
-    } else {
-      params.set("limit", "100");
     }
+
+    params.set("limit", String(PAGE_SIZE));
+    params.set("page", "1");
 
     fetch(`/api/products?${params.toString()}`)
       .then((res) => res.json())
       .then((res) => {
         if (!isCancelled) {
-          if (res.customerProducts) {
-            setProducts(res.customerProducts);
-          } else {
-            setProducts([]);
-          }
+          const fetched: Product[] = res.customerProducts || [];
+          setProducts(fetched);
+          const total = res.meta?.total ?? fetched.length;
+          setTotalProducts(total);
+          setHasMore(fetched.length < total);
         }
       })
       .catch((err) => {
@@ -124,7 +160,59 @@ function KatalogContent() {
     return () => {
       isCancelled = true;
     };
-  }, [debouncedSearchQuery, selectedCategory]);
+  }, [debouncedSearchQuery, selectedCategories]);
+
+  // Handle Load More (Muat 20 produk berikutnya)
+  const handleLoadMore = async () => {
+    if (isLoadingMore || !hasMore) return;
+    setIsLoadingMore(true);
+
+    const nextPage = page + 1;
+    const params = new URLSearchParams();
+    if (selectedCategories.length > 0) {
+      params.set("category", selectedCategories.join(","));
+    }
+
+    const trimmedQuery = debouncedSearchQuery.trim();
+    if (trimmedQuery) {
+      params.set("q", trimmedQuery);
+    }
+
+    params.set("limit", String(PAGE_SIZE));
+    params.set("page", String(nextPage));
+
+    try {
+      const res = await fetch(`/api/products?${params.toString()}`).then((r) =>
+        r.json()
+      );
+      const newItems: Product[] = res.customerProducts || [];
+      const updatedList = [...products, ...newItems];
+      setProducts(updatedList);
+      setPage(nextPage);
+      const total = res.meta?.total ?? totalProducts;
+      setTotalProducts(total);
+      setHasMore(updatedList.length < total);
+    } catch (err) {
+      console.error("Error loading more products:", err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
+
+  // Toggle multi-select category chip
+  const toggleCategory = (catId: string) => {
+    setSelectedCategories((prev) => {
+      if (prev.includes(catId)) {
+        return prev.filter((id) => id !== catId);
+      } else {
+        return [...prev, catId];
+      }
+    });
+  };
+
+  const selectAllCategories = () => {
+    setSelectedCategories([]);
+  };
 
   // Client-side filtering & sorting tambahan
   const filteredProducts = useMemo(() => {
@@ -135,8 +223,8 @@ function KatalogContent() {
       result = result.filter((p) => p.isPromo);
     }
 
-    // Jika sedang dalam mode pencarian dengan sortBy === 'popular',
-    // pertahankan urutan relevansi skor (score DESC) langsung dari pg_trgm backend
+    // Jika dalam mode pencarian dengan sortBy === 'popular',
+    // pertahankan urutan relevansi skor dari pg_trgm backend
     if (debouncedSearchQuery.trim() && sortBy === "popular") {
       return result;
     }
@@ -155,16 +243,18 @@ function KatalogContent() {
   }, [products, debouncedSearchQuery, onlyPromo, sortBy]);
 
   const resetFilters = () => {
-    setSelectedCategory("all");
+    setSelectedCategories([]);
     setSearchQuery("");
     setOnlyPromo(false);
     setSortBy("popular");
   };
 
+  const isAllSelected = selectedCategories.length === 0;
+
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-5 pb-16">
       {/* Title & Search bar */}
-      <div className="bg-white p-4 sm:p-6 rounded-2xl border border-gray-100 shadow-xs space-y-4">
+      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-gray-100 shadow-xs space-y-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-black text-gray-900 tracking-tight">
             Katalog Produk Grosir
@@ -178,7 +268,7 @@ function KatalogContent() {
         <div className="relative">
           <input
             type="text"
-            placeholder="Cari nama barang, jenis ATK, lakban, plastik, kresek, dll..."
+            placeholder="Cari produk (misal: lem, pulpen, kertas)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full h-11 pl-10 pr-10 rounded-xl border border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary transition-all"
@@ -207,7 +297,7 @@ function KatalogContent() {
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
               <span className="text-gray-700">
-                Menampilkan hasil untuk kata kunci{" "}
+                Menampilkan hasil pencarian untuk{" "}
                 <span className="font-bold text-gray-900">
                   &ldquo;{debouncedSearchQuery.trim()}&rdquo;
                 </span>{" "}
@@ -215,44 +305,74 @@ function KatalogContent() {
               </span>
             </div>
             <span className="text-primary font-bold">
-              {filteredProducts.length} produk ditemukan
+              {totalProducts} produk ditemukan
             </span>
           </div>
         )}
 
-        {/* Filter Categories Chips */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-[12px] sm:text-[13px]">
-          <button
-            type="button"
-            onClick={() => setSelectedCategory("all")}
-            className={`min-h-[44px] px-4 py-2.5 rounded-xl font-medium whitespace-nowrap transition-colors shrink-0 flex items-center gap-2 cursor-pointer ${
-              selectedCategory === "all"
-                ? "bg-primary text-white shadow-xs"
-                : "bg-white border border-gray-200 text-[#64748B] hover:bg-gray-50"
-            }`}
-          >
-            <LayoutGrid className="w-4 h-4" strokeWidth={2.2} />
-            <span>Semua Kategori</span>
-          </button>
-
-          {categories.map((cat) => {
-            const isSelected = selectedCategory === cat.id;
-            return (
+        {/* Multi-Select Category Filter Chips */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold text-gray-600 uppercase tracking-wider">
+              Filter Kategori:
+            </span>
+            {selectedCategories.length > 0 && (
               <button
-                key={cat.id}
                 type="button"
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`min-h-[44px] px-4 py-2.5 rounded-xl font-medium whitespace-nowrap transition-colors shrink-0 flex items-center gap-2 cursor-pointer ${
-                  isSelected
-                    ? "bg-primary text-white shadow-xs"
-                    : "bg-white border border-gray-200 text-[#64748B] hover:bg-gray-50"
-                }`}
+                onClick={selectAllCategories}
+                className="text-[11px] text-primary font-semibold hover:underline cursor-pointer"
               >
-                {getCategoryIcon(cat.id)}
-                <span>{cat.nama}</span>
+                Pilih Semua ({categories.length})
               </button>
-            );
-          })}
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-[12px] sm:text-[13px]">
+            {/* Chip Semua Kategori */}
+            <button
+              type="button"
+              onClick={selectAllCategories}
+              className={`min-h-[40px] px-3.5 py-2 rounded-xl font-medium whitespace-nowrap transition-all shrink-0 flex items-center gap-1.5 cursor-pointer active:scale-95 ${
+                isAllSelected
+                  ? "bg-primary text-white shadow-xs font-bold"
+                  : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              <LayoutGrid className="w-4 h-4 shrink-0" strokeWidth={2.2} />
+              <span>Semua Kategori</span>
+            </button>
+
+            {/* Chips Kategori (Multi-select) */}
+            {categories.map((cat) => {
+              const isSelected = selectedCategories.includes(cat.id);
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => toggleCategory(cat.id)}
+                  className={`min-h-[40px] px-3.5 py-2 rounded-xl font-medium whitespace-nowrap transition-all shrink-0 flex items-center gap-1.5 cursor-pointer active:scale-95 ${
+                    isSelected
+                      ? "bg-primary text-white shadow-xs font-bold"
+                      : "bg-white border border-gray-200 text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  {getCategoryIcon(cat)}
+                  <span>{cat.nama}</span>
+                  {cat._count?.products ? (
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-semibold ${
+                        isSelected
+                          ? "bg-white/25 text-white"
+                          : "bg-gray-100 text-gray-500"
+                      }`}
+                    >
+                      {cat._count.products}
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Bar Filter Cepat: Promo & Urutan */}
@@ -288,18 +408,65 @@ function KatalogContent() {
         </div>
       </div>
 
-      {/* Product List: 1 Kolom List Vertikal */}
+      {/* Ringkasan Jumlah Produk */}
+      <div className="flex items-center justify-between px-1 text-xs text-gray-500 font-medium">
+        <span>
+          Menampilkan <strong className="text-gray-900">{filteredProducts.length}</strong> dari{" "}
+          <strong className="text-gray-900">{totalProducts}</strong> produk
+        </span>
+        {selectedCategories.length > 0 && (
+          <span className="text-primary font-semibold">
+            {selectedCategories.length} kategori aktif
+          </span>
+        )}
+      </div>
+
+      {/* Product List */}
       {isLoading ? (
-        <ProductListSkeleton count={5} />
+        <ProductListSkeleton count={6} />
       ) : filteredProducts.length > 0 ? (
-        <div className="flex flex-col space-y-3">
-          {filteredProducts.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              highlightQuery={debouncedSearchQuery.trim()}
-            />
-          ))}
+        <div className="space-y-4">
+          <div className="flex flex-col space-y-3">
+            {filteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                highlightQuery={debouncedSearchQuery.trim()}
+              />
+            ))}
+          </div>
+
+          {/* Tombol Muat Lebih Banyak (Paginasi 20 per Halaman) */}
+          {hasMore && (
+            <div className="pt-4 pb-2 text-center">
+              <button
+                type="button"
+                onClick={handleLoadMore}
+                disabled={isLoadingMore}
+                className="w-full sm:w-auto px-8 py-3 rounded-xl bg-white border border-gray-200 hover:border-primary hover:bg-emerald-50/50 text-gray-800 hover:text-primary font-heading font-bold text-xs sm:text-sm shadow-xs transition-all flex items-center justify-center gap-2 mx-auto cursor-pointer disabled:opacity-60"
+              >
+                {isLoadingMore ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    <span>Memuat 20 produk berikutnya...</span>
+                  </>
+                ) : (
+                  <>
+                    <ChevronDown className="w-4 h-4 text-primary" />
+                    <span>
+                      Muat 20 Produk Lainnya (Sisa {Math.max(0, totalProducts - filteredProducts.length)})
+                    </span>
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {!hasMore && filteredProducts.length > 0 && totalProducts > PAGE_SIZE && (
+            <div className="text-center py-4 text-xs text-gray-400 font-medium">
+              Semua {totalProducts} produk telah ditampilkan
+            </div>
+          )}
         </div>
       ) : (
         <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center space-y-3">

@@ -93,9 +93,12 @@ export default function CheckoutPage() {
       return;
     }
 
-    setIsSubmitting(true);
-
     // Save to context / localStorage for next orders
+    const cleanPhone = whatsappNumber.trim().replace(/[^0-9]/g, "");
+    if (typeof window !== "undefined") {
+      localStorage.setItem("khalifa_customer_wa", cleanPhone);
+    }
+
     updateCustomerInfo({
       storeName: storeName.trim(),
       customerName: customerName.trim(),
@@ -103,6 +106,33 @@ export default function CheckoutPage() {
       address: address.trim(),
       notes: notes.trim(),
     });
+
+    // Kirim pesanan ke database secara asynchronous untuk riwayat & Pesan Lagi
+    const orderPayloadItems = selectedItems.map((item) => {
+      let vId = item.variantId;
+      if (!vId) {
+        const prod = productsMap.get(item.productId);
+        vId = prod?.variants?.[0]?.id || item.productId;
+      }
+      return {
+        productVariantId: vId,
+        jenisKemasan: item.unitType.toLowerCase() as "pcs" | "pak",
+        qty: item.qty,
+      };
+    });
+
+    fetch("/api/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        namaToko: storeName.trim(),
+        namaPemesan: customerName.trim(),
+        noWhatsApp: cleanPhone,
+        alamat: address.trim(),
+        catatan: notes.trim() || undefined,
+        items: orderPayloadItems,
+      }),
+    }).catch((err) => console.error("Failed to save order to DB:", err));
 
     const finalMessage = buildWhatsAppMessage(
       orderNumber,

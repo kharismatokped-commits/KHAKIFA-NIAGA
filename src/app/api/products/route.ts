@@ -36,10 +36,23 @@ export async function GET(request: NextRequest) {
     // 1. Jika ada parameter pencarian 'q', gunakan smart pg_trgm search via $queryRaw
     const { normalized, terms } = expandSearchTerms(q || "");
 
+    // Parse multi-select category list jika ada (misal: "cat1,cat2")
+    const catList =
+      category && category !== "all"
+        ? category
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
+        : [];
+
     if (normalized.length > 0) {
       const categoryFilter =
-        category && category !== "all"
-          ? Prisma.sql`AND (p."categoryId" = ${category} OR c.id = ${category} OR c."kodeAsal" ILIKE ${category} OR c.nama ILIKE ${"%" + category + "%"})`
+        catList.length > 0
+          ? Prisma.sql`AND (
+              p."categoryId" IN (${Prisma.join(catList)}) 
+              OR c.id IN (${Prisma.join(catList)}) 
+              OR c."kodeAsal" IN (${Prisma.join(catList)})
+            )`
           : Prisma.empty;
 
       const matchingRows = await prisma.$queryRaw<
@@ -168,12 +181,12 @@ export async function GET(request: NextRequest) {
     // 2. Jika tidak ada parameter pencarian 'q', gunakan findMany standar dengan pagination
     const whereClause: any = {};
 
-    if (category && category !== "all") {
-      whereClause.OR = [
-        { categoryId: category },
-        { category: { kodeAsal: { equals: category, mode: "insensitive" } } },
-        { category: { nama: { contains: category, mode: "insensitive" } } },
-      ];
+    if (catList.length > 0) {
+      whereClause.OR = catList.flatMap((cat) => [
+        { categoryId: cat },
+        { category: { kodeAsal: { equals: cat, mode: "insensitive" } } },
+        { category: { nama: { contains: cat, mode: "insensitive" } } },
+      ]);
     }
 
     const [total, products] = await Promise.all([

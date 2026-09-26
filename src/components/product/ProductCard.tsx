@@ -15,11 +15,13 @@ import { HighlightText } from "@/components/common/HighlightText";
 interface ProductCardProps {
   product: Product;
   highlightQuery?: string;
+  variant?: "list" | "grid";
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
   product,
   highlightQuery,
+  variant = "list",
 }) => {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
@@ -57,6 +59,86 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   };
+
+  if (variant === "grid") {
+    return (
+      <div className="bg-white rounded-2xl border border-gray-200/90 hover:border-primary p-3 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
+        <Link href={`/produk/${product.id}`} className="block">
+          <div className="relative aspect-square w-full rounded-xl bg-gray-50 overflow-hidden mb-2 border border-gray-100 flex items-center justify-center">
+            <Image
+              src={imageSrc}
+              alt={product.name}
+              fill
+              sizes="(max-width: 640px) 50vw, 200px"
+              className={`${
+                isPlaceholder ? "object-contain p-2 bg-[#F9FBFA]" : "object-cover"
+              } group-hover:scale-105 transition-transform duration-300`}
+            />
+            {product.promoTag && (
+              <div className="absolute top-1.5 left-1.5 z-10">
+                <Badge
+                  variant="promo"
+                  className="text-[9px] px-1.5 py-0.2 font-extrabold uppercase shadow-xs"
+                >
+                  {product.promoTag}
+                </Badge>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-1 text-[11px] text-gray-500 mb-1">
+            <Star className="w-3 h-3 fill-amber-400 text-amber-500" />
+            <span className="font-bold text-gray-700">{product.rating}</span>
+            <span className="text-gray-400">({product.reviewCount})</span>
+          </div>
+
+          <h3 className="font-heading font-medium text-gray-900 text-xs sm:text-[13px] leading-snug line-clamp-2 group-hover:text-primary transition-colors min-h-[34px]">
+            {highlightQuery ? (
+              <HighlightText text={product.name} query={highlightQuery} />
+            ) : (
+              product.name
+            )}
+          </h3>
+
+          <div className="mt-1.5">
+            <div className="text-[10px] text-gray-500">Mulai dari</div>
+            <div className="flex items-baseline gap-1">
+              <span className="font-price font-bold text-primary text-sm sm:text-base tracking-tight">
+                {formatRupiah(lowestPcsPrice)}
+              </span>
+              <span className="text-[10px] text-gray-500">
+                /{product.unitPcsName}
+              </span>
+            </div>
+          </div>
+        </Link>
+
+        <div className="mt-3 pt-2 border-t border-gray-50">
+          <Button
+            type="button"
+            onClick={handleQuickAdd}
+            className={`w-full min-h-[38px] h-9 px-3 rounded-xl font-heading font-medium text-xs tracking-normal transition-all shadow-xs ${
+              added
+                ? "bg-primary-dark text-white ring-2 ring-emerald-300"
+                : "bg-primary hover:bg-primary-dark text-white"
+            }`}
+          >
+            {added ? (
+              <>
+                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                <span>Masuk!</span>
+              </>
+            ) : (
+              <>
+                <ShoppingCart className="w-3.5 h-3.5" />
+                <span>+ Keranjang</span>
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-2xl border border-gray-200/90 hover:border-primary p-3 sm:p-4 shadow-xs hover:shadow-md transition-all duration-200">

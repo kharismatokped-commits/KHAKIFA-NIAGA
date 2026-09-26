@@ -226,7 +226,7 @@ export const Header: React.FC = () => {
             <form onSubmit={handleSearchSubmit} className="relative w-full">
               <input
                 type="text"
-                placeholder="Cari produk (contoh: pulpn, lem, atk, kertas)..."
+                placeholder="Cari produk (misal: lem, pulpen, kertas)..."
                 value={searchQuery}
                 onFocus={() => {
                   if (dropdownResults.length > 0) setShowDropdown(true);
