@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Search,
@@ -12,10 +13,16 @@ import {
   Grid,
   Home,
   MessageCircle,
+  Loader2,
+  ChevronRight,
+  Package,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { normalizeWhatsAppNumber } from "@/lib/formatters";
+import { normalizeWhatsAppNumber, formatRupiah } from "@/lib/formatters";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
+import { useDebounce } from "@/hooks/useDebounce";
+import { HighlightText } from "@/components/common/HighlightText";
+import { getPlaceholderByCategory } from "@/lib/placeholders";
 
 export const Header: React.FC = () => {
   const router = useRouter();
@@ -24,9 +31,16 @@ export const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
-  const lastScrollY = React.useRef(0);
+  const lastScrollY = useRef(0);
 
-  React.useEffect(() => {
+  // Debounced search for live autocomplete dropdown
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const [dropdownResults, setDropdownResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
 
@@ -55,13 +69,70 @@ export const Header: React.FC = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Fetch smart live search dropdown (debounced 300ms)
+  useEffect(() => {
+    const query = debouncedSearchQuery.trim();
+    if (query.length < 2) {
+      setDropdownResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    let isCancelled = false;
+    setIsSearching(true);
+
+    fetch(`/api/products?q=${encodeURIComponent(query)}&limit=6`)
+      .then((res) => res.json())
+      .then((res) => {
+        if (!isCancelled) {
+          if (res.customerProducts) {
+            setDropdownResults(res.customerProducts);
+            setShowDropdown(true);
+          } else {
+            setDropdownResults([]);
+          }
+        }
+      })
+      .catch((err) => {
+        if (!isCancelled) console.error("Autocomplete search error:", err);
+      })
+      .finally(() => {
+        if (!isCancelled) setIsSearching(false);
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [debouncedSearchQuery]);
+
+  // Click outside listener to dismiss dropdown
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setShowDropdown(false);
     if (searchQuery.trim()) {
       router.push(`/katalog?q=${encodeURIComponent(searchQuery.trim())}`);
     } else {
       router.push("/katalog");
     }
+  };
+
+  const handleSelectProduct = (productId: string) => {
+    setShowDropdown(false);
+    router.push(`/produk/${productId}`);
   };
 
   const phone =
@@ -150,29 +221,143 @@ export const Header: React.FC = () => {
             </div>
           </div>
 
-          {/* LAPIS BAWAH: Search Input Oval Abu-abu (Pill) - Tetap Sticky di Posisi Paling Atas */}
-          <form onSubmit={handleSearchSubmit} className="relative w-full">
-            <input
-              type="text"
-              placeholder="Cari produk, nama, atau kategori..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-11 pl-10 pr-9 rounded-2xl bg-[#EEF2F6] text-gray-800 placeholder:text-[#94A3B8] text-[13px] sm:text-sm font-medium border-0 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
-            />
-            {/* Search Icon */}
-            <div className="absolute left-3.5 top-3 text-[#94A3B8] pointer-events-none">
-              <Search className="w-4 h-4 stroke-[2.2]" />
-            </div>
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 p-0.5"
-              >
-                <X className="w-4 h-4" strokeWidth={2.2} />
-              </button>
+          {/* LAPIS BAWAH: Search Input Oval Abu-abu (Pill) dengan Live Dropdown */}
+          <div ref={dropdownRef} className="relative w-full">
+            <form onSubmit={handleSearchSubmit} className="relative w-full">
+              <input
+                type="text"
+                placeholder="Cari produk (contoh: pulpn, lem, atk, kertas)..."
+                value={searchQuery}
+                onFocus={() => {
+                  if (dropdownResults.length > 0) setShowDropdown(true);
+                }}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  if (!showDropdown && e.target.value.trim().length >= 2) {
+                    setShowDropdown(true);
+                  }
+                }}
+                className="w-full h-11 pl-10 pr-10 rounded-2xl bg-[#EEF2F6] text-gray-800 placeholder:text-[#94A3B8] text-[13px] sm:text-sm font-medium border-0 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+              />
+              {/* Search Icon / Loader */}
+              <div className="absolute left-3.5 top-3 text-[#94A3B8] pointer-events-none">
+                {isSearching ? (
+                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                ) : (
+                  <Search className="w-4 h-4 stroke-[2.2]" />
+                )}
+              </div>
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setDropdownResults([]);
+                    setShowDropdown(false);
+                  }}
+                  className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 p-0.5"
+                >
+                  <X className="w-4 h-4" strokeWidth={2.2} />
+                </button>
+              )}
+            </form>
+
+            {/* Floating Live Autocomplete Dropdown */}
+            {showDropdown && debouncedSearchQuery.trim().length >= 2 && (
+              <div className="absolute left-0 right-0 top-full mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2">
+                <div className="p-2 border-b border-gray-50 flex items-center justify-between text-[11px] text-gray-400 font-semibold px-3">
+                  <span>Hasil Cepat untuk &ldquo;{debouncedSearchQuery}&rdquo;</span>
+                  {dropdownResults.length > 0 && (
+                    <span className="text-primary font-bold">
+                      {dropdownResults.length} barang ditemukan
+                    </span>
+                  )}
+                </div>
+
+                {isSearching ? (
+                  <div className="p-6 text-center text-xs text-gray-400 flex items-center justify-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                    <span>Mencari di database produk...</span>
+                  </div>
+                ) : dropdownResults.length > 0 ? (
+                  <div className="divide-y divide-gray-50 max-h-80 overflow-y-auto">
+                    {dropdownResults.map((item) => {
+                      const lowestPrice =
+                        item.tieredPricesPcs?.length > 0
+                          ? item.tieredPricesPcs[item.tieredPricesPcs.length - 1]
+                              .price
+                          : 0;
+                      const imageSrc =
+                        item.images?.[0] ||
+                        getPlaceholderByCategory(item.categoryCode || item.category);
+                      const isPlaceholder = imageSrc.startsWith("/placeholders/");
+
+                      return (
+                        <div
+                          key={item.id}
+                          onClick={() => handleSelectProduct(item.id)}
+                          className="p-3 hover:bg-gray-50 flex items-center gap-3 cursor-pointer transition-colors"
+                        >
+                          <div className="relative w-11 h-11 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 shrink-0 flex items-center justify-center">
+                            <Image
+                              src={imageSrc}
+                              alt={item.name}
+                              fill
+                              sizes="44px"
+                              className={
+                                isPlaceholder
+                                  ? "object-contain p-1 bg-[#F9FBFA]"
+                                  : "object-cover"
+                              }
+                            />
+                          </div>
+
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs font-semibold text-gray-900 line-clamp-1">
+                              <HighlightText
+                                text={item.name}
+                                query={debouncedSearchQuery}
+                              />
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5">
+                              <span className="text-[11px] font-bold text-primary">
+                                {formatRupiah(lowestPrice)}
+                              </span>
+                              <span className="text-[10px] text-gray-400">
+                                /{item.unitPcsName || "pcs"}
+                              </span>
+                            </div>
+                          </div>
+
+                          <ChevronRight className="w-4 h-4 text-gray-300 shrink-0" />
+                        </div>
+                      );
+                    })}
+
+                    <button
+                      type="button"
+                      onClick={handleSearchSubmit}
+                      className="w-full p-2.5 bg-emerald-50/70 hover:bg-emerald-100/70 text-primary font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Search className="w-3.5 h-3.5" />
+                      <span>
+                        Lihat semua hasil di katalog ({searchQuery})
+                      </span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="p-6 text-center text-xs text-gray-500">
+                    <p className="font-semibold text-gray-700">
+                      Tidak menemukan produk &ldquo;{debouncedSearchQuery}&rdquo;
+                    </p>
+                    <p className="text-[11px] text-gray-400 mt-1">
+                      Coba gunakan istilah lain atau periksa kembali ejaan Anda.
+                    </p>
+                  </div>
+                )}
+              </div>
             )}
-          </form>
+          </div>
         </div>
       </header>
 

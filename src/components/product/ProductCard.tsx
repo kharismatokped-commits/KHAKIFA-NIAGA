@@ -10,8 +10,17 @@ import { Star, Package, ShoppingCart, Check, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getPlaceholderByCategory } from "@/lib/placeholders";
+import { HighlightText } from "@/components/common/HighlightText";
 
-export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
+interface ProductCardProps {
+  product: Product;
+  highlightQuery?: string;
+}
+
+export const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  highlightQuery,
+}) => {
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
 
@@ -101,7 +110,11 @@ export const ProductCard: React.FC<{ product: Product }> = ({ product }) => {
 
             {/* Nama Produk 13–14px medium */}
             <h3 className="font-heading font-medium text-gray-900 text-[13px] sm:text-[14px] leading-snug line-clamp-2 group-hover:text-primary transition-colors">
-              {product.name}
+              {highlightQuery ? (
+                <HighlightText text={product.name} query={highlightQuery} />
+              ) : (
+                product.name
+              )}
             </h3>
 
             {/* Harga Produk 16px bold (elemen paling menonjol) */}

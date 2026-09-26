@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Product } from "@/types/product";
+import { useDebounce } from "@/hooks/useDebounce";
 import {
   Search,
   Sparkles,
@@ -15,6 +16,7 @@ import {
   Store,
   Grid,
   Loader2,
+  CheckCircle2,
 } from "lucide-react";
 
 interface CategoryData {
@@ -55,70 +57,101 @@ function KatalogContent() {
   const [categories, setCategories] = useState<CategoryData[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Fetch real categories and products from database/API
-  useEffect(() => {
-    setIsLoading(true);
+  // Debounced search query (±300ms)
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-    Promise.all([
-      fetch("/api/products?limit=100").then((res) => res.json()),
-      fetch("/api/categories")
-        .then((res) => res.json())
-        .catch(() => ({ data: [] })),
-    ])
-      .then(([productsRes, categoriesRes]) => {
-        if (productsRes.customerProducts) {
-          setProducts(productsRes.customerProducts);
-        }
-        if (categoriesRes.data && categoriesRes.data.length > 0) {
-          setCategories(categoriesRes.data);
+  // Update searchQuery jika parameter URL q berubah
+  useEffect(() => {
+    const qFromUrl = searchParams.get("q");
+    if (qFromUrl !== null) {
+      setSearchQuery((prev) => (prev !== qFromUrl ? qFromUrl : prev));
+    }
+    const catFromUrl = searchParams.get("kategori");
+    if (catFromUrl !== null) {
+      setSelectedCategory((prev) => (prev !== catFromUrl ? catFromUrl : prev));
+    }
+  }, [searchParams]);
+
+  // Fetch daftar kategori toko sekali saat mount
+  useEffect(() => {
+    fetch("/api/categories")
+      .then((res) => res.json())
+      .then((res) => {
+        if (res.data && res.data.length > 0) {
+          setCategories(res.data);
         }
       })
-      .catch((err) => console.error("Error loading catalogue data:", err))
-      .finally(() => setIsLoading(false));
+      .catch((err) => console.error("Error loading categories:", err));
   }, []);
 
-  // Filtering logic
-  const filteredProducts = useMemo(() => {
-    return products
-      .filter((product) => {
-        // Filter kategori
-        if (
-          selectedCategory !== "all" &&
-          product.category !== selectedCategory
-        ) {
-          return false;
-        }
+  // Fetch produk dari backend API dengan debounced search & smart pg_trgm ranking
+  useEffect(() => {
+    let isCancelled = false;
+    setIsLoading(true);
 
-        // Filter promo
-        if (onlyPromo && !product.isPromo) {
-          return false;
-        }
+    const params = new URLSearchParams();
+    if (selectedCategory && selectedCategory !== "all") {
+      params.set("category", selectedCategory);
+    }
 
-        // Filter search
-        if (searchQuery.trim()) {
-          const query = searchQuery.toLowerCase();
-          const matchName = product.name.toLowerCase().includes(query);
-          const matchSku = product.sku.toLowerCase().includes(query);
-          const matchDesc = product.description.toLowerCase().includes(query);
-          if (!matchName && !matchSku && !matchDesc) {
-            return false;
+    const trimmedQuery = debouncedSearchQuery.trim();
+    if (trimmedQuery) {
+      params.set("q", trimmedQuery);
+      params.set("limit", "20"); // Maksimal 20 hasil pencarian teratas
+    } else {
+      params.set("limit", "100");
+    }
+
+    fetch(`/api/products?${params.toString()}`)
+      .then((res) => res.json())
+      .then((res) => {
+        if (!isCancelled) {
+          if (res.customerProducts) {
+            setProducts(res.customerProducts);
+          } else {
+            setProducts([]);
           }
         }
-
-        return true;
       })
-      .sort((a, b) => {
-        const priceA =
-          a.tieredPricesPcs[a.tieredPricesPcs.length - 1]?.price || 0;
-        const priceB =
-          b.tieredPricesPcs[b.tieredPricesPcs.length - 1]?.price || 0;
-
-        if (sortBy === "price-asc") return priceA - priceB;
-        if (sortBy === "price-desc") return priceB - priceA;
-        if (sortBy === "name") return a.name.localeCompare(b.name);
-        return (b.isPopular ? 1 : 0) - (a.isPopular ? 1 : 0);
+      .catch((err) => {
+        if (!isCancelled) console.error("Error loading products:", err);
+      })
+      .finally(() => {
+        if (!isCancelled) setIsLoading(false);
       });
-  }, [products, selectedCategory, searchQuery, onlyPromo, sortBy]);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [debouncedSearchQuery, selectedCategory]);
+
+  // Client-side filtering & sorting tambahan
+  const filteredProducts = useMemo(() => {
+    let result = products;
+
+    // Filter promo jika checkbox diaktifkan
+    if (onlyPromo) {
+      result = result.filter((p) => p.isPromo);
+    }
+
+    // Jika sedang dalam mode pencarian dengan sortBy === 'popular',
+    // pertahankan urutan relevansi skor (score DESC) langsung dari pg_trgm backend
+    if (debouncedSearchQuery.trim() && sortBy === "popular") {
+      return result;
+    }
+
+    return [...result].sort((a, b) => {
+      const priceA =
+        a.tieredPricesPcs[a.tieredPricesPcs.length - 1]?.price || 0;
+      const priceB =
+        b.tieredPricesPcs[b.tieredPricesPcs.length - 1]?.price || 0;
+
+      if (sortBy === "price-asc") return priceA - priceB;
+      if (sortBy === "price-desc") return priceB - priceA;
+      if (sortBy === "name") return a.name.localeCompare(b.name);
+      return (b.isPopular ? 1 : 0) - (a.isPopular ? 1 : 0);
+    });
+  }, [products, debouncedSearchQuery, onlyPromo, sortBy]);
 
   const resetFilters = () => {
     setSelectedCategory("all");
@@ -136,44 +169,69 @@ function KatalogContent() {
             Katalog Produk Grosir
           </h2>
           <p className="text-xs text-gray-500">
-            Kulakan barang dagangan toko dengan harga grosir bertingkat
-            transparan
+            Kulakan barang dagangan toko dengan harga grosir bertingkat transparan
           </p>
         </div>
 
-        {/* Search input */}
+        {/* Search input with Debounce & Clear */}
         <div className="relative">
           <input
             type="text"
-            placeholder="Cari nama barang, jenis ATK, lakban, plastik..."
+            placeholder="Cari nama barang, jenis ATK, lakban, plastik, kresek, dll..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full h-11 pl-10 pr-10 rounded-xl border border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary transition-all"
           />
-          <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5 pointer-events-none" />
+          <div className="absolute left-3.5 top-3.5 text-gray-400 pointer-events-none">
+            {isLoading && searchQuery.trim() ? (
+              <Loader2 className="w-4 h-4 animate-spin text-primary" />
+            ) : (
+              <Search className="w-4 h-4" />
+            )}
+          </div>
           {searchQuery && (
             <button
               onClick={() => setSearchQuery("")}
-              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+              className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 p-0.5 cursor-pointer"
+              title="Bersihkan pencarian"
             >
               <X className="w-4 h-4" />
             </button>
           )}
         </div>
 
+        {/* Informasi Hasil Pencarian Cerdas Aktif */}
+        {debouncedSearchQuery.trim() && (
+          <div className="flex flex-wrap items-center justify-between gap-2 p-2.5 bg-emerald-50/80 border border-emerald-200/80 rounded-xl text-xs">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+              <span className="text-gray-700">
+                Menampilkan hasil untuk kata kunci{" "}
+                <span className="font-bold text-gray-900">
+                  &ldquo;{debouncedSearchQuery.trim()}&rdquo;
+                </span>{" "}
+                (toleran typo & sinonim aktif)
+              </span>
+            </div>
+            <span className="text-primary font-bold">
+              {filteredProducts.length} produk ditemukan
+            </span>
+          </div>
+        )}
+
         {/* Filter Categories Chips */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-[12px] sm:text-[13px]">
           <button
             type="button"
             onClick={() => setSelectedCategory("all")}
-            className={`min-h-[44px] px-4 py-2.5 rounded-xl font-medium whitespace-nowrap transition-colors shrink-0 flex items-center gap-2 ${
+            className={`min-h-[44px] px-4 py-2.5 rounded-xl font-medium whitespace-nowrap transition-colors shrink-0 flex items-center gap-2 cursor-pointer ${
               selectedCategory === "all"
                 ? "bg-primary text-white shadow-xs"
                 : "bg-white border border-gray-200 text-[#64748B] hover:bg-gray-50"
             }`}
           >
             <LayoutGrid className="w-4 h-4" strokeWidth={2.2} />
-            <span>Semua Produk ({products.length})</span>
+            <span>Semua Kategori</span>
           </button>
 
           {categories.map((cat) => {
@@ -183,7 +241,7 @@ function KatalogContent() {
                 key={cat.id}
                 type="button"
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`min-h-[44px] px-4 py-2.5 rounded-xl font-medium whitespace-nowrap transition-colors shrink-0 flex items-center gap-2 ${
+                className={`min-h-[44px] px-4 py-2.5 rounded-xl font-medium whitespace-nowrap transition-colors shrink-0 flex items-center gap-2 cursor-pointer ${
                   isSelected
                     ? "bg-primary text-white shadow-xs"
                     : "bg-white border border-gray-200 text-[#64748B] hover:bg-gray-50"
@@ -194,35 +252,33 @@ function KatalogContent() {
               </button>
             );
           })}
-
-          <button
-            type="button"
-            onClick={() => setOnlyPromo(!onlyPromo)}
-            className={`min-h-[44px] px-4 py-2.5 rounded-xl font-medium whitespace-nowrap transition-colors shrink-0 flex items-center gap-2 ${
-              onlyPromo
-                ? "bg-[#F57C00] text-white shadow-xs"
-                : "bg-white border border-amber-200 text-[#F57C00] hover:bg-amber-50"
-            }`}
-          >
-            <Sparkles className="w-4 h-4" strokeWidth={2.2} />
-            <span>Promo Saja</span>
-          </button>
         </div>
 
-        {/* Secondary controls row: Count & Sort */}
-        <div className="flex items-center justify-between text-xs pt-2 border-t border-gray-100">
-          <div className="text-gray-600 font-medium">
-            Menampilkan <strong>{filteredProducts.length}</strong> produk
-          </div>
+        {/* Bar Filter Cepat: Promo & Urutan */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-gray-100">
+          <label className="flex items-center gap-2 text-xs font-semibold text-gray-700 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={onlyPromo}
+              onChange={(e) => setOnlyPromo(e.target.checked)}
+              className="w-4 h-4 rounded text-primary focus:ring-primary border-gray-300"
+            />
+            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+            <span>Hanya Promo Grosir</span>
+          </label>
 
           <div className="flex items-center gap-2">
-            <span className="text-gray-400 hidden sm:inline">Urutkan:</span>
+            <span className="text-xs text-gray-500 font-medium">Urutkan:</span>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary min-h-[38px]"
+              className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-xs font-bold text-gray-700 focus:outline-none focus:ring-1 focus:ring-primary min-h-[38px] cursor-pointer"
             >
-              <option value="popular">Paling Populer</option>
+              <option value="popular">
+                {debouncedSearchQuery.trim()
+                  ? "Paling Relevan (Skor Terbaik)"
+                  : "Paling Populer"}
+              </option>
               <option value="price-asc">Harga Grosir: Termurah</option>
               <option value="price-desc">Harga Grosir: Tertinggi</option>
               <option value="name">Nama: A - Z</option>
@@ -236,13 +292,17 @@ function KatalogContent() {
         <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center space-y-3">
           <Loader2 className="w-6 h-6 animate-spin text-primary mx-auto" />
           <p className="text-xs text-gray-500 font-medium">
-            Memuat katalog produk...
+            Mencari katalog produk di database...
           </p>
         </div>
       ) : filteredProducts.length > 0 ? (
         <div className="flex flex-col space-y-3">
           {filteredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard
+              key={product.id}
+              product={product}
+              highlightQuery={debouncedSearchQuery.trim()}
+            />
           ))}
         </div>
       ) : (
@@ -259,7 +319,7 @@ function KatalogContent() {
           </p>
           <button
             onClick={resetFilters}
-            className="px-4 py-2 bg-emerald-50 text-primary font-bold text-xs rounded-xl hover:bg-emerald-100 transition-colors"
+            className="px-4 py-2 bg-emerald-50 text-primary font-bold text-xs rounded-xl hover:bg-emerald-100 transition-colors cursor-pointer"
           >
             Reset Semua Filter
           </button>
