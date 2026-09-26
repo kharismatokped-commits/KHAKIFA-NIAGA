@@ -1,61 +1,161 @@
-# Integrasi Higgsfield AI (`gery project`)
+# Khalifa Niaga Grosir
 
-Koneksi ke **[Higgsfield AI](https://higgsfield.ai)** via **API Console** (`api.higgsfield.ai`).
-
-## Kredensial yang Digunakan
-Kredensial Anda telah disimpan secara aman di file [`.env`](file:///Users/kharismabahtiar/Projects/gery%20project%20/.env):
-- **Key ID:** `b1371f13-bddb-41d3-852c-2169b4d0bde9`
-- **Key Secret:** `aac36d0082de64bfb176b0fd220d1c7a18bd82887bfd18fbe595ff55af1971f8`
-
-File `.env` telah ditambahkan ke [`.gitignore`](file:///Users/kharismabahtiar/Projects/gery%20project%20/.gitignore) agar aman dan tidak bocor ke git repository.
+Aplikasi Web E-Commerce Grosir & Eceran modern untuk **Khalifa Niaga**, dirancang khusus untuk efisiensi transaksi partai besar dan toko kelontong/eceran berbasis WhatsApp Checkout, katalog harga bertingkat (Tiered Pricing), dan Panel Admin terintegrasi.
 
 ---
 
-## Struktur File
-- [`.env`](file:///Users/kharismabahtiar/Projects/gery%20project%20/.env) - Menyimpan kunci API Higgsfield.
-- [`.gitignore`](file:///Users/kharismabahtiar/Projects/gery%20project%20/.gitignore) - Mengabaikan `.env` dan file cache.
-- [`higgsfield_api.py`](file:///Users/kharismabahtiar/Projects/gery%20project%20/higgsfield_api.py) - Client Python untuk autentikasi, tes koneksi, submit request, dan polling status.
-- [`example_generate.py`](file:///Users/kharismabahtiar/Projects/gery%20project%20/example_generate.py) - Skrip contoh untuk membuat generasi gambar/video dengan prompt kustom.
+## Fitur Utama
+
+- **Katalog & Harga Bertingkat Otomatis**: Mendukung multi-satuan (pcs, lusin, pak, dus, dll) dan diskon kuantitas bertingkat per varian.
+- **Deteksi Otomatis Jenis Pesanan (Eceran vs Grosir)**: Sistem secara otomatis menentukan status pesanan berdasarkan threshold kuantitas/nilai belanja. Field "Nama Toko" disembunyikan otomatis jika berstatus eceran.
+- **WhatsApp Direct Checkout**: Menghasilkan format pesan pesanan rapi, terstruktur, dan siap kirim ke nomor WhatsApp resmi toko.
+- **Pencarian Cerdas Toleran Typo**: Pencarian cepat lintas kolom (nama produk, merek, varian, deskripsi, kategori) berbasis PostgreSQL `pg_trgm`.
+- **Panel Admin Terproteksi (`/admin/*`)**:
+  - Dashboard performa & ringkasan penjualan dengan agregasi SQL (COUNT, SUM) dan in-memory caching.
+  - Kelola katalog 480+ produk dengan server-side pagination (20 baris/halaman), edit harga tier on-demand, dan upload foto langsung ke Supabase Storage.
+  - Manajemen pesanan pelanggan dengan filter status dan rentang tanggal.
+  - Manajemen kategori produk dan pengaturan toko.
+- **Optimasi Performa & UX**: Pemanfaatan `next/image` untuk seluruh gambar dan thumbnail, flat icon SVG placeholder per kategori, navigasi instan antar-tab, dan ISR/caching.
 
 ---
 
-## Cara Penggunaan
+## Struktur Folder Project
 
-### 1. Uji Koneksi API (Tanpa Biaya Kredit)
+```text
+├── prisma/
+│   └── schema.prisma            # Skema database PostgreSQL (Prisma ORM)
+├── public/
+│   └── placeholders/            # Aset placeholder flat SVG per kategori
+├── scripts/
+│   ├── import-pos-products.js   # Script import dari file Excel iPOS 5 Pro
+│   ├── import-structured-json.js# Script import dari JSON terstruktur
+│   └── setup-pg-trgm.js         # Setup ekstensi pg_trgm & GIN index di Supabase
+├── src/
+│   ├── app/
+│   │   ├── (customer)/          # Rute Customer Storefront
+│   │   │   ├── checkout/        # Halaman Checkout & Konfirmasi WhatsApp
+│   │   │   ├── info-toko/       # Profil & kontak toko Khalifa Niaga
+│   │   │   ├── katalog/         # Katalog produk lengkap dengan filter & search
+│   │   │   ├── keranjang/       # Keranjang belanja & kalkulator kuantiti
+│   │   │   ├── produk/[id]/     # Halaman detail produk & tabel tier harga
+│   │   │   └── page.tsx         # Beranda toko (Search-first, banner, Pesan Lagi)
+│   │   ├── admin/               # Panel Kontrol Admin (Terproteksi)
+│   │   │   ├── dashboard/       # Ringkasan omzet, statistik & pesanan baru
+│   │   │   ├── products/        # Kelola katalog produk, foto & harga tier
+│   │   │   ├── orders/          # Kelola transaksi & status pesanan
+│   │   │   ├── categories/      # Kelola kategori barang
+│   │   │   ├── customers/       # Daftar pelanggan
+│   │   │   ├── settings/        # Pengaturan kontak & banner toko
+│   │   │   └── login/           # Halaman login admin Better Auth
+│   │   └── api/                 # Endpoint REST API Next.js Route Handlers
+│   │       ├── admin/           # API terproteksi untuk panel admin
+│   │       ├── cart/calculate/  # Server-side pricing calculator (Anti-tamper)
+│   │       ├── orders/          # Pembuatan pesanan & lookup
+│   │       └── products/        # Pencarian & katalog publik
+│   ├── components/              # Komponen UI modular
+│   │   ├── admin/               # Shell navigasi & layout admin
+│   │   ├── cart/                # Komponen keranjang & WhatsApp preview
+│   │   ├── home/                # Banner, Grid Kategori, Pesan Lagi
+│   │   ├── layout/              # Header, Footer, Bottom Navigation
+│   │   └── product/             # Kartu produk, tabel tier, selector kuantiti
+│   ├── context/                 # Context React (CartContext)
+│   ├── hooks/                   # Custom Hooks (useDebounce, useStoreSettings)
+│   ├── lib/                     # Utilitas, Prisma client, Auth & formatting
+│   └── middleware.ts            # Edge middleware proteksi rute /admin/*
+├── .env.example                 # Template environment variables
+├── next.config.ts               # Konfigurasi Next.js & Image Optimization
+└── package.json
+```
+
+---
+
+## Prasyarat Lingkungan
+
+- **Node.js**: v18.18.0 atau lebih baru (disarankan v20 LTS)
+- **Database**: PostgreSQL (misalnya Supabase PostgreSQL)
+- **Package Manager**: npm
+
+---
+
+## Panduan Instalasi & Menjalankan
+
+### 1. Clone & Install Dependensi
 ```bash
-python3 higgsfield_api.py test
-```
-*Hasil yang diharapkan:*
-```
-[*] Menguji koneksi Higgsfield API dengan Key ID: b1371f13...bde9
-[+] KONEKSI BERHASIL: API Key terverifikasi aktif dan diterima oleh Higgsfield AI!
+git clone https://github.com/kharismatokped-commits/KHAKIFA-NIAGA.git
+cd KHAKIFA-NIAGA
+npm install
 ```
 
-### 2. Menjalankan Generasi Media
+### 2. Setup Environment Variables
+Salin file `.env.example` menjadi `.env.local` (atau `.env`):
 ```bash
-python3 example_generate.py "A cinematic portrait of a cyberpunk explorer in neon city, 8k"
+cp .env.example .env.local
 ```
 
-### 3. Menggunakan di Kode Python Sendiri
-```python
-from higgsfield_api import HiggsfieldClient
+Lengkapi konfigurasi berikut di `.env.local`:
+```env
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL="https://your-project-ref.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
 
-client = HiggsfieldClient()
+# PostgreSQL Connection Strings (Prisma)
+# Gunakan port 6543 (transaction pooler) untuk DATABASE_URL di serverless
+DATABASE_URL="postgresql://postgres.[project-ref]:[password]@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+# Gunakan port 5432 (direct connection) untuk migrasi Prisma
+DIRECT_URL="postgresql://postgres.[project-ref]:[password]@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres"
 
-# Kirim request pembuatan
-res = client.create_generation(
-    model="higgsfield-ai/soul/v2/standard",
-    prompt="Pemandangan pegunungan saat matahari terbenam"
-)
+# Better Auth Configuration
+BETTER_AUTH_SECRET="your-secure-random-32-character-secret"
+BETTER_AUTH_URL="http://localhost:3005"
+NEXT_PUBLIC_APP_URL="http://localhost:3005"
+NEXT_PUBLIC_WA_MESSAGE="Halo, saya tertarik belanja di Khalifa Niaga"
+```
 
-# Tunggu sampai selesai (polling)
-output = client.wait_for_completion(res["status_url"])
-print(output)
+### 3. Generate Prisma Client & Migrasi Database
+```bash
+# Generate Prisma Client
+npx prisma generate
+
+# Sinkronisasi skema ke database PostgreSQL
+npx prisma db push
+```
+
+### 4. Setup Ekstensi Pencarian Typo-Tolerant (Opsional jika database baru)
+Jalankan skrip aktivasi `pg_trgm` dan GIN index:
+```bash
+node scripts/setup-pg-trgm.js
+```
+
+### 5. Import Produk dari Excel iPOS 5 Pro (Opsional)
+Untuk mengimpor data produk hasil ekspor iPOS:
+```bash
+node scripts/import-pos-products.js path/ke/file_export_ipos.xlsx
+```
+*Script ini otomatis mengelompokkan baris ke produk & varian unik, memvalidasi kuantitas & tier harga, serta mengabaikan baris bermasalah secara transparan.*
+
+### 6. Menjalankan Server Pengembangan
+```bash
+npm run dev
+```
+Aplikasi dapat diakses di browser pada:
+- **Toko Customer**: [http://localhost:3005](http://localhost:3005)
+- **Panel Admin**: [http://localhost:3005/admin](http://localhost:3005/admin)
+
+---
+
+## Build & Production Deployment
+
+Untuk memvalidasi dan membuild aplikasi production:
+```bash
+npm run build
+```
+
+Menjalankan server production:
+```bash
+npm run start
 ```
 
 ---
 
-## Catatan Penting
-- API Higgsfield menggunakan sistem saldo/kredit terpisah dari langganan web biasa (pay-as-you-go di [console.higgsfield.ai](https://console.higgsfield.ai)).
-- Format header otentikasi standar:
-  `Authorization: Key <HF_KEY_ID>:<HF_KEY_SECRET>`
+## Lisensi & Hak Cipta
+Hak Cipta © 2026 Khalifa Niaga. Seluruh hak cipta dilindungi undang-undang.

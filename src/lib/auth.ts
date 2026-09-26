@@ -19,6 +19,10 @@ export const auth = betterAuth({
   },
   secret:
     process.env.BETTER_AUTH_SECRET ||
-    "925b97d06cb78c6471e437417a07e37896f2c80727fa147f3c8ab42582ca143b",
+    (process.env.NODE_ENV === "production"
+      ? (() => {
+          throw new Error("BETTER_AUTH_SECRET environment variable is required in production");
+        })()
+      : "dev-only-secret-do-not-use-in-production-1234567890"),
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3005",
 });

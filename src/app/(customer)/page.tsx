@@ -14,6 +14,7 @@ export default async function HomePage() {
 
   try {
     const dbProducts = await prisma.product.findMany({
+      take: 8,
       include: {
         category: true,
         variants: {
