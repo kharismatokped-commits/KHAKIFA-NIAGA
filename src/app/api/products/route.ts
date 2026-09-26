@@ -4,6 +4,8 @@ import { Prisma } from "@prisma/client";
 import { ProductsQuerySchema } from "@/lib/validations";
 import { expandSearchTerms } from "@/lib/search-synonyms";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -142,18 +144,25 @@ export async function GET(request: NextRequest) {
 
       const customerProducts = sortedProducts.map(mapDbProductToCustomerProduct);
 
-      return NextResponse.json({
-        success: true,
-        meta: {
-          total: sortedProducts.length,
-          page: 1,
-          limit,
-          totalPages: 1,
-          query: normalized,
+      return NextResponse.json(
+        {
+          success: true,
+          meta: {
+            total: sortedProducts.length,
+            page: 1,
+            limit,
+            totalPages: 1,
+            query: normalized,
+          },
+          data: sortedProducts,
+          customerProducts,
         },
-        data: sortedProducts,
-        customerProducts,
-      });
+        {
+          headers: {
+            "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+          },
+        },
+      );
     }
 
     // 2. Jika tidak ada parameter pencarian 'q', gunakan findMany standar dengan pagination
@@ -191,17 +200,24 @@ export async function GET(request: NextRequest) {
 
     const customerProducts = products.map(mapDbProductToCustomerProduct);
 
-    return NextResponse.json({
-      success: true,
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+    return NextResponse.json(
+      {
+        success: true,
+        meta: {
+          total,
+          page,
+          limit,
+          totalPages: Math.ceil(total / limit),
+        },
+        data: products,
+        customerProducts,
       },
-      data: products,
-      customerProducts,
-    });
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        },
+      },
+    );
   } catch (error: any) {
     console.error("GET /api/products error:", error);
     return NextResponse.json(

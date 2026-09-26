@@ -9,7 +9,7 @@ import { Product } from "@/types/product";
 import { prisma } from "@/lib/prisma";
 import { mapDbProductToCustomerProduct } from "@/lib/product-mapper";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function HomePage() {
   let allProducts: Product[] = [];

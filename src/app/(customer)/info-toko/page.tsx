@@ -13,7 +13,6 @@ import {
   LogOut,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { authClient } from "@/lib/auth-client";
 
 export default function InfoTokoPage() {
   const storeSettings = useStoreSettings();
@@ -181,12 +180,13 @@ export default function InfoTokoPage() {
           <Button
             type="button"
             onClick={async () => {
+              const { authClient } = await import("@/lib/auth-client");
               await authClient.signOut();
               window.location.href = "/admin/login";
             }}
             variant="outline"
             size="sm"
-            className="text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-1.5"
+            className="text-xs text-gray-700 hover:bg-gray-50 flex items-center gap-1.5 cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Keluar (Logout)</span>

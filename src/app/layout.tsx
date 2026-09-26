@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { CartProvider } from "@/context/CartContext";
+import { BottomNav } from "@/components/layout/BottomNav";
 
 export const metadata: Metadata = {
   title: "Khalifa Niaga — Grosir Alat Tulis, Plastik & Kelontong",
@@ -22,7 +24,10 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body className="min-h-screen bg-gray-50 text-gray-900 font-sans antialiased">
-        {children}
+        <CartProvider>
+          {children}
+          <BottomNav />
+        </CartProvider>
       </body>
     </html>
   );

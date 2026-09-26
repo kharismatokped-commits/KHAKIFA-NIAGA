@@ -6,6 +6,8 @@ import { Product } from "@/types/product";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Sparkles, ArrowRight } from "lucide-react";
 
+import { ProductListSkeleton } from "@/components/product/ProductCardSkeleton";
+
 interface PopularSectionProps {
   products?: Product[];
 }
@@ -68,9 +70,7 @@ export const PopularSection: React.FC<PopularSectionProps> = ({
 
       {/* 1 Kolom List Vertikal */}
       {loading ? (
-        <div className="p-8 text-center text-xs text-gray-400 bg-white rounded-2xl border border-gray-100">
-          Memuat produk terlaris...
-        </div>
+        <ProductListSkeleton count={4} />
       ) : displayProducts.length > 0 ? (
         <div className="flex flex-col space-y-3">
           {displayProducts.map((product) => (

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const categories = await prisma.category.findMany({
@@ -12,10 +14,17 @@ export async function GET() {
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      data: categories,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        data: categories,
+      },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        },
+      },
+    );
   } catch (error: any) {
     console.error("GET /api/categories error:", error);
     return NextResponse.json(

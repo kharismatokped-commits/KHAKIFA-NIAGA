@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ProductCard } from "@/components/product/ProductCard";
+import { ProductListSkeleton } from "@/components/product/ProductCardSkeleton";
 import { Product } from "@/types/product";
 import { useDebounce } from "@/hooks/useDebounce";
 import {
@@ -289,12 +290,7 @@ function KatalogContent() {
 
       {/* Product List: 1 Kolom List Vertikal */}
       {isLoading ? (
-        <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center space-y-3">
-          <Loader2 className="w-6 h-6 animate-spin text-primary mx-auto" />
-          <p className="text-xs text-gray-500 font-medium">
-            Mencari katalog produk di database...
-          </p>
-        </div>
+        <ProductListSkeleton count={5} />
       ) : filteredProducts.length > 0 ? (
         <div className="flex flex-col space-y-3">
           {filteredProducts.map((product) => (

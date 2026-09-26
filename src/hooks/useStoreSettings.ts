@@ -19,22 +19,37 @@ export const DEFAULT_STORE_SETTINGS: StoreSettings = {
     "Katalog online harga bertingkat resmi. Pesan langsung terhubung ke WhatsApp toko.",
 };
 
+// In-memory module cache untuk mencegah re-fetching berulang antar tab
+let cachedSettings: StoreSettings | null = null;
+let settingsPromise: Promise<StoreSettings> | null = null;
+
 export function useStoreSettings() {
   const [settings, setSettings] = useState<StoreSettings>(
-    DEFAULT_STORE_SETTINGS,
+    cachedSettings || DEFAULT_STORE_SETTINGS,
   );
 
   useEffect(() => {
-    fetch("/api/settings")
-      .then((r) => r.json())
-      .then((res) => {
-        if (res.success && res.data) {
-          setSettings(res.data);
-        }
-      })
-      .catch(() => {
-        // Fallback silently to DEFAULT_STORE_SETTINGS
-      });
+    if (cachedSettings) {
+      setSettings(cachedSettings);
+      return;
+    }
+
+    if (!settingsPromise) {
+      settingsPromise = fetch("/api/settings")
+        .then((r) => r.json())
+        .then((res) => {
+          if (res.success && res.data) {
+            cachedSettings = res.data;
+            return res.data;
+          }
+          return DEFAULT_STORE_SETTINGS;
+        })
+        .catch(() => DEFAULT_STORE_SETTINGS);
+    }
+
+    settingsPromise.then((data) => {
+      setSettings(data);
+    });
   }, []);
 
   return settings;
