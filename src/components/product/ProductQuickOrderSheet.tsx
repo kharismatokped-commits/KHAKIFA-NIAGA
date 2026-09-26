@@ -376,38 +376,37 @@ export const ProductQuickOrderSheet: React.FC<ProductQuickOrderSheetProps> = ({
         </div>
 
         {/* Footer Actions: Pesan Sekarang Langsung ke Form Pemesanan */}
-        <div className="p-4 border-t border-gray-100 bg-gray-50/80 space-y-2 shrink-0">
-          <div className="flex items-center gap-2.5">
-            {/* Tombol Simpan ke Keranjang Saja (Sekunder) */}
+        <div className="p-3.5 sm:p-4 border-t border-gray-100 bg-gray-50/80 space-y-2 shrink-0">
+          <div className="grid grid-cols-12 gap-2 w-full">
+            {/* Tombol Simpan ke Keranjang Saja (Sekunder - 35%) */}
             <Button
               type="button"
               variant="outline"
               onClick={handleAddToCartOnly}
-              className="h-12 px-3.5 rounded-2xl border-gray-200 bg-white hover:bg-gray-100 text-gray-700 hover:text-primary hover:border-primary shrink-0 text-xs font-bold shadow-2xs transition-all"
+              className="col-span-4 h-11 sm:h-12 px-1.5 sm:px-2 rounded-xl sm:rounded-2xl border-gray-200 bg-white hover:bg-gray-100 text-gray-700 hover:text-primary hover:border-primary text-xs font-bold shadow-2xs transition-all flex items-center justify-center gap-1 min-w-0"
               title="Simpan ke keranjang untuk belanja produk lain"
             >
               {addedOnlySuccess ? (
-                <span className="flex items-center gap-1 text-emerald-600">
-                  <Check className="w-4 h-4 stroke-[3]" />
-                  <span className="text-[11px]">Tersimpan!</span>
+                <span className="flex items-center gap-1 text-emerald-600 text-[11px] truncate">
+                  <Check className="w-3.5 h-3.5 stroke-[3] shrink-0" />
+                  <span className="truncate">Tersimpan</span>
                 </span>
               ) : (
-                <span className="flex items-center gap-1.5">
-                  <ShoppingCart className="w-4 h-4" />
-                  <span className="text-[11px]">+ Keranjang</span>
+                <span className="flex items-center gap-1 text-[11px] sm:text-xs truncate">
+                  <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">+ Keranjang</span>
                 </span>
               )}
             </Button>
 
-            {/* Tombol Utama: Pesan Sekarang -> Langsung ke Form Pemesanan (/checkout) */}
+            {/* Tombol Utama: Pesan Sekarang -> Langsung ke Form Pemesanan (/checkout - 65%) */}
             <Button
               type="button"
               onClick={handleDirectOrder}
-              className="flex-1 min-h-[48px] h-12 rounded-2xl bg-primary hover:bg-primary-dark text-white font-heading font-black text-sm tracking-normal transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2"
+              className="col-span-8 min-h-[44px] h-11 sm:h-12 px-2 sm:px-3 rounded-xl sm:rounded-2xl bg-primary hover:bg-primary-dark text-white font-heading font-black text-xs sm:text-sm tracking-tight transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-1.5 min-w-0"
             >
-              <Zap className="w-4 h-4 fill-amber-300 text-amber-300" />
-              <span>Pesan Sekarang • {formatRupiah(subtotal)}</span>
-              <ArrowRight className="w-4 h-4" />
+              <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-amber-300 text-amber-300 shrink-0" />
+              <span className="truncate">Pesan Sekarang • {formatRupiah(subtotal)}</span>
             </Button>
           </div>
 
