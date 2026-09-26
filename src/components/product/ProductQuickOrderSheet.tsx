@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Product, ProductVariant } from "@/types/product";
 import { formatRupiah } from "@/lib/formatters";
 import { getUnitPrice, getNextTierRecommendation, calculateSavings } from "@/lib/pricing";
@@ -14,11 +14,10 @@ import {
   Minus,
   ShoppingCart,
   Check,
-  Sparkles,
   TrendingDown,
   Info,
   ArrowRight,
-  ShieldCheck,
+  Zap,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -35,18 +34,19 @@ export const ProductQuickOrderSheet: React.FC<ProductQuickOrderSheetProps> = ({
   isOpen,
   onClose,
 }) => {
+  const router = useRouter();
   const { addItem } = useCart();
   const [qty, setQty] = useState<number>(1);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(() => {
     return product.variants && product.variants.length > 0 ? product.variants[0] : undefined;
   });
-  const [addedSuccess, setAddedSuccess] = useState<boolean>(false);
+  const [addedOnlySuccess, setAddedOnlySuccess] = useState<boolean>(false);
 
   // Reset qty & variant saat modal dibuka untuk produk baru
   useEffect(() => {
     if (isOpen) {
       setQty(1);
-      setAddedSuccess(false);
+      setAddedOnlySuccess(false);
       if (product.variants && product.variants.length > 0) {
         setSelectedVariant(product.variants[0]);
       } else {
@@ -104,12 +104,20 @@ export const ProductQuickOrderSheet: React.FC<ProductQuickOrderSheetProps> = ({
   const handleDecrement = () => setQty((prev) => (prev > 1 ? prev - 1 : 1));
   const handleAddPreset = (amount: number) => setQty((prev) => prev + amount);
 
-  const handleAddToCart = () => {
+  // Aksi Utama: Pesan Sekarang -> langsung simpan ke keranjang & diarahkan ke form pemesanan (/checkout)
+  const handleDirectOrder = () => {
     addItem(product, "PCS", qty, selectedVariant);
-    setAddedSuccess(true);
+    onClose();
+    router.push("/checkout");
+  };
+
+  // Aksi Sekunder: Simpan ke keranjang saja tanpa checkout sekarang (opsional bagi yang ingin lanjut belanja)
+  const handleAddToCartOnly = () => {
+    addItem(product, "PCS", qty, selectedVariant);
+    setAddedOnlySuccess(true);
     setTimeout(() => {
-      setAddedSuccess(false);
-    }, 2500);
+      setAddedOnlySuccess(false);
+    }, 2000);
   };
 
   return (
@@ -165,12 +173,23 @@ export const ProductQuickOrderSheet: React.FC<ProductQuickOrderSheetProps> = ({
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-1">
-                <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
-                <span className="font-bold text-gray-800">{product.rating}</span>
-                <span className="text-gray-400">({product.reviewCount} ulasan)</span>
-                <span className="text-gray-300">•</span>
-                <span className="font-mono text-[11px] text-gray-500">{product.sku}</span>
+              {/* Rating & Info Rapi (mencegah teks ulasan patah baris) */}
+              <div className="flex items-center gap-1.5 text-xs text-gray-500 mb-1 flex-wrap">
+                <div className="flex items-center gap-1 shrink-0">
+                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                  <span className="font-bold text-gray-800">{product.rating}</span>
+                  <span className="text-gray-400 text-[11px] whitespace-nowrap">
+                    ({product.reviewCount} ulasan)
+                  </span>
+                </div>
+                {product.categoryCode && (
+                  <>
+                    <span className="text-gray-300">•</span>
+                    <span className="text-[11px] text-gray-500 uppercase font-medium">
+                      {product.categoryCode}
+                    </span>
+                  </>
+                )}
               </div>
 
               <h2 className="font-heading font-black text-base sm:text-lg text-gray-900 leading-snug line-clamp-2">
@@ -356,50 +375,45 @@ export const ProductQuickOrderSheet: React.FC<ProductQuickOrderSheetProps> = ({
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="p-4 border-t border-gray-100 bg-gray-50/50 space-y-2 shrink-0">
-          <Button
-            type="button"
-            onClick={handleAddToCart}
-            className={`w-full min-h-[48px] h-12 rounded-2xl font-heading font-black text-sm tracking-normal transition-all shadow-md ${
-              addedSuccess
-                ? "bg-emerald-700 text-white ring-2 ring-emerald-300"
-                : "bg-primary hover:bg-primary-dark text-white"
-            }`}
-          >
-            {addedSuccess ? (
-              <span className="flex items-center justify-center gap-2">
-                <Check className="w-5 h-5 stroke-[3]" />
-                <span>Berhasil Ditambahkan ke Keranjang!</span>
-              </span>
-            ) : (
-              <span className="flex items-center justify-center gap-2">
-                <ShoppingCart className="w-4 h-4" />
-                <span>+ Masukkan ke Keranjang • {formatRupiah(subtotal)}</span>
-              </span>
-            )}
-          </Button>
+        {/* Footer Actions: Pesan Sekarang Langsung ke Form Pemesanan */}
+        <div className="p-4 border-t border-gray-100 bg-gray-50/80 space-y-2 shrink-0">
+          <div className="flex items-center gap-2.5">
+            {/* Tombol Simpan ke Keranjang Saja (Sekunder) */}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleAddToCartOnly}
+              className="h-12 px-3.5 rounded-2xl border-gray-200 bg-white hover:bg-gray-100 text-gray-700 hover:text-primary hover:border-primary shrink-0 text-xs font-bold shadow-2xs transition-all"
+              title="Simpan ke keranjang untuk belanja produk lain"
+            >
+              {addedOnlySuccess ? (
+                <span className="flex items-center gap-1 text-emerald-600">
+                  <Check className="w-4 h-4 stroke-[3]" />
+                  <span className="text-[11px]">Tersimpan!</span>
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5">
+                  <ShoppingCart className="w-4 h-4" />
+                  <span className="text-[11px]">+ Keranjang</span>
+                </span>
+              )}
+            </Button>
 
-          {/* Opsi Navigasi Setelah Add */}
-          {addedSuccess && (
-            <div className="flex items-center gap-2 pt-1 animate-in fade-in">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                className="flex-1 h-9 rounded-xl text-xs font-bold border-gray-300"
-              >
-                Lanjut Belanja
-              </Button>
-              <Link
-                href="/keranjang"
-                className="flex-1 h-9 rounded-xl text-xs font-bold bg-gray-900 text-white flex items-center justify-center gap-1 hover:bg-black transition-colors"
-              >
-                <span>Lihat Keranjang</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          )}
+            {/* Tombol Utama: Pesan Sekarang -> Langsung ke Form Pemesanan (/checkout) */}
+            <Button
+              type="button"
+              onClick={handleDirectOrder}
+              className="flex-1 min-h-[48px] h-12 rounded-2xl bg-primary hover:bg-primary-dark text-white font-heading font-black text-sm tracking-normal transition-all shadow-md active:scale-[0.98] flex items-center justify-center gap-2"
+            >
+              <Zap className="w-4 h-4 fill-amber-300 text-amber-300" />
+              <span>Pesan Sekarang • {formatRupiah(subtotal)}</span>
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+
+          <p className="text-[10px] text-center text-gray-400">
+            Tekan <strong>Pesan Sekarang</strong> untuk langsung mengisi form pengiriman WhatsApp tanpa buka keranjang
+          </p>
         </div>
       </div>
     </div>
