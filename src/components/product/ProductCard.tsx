@@ -2,10 +2,11 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Product } from "@/types/product";
 import { formatRupiah } from "@/lib/formatters";
 import { useCart } from "@/context/CartContext";
-import { Star, ShoppingCart, Check, FileText } from "lucide-react";
+import { Star, ShoppingCart, Check, FileText, Zap } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getPlaceholderByCategory } from "@/lib/placeholders";
@@ -23,6 +24,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   highlightQuery,
   variant = "list",
 }) => {
+  const router = useRouter();
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -50,17 +52,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     product.variants && product.variants.length > 1,
   );
 
+  // Aksi 1: Simpan ke Keranjang Saja (Tetap di halaman)
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    // Jika produk memiliki varian pilihan asli (misal warna/tipe), buka sheet agar pembeli memilih varian
     if (hasMultipleVariants) {
       setIsSheetOpen(true);
       return;
     }
 
-    // Default: masukkan 1 pcs langsung
     const defaultVariant =
       product.variants && product.variants.length > 0
         ? product.variants[0]
@@ -69,6 +70,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
+  };
+
+  // Aksi 2: Pesan Sekarang -> Langsung menuju Formulir Pemesanan (/checkout)
+  const handleDirectOrder = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (hasMultipleVariants) {
+      setIsSheetOpen(true);
+      return;
+    }
+
+    const defaultVariant =
+      product.variants && product.variants.length > 0
+        ? product.variants[0]
+        : undefined;
+    addItem(product, "PCS", 1, defaultVariant);
+    router.push("/checkout");
   };
 
   const handleOpenSheet = (e: React.MouseEvent) => {
@@ -86,7 +105,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             className="block cursor-pointer focus:outline-hidden"
             role="button"
             tabIndex={0}
-            aria-label={`Buka detail dan pesan ${product.name}`}
+            aria-label={`Buka keterangan dan pesan ${product.name}`}
           >
             {/* Foto Produk: aspect-[4/3] */}
             <div className="relative aspect-[4/3] w-full rounded-xl bg-gray-50 overflow-hidden mb-1.5 border border-gray-100 flex items-center justify-center">
@@ -153,21 +172,33 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             </div>
           </div>
 
-          {/* Tombol + Keranjang */}
-          <div className="mt-2.5 pt-2 border-t border-gray-100/80">
+          {/* Tombol Aksi: Pesan Sekarang & + Keranjang */}
+          <div className="mt-2.5 pt-2 border-t border-gray-100/80 space-y-1.5">
+            {/* Tombol Utama: Pesan Sekarang -> Langsung ke Form Pemesanan */}
             <Button
               type="button"
+              onClick={handleDirectOrder}
+              className="w-full min-h-[36px] h-9 px-2 rounded-xl bg-primary hover:bg-primary-dark text-white font-heading font-black text-xs tracking-tight transition-all shadow-xs active:scale-[0.98] flex items-center justify-center gap-1.5"
+            >
+              <Zap className="w-3.5 h-3.5 fill-amber-300 text-amber-300 shrink-0" />
+              <span>Pesan Sekarang</span>
+            </Button>
+
+            {/* Tombol Sekunder: + Keranjang -> Tetap di halaman */}
+            <Button
+              type="button"
+              variant="outline"
               onClick={handleQuickAdd}
-              className={`w-full min-h-[38px] h-9 px-3 rounded-xl font-heading font-medium text-xs tracking-normal transition-all shadow-xs ${
+              className={`w-full min-h-[32px] h-8 px-2 rounded-xl border-gray-200 text-gray-700 hover:text-primary hover:border-primary text-[11px] font-bold transition-all flex items-center justify-center gap-1 shadow-2xs ${
                 added
-                  ? "bg-primary-dark text-white ring-2 ring-emerald-300"
-                  : "bg-primary hover:bg-primary-dark text-white"
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-300 ring-1 ring-emerald-300"
+                  : "bg-white hover:bg-gray-50"
               }`}
             >
               {added ? (
                 <>
-                  <Check className="w-3.5 h-3.5 stroke-[3]" />
-                  <span>Masuk!</span>
+                  <Check className="w-3.5 h-3.5 stroke-[3] text-emerald-600" />
+                  <span>Masuk Keranjang!</span>
                 </>
               ) : (
                 <>
@@ -280,37 +311,46 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             <button
               type="button"
               onClick={handleOpenSheet}
-              className="text-[12px] font-medium text-primary hover:underline flex items-center gap-1 sm:mb-1 order-2 sm:order-1"
+              className="text-[12px] font-medium text-primary hover:underline flex items-center gap-1 sm:mb-1 order-3 sm:order-1"
             >
               <FileText className="w-3.5 h-3.5" />
               <span>Lihat Keterangan & Harga</span>
             </button>
 
-            <Button
-              type="button"
-              onClick={handleQuickAdd}
-              className={`min-h-[44px] h-11 px-5 rounded-xl font-heading font-medium text-[13px] sm:text-[14px] tracking-normal transition-all shadow-sm order-1 sm:order-2 w-full sm:w-auto ${
-                added
-                  ? "bg-primary-dark text-white ring-2 ring-emerald-300"
-                  : "bg-primary hover:bg-primary-dark text-white"
-              }`}
-            >
-              {added ? (
-                <>
-                  <Check className="w-4 h-4 stroke-[3]" />
-                  <span>Masuk Keranjang!</span>
-                </>
-              ) : (
-                <>
-                  <ShoppingCart className="w-4 h-4" strokeWidth={2.2} />
-                  <span>
-                    {hasMultipleVariants
-                      ? "Pilih Varian & Pesan"
-                      : "+ Masukkan ke Keranjang"}
-                  </span>
-                </>
-              )}
-            </Button>
+            <div className="flex items-center gap-2 w-full sm:w-auto order-1 sm:order-2">
+              {/* Tombol + Keranjang */}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleQuickAdd}
+                className={`min-h-[40px] h-10 px-3 rounded-xl border-gray-200 text-gray-700 hover:text-primary text-xs font-bold transition-all ${
+                  added ? "bg-emerald-50 text-emerald-700 border-emerald-300" : "bg-white"
+                }`}
+                title="+ Keranjang"
+              >
+                {added ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 stroke-[3] text-emerald-600" />
+                    <span>Masuk!</span>
+                  </>
+                ) : (
+                  <>
+                    <ShoppingCart className="w-3.5 h-3.5" />
+                    <span>+ Keranjang</span>
+                  </>
+                )}
+              </Button>
+
+              {/* Tombol Pesan Sekarang */}
+              <Button
+                type="button"
+                onClick={handleDirectOrder}
+                className="flex-1 sm:flex-none min-h-[40px] h-10 px-4 rounded-xl bg-primary hover:bg-primary-dark text-white font-heading font-black text-xs sm:text-sm tracking-tight transition-all shadow-sm active:scale-[0.98] flex items-center justify-center gap-1.5"
+              >
+                <Zap className="w-3.5 h-3.5 fill-amber-300 text-amber-300 shrink-0" />
+                <span>Pesan Sekarang</span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
