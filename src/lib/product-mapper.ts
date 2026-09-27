@@ -75,6 +75,7 @@ export function mapDbProductToCustomerProduct(db: any): Product {
       ? genuineDbVariants.map((v: any) => ({
           id: v.id,
           name: v.namaVarian,
+          colorHex: v.colorHex || undefined,
           image: v.gambarVarian || undefined,
         }))
       : [

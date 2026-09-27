@@ -39,6 +39,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       ? product.variants
       : [{ id: product.id, name: "Standar" }];
 
+  const hasVariants =
+    variants.length > 1 &&
+    variants.some(
+      (v) =>
+        v.name &&
+        v.name.toLowerCase() !== "standar" &&
+        v.name.toLowerCase() !== "pcs",
+    );
+
   const activeVariant: ProductVariant =
     variants[selectedVariantIndex] || variants[0];
 
@@ -108,10 +117,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               isPlaceholder ? "object-contain p-2 bg-[#F9FBFA]" : "object-cover"
             } transition-transform duration-300`}
           />
-          {/* Badge Varian Aktif (V1, V2) di sudut kiri atas foto sesuai referensi */}
-          <div className="absolute top-1.5 left-1.5 z-10 bg-black/75 backdrop-blur-xs text-white text-[9px] font-mono font-bold px-1.5 py-0.5 rounded shadow-xs">
-            V{selectedVariantIndex + 1}
-          </div>
+          {/* Badge Varian Aktif (V1, V2) di sudut kiri atas foto sesuai referensi (hanya jika ada multi varian) */}
+          {hasVariants && (
+            <div className="absolute top-1.5 left-1.5 z-10 bg-black/75 backdrop-blur-xs text-white text-[9px] font-mono font-bold px-1.5 py-0.5 rounded shadow-xs">
+              V{selectedVariantIndex + 1}
+            </div>
+          )}
 
           {/* Badge Promo jika ada */}
           {product.isPromo && (
@@ -141,9 +152,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 )}
               </Link>
             </h3>
-            <p className="text-xs text-gray-500 font-medium">
-              ({activeVariant.name} (V{selectedVariantIndex + 1}))
-            </p>
+            {hasVariants && (
+              <p className="text-xs text-gray-500 font-medium">
+                ({activeVariant.name} (V{selectedVariantIndex + 1}))
+              </p>
+            )}
           </div>
 
           {/* Tabel Harga Bertingkat Langsung Terlihat (Sesuai Pola Snowman) */}
@@ -188,60 +201,64 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       </div>
 
-      {/* 2. Bagian Tengah: Pilih Varian Gambar & Swatch */}
-      <div className="space-y-1.5 pt-1 border-t border-gray-100">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] sm:text-[11px] font-bold text-gray-700 tracking-wider uppercase">
-            PILIH VARIAN GAMBAR:
-          </span>
-          <span className="text-[11px] font-bold text-primary">
-            {variants.length} Varian Tersedia
-          </span>
-        </div>
+      {/* 2. Bagian Tengah: Pilih Varian Gambar & Swatch (HANYA jika ada varian asli) */}
+      {hasVariants && (
+        <div className="space-y-1.5 pt-1 border-t border-gray-100">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] sm:text-[11px] font-bold text-gray-700 tracking-wider uppercase">
+              PILIH VARIAN GAMBAR:
+            </span>
+            <span className="text-[11px] font-bold text-primary">
+              {variants.length} Varian Tersedia
+            </span>
+          </div>
 
-        {/* Baris Swatch / Thumbnail Varian */}
-        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar pt-0.5">
-          {variants.map((v, idx) => {
-            const isSelected = selectedVariantIndex === idx;
-            return (
-              <button
-                key={v.id || idx}
-                type="button"
-                onClick={() => setSelectedVariantIndex(idx)}
-                className={`w-13 sm:w-14 h-13 sm:h-14 rounded-xl border-2 transition-all p-1 flex flex-col items-center justify-center shrink-0 relative cursor-pointer active:scale-95 ${
-                  isSelected
-                    ? "border-primary bg-emerald-50/70 shadow-xs ring-2 ring-emerald-200"
-                    : "border-gray-200 bg-white hover:border-gray-300"
-                }`}
-                title={v.name}
-              >
-                {/* Visual Swatch: Warna Hex / Inisial */}
-                <div
-                  className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold text-white shadow-2xs"
-                  style={{
-                    backgroundColor:
-                      v.colorHex || (isSelected ? "#146C43" : "#64748B"),
-                  }}
-                >
-                  {v.name.slice(0, 1).toUpperCase()}
-                </div>
-                <span
-                  className={`text-[9px] font-bold mt-1 leading-none ${
-                    isSelected ? "text-primary" : "text-gray-600"
+          {/* Baris Swatch / Thumbnail Varian */}
+          <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar pt-0.5">
+            {variants.map((v, idx) => {
+              const isSelected = selectedVariantIndex === idx;
+              return (
+                <button
+                  key={v.id || idx}
+                  type="button"
+                  onClick={() => setSelectedVariantIndex(idx)}
+                  className={`w-13 sm:w-14 h-13 sm:h-14 rounded-xl border-2 transition-all p-1 flex flex-col items-center justify-center shrink-0 relative cursor-pointer active:scale-95 ${
+                    isSelected
+                      ? "border-primary bg-emerald-50/70 shadow-xs ring-2 ring-emerald-200"
+                      : "border-gray-200 bg-white hover:border-gray-300"
                   }`}
+                  title={v.name}
                 >
-                  V{idx + 1}
-                </span>
-              </button>
-            );
-          })}
+                  {/* Visual Swatch: Warna Hex / Inisial */}
+                  <div
+                    className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold text-white shadow-2xs"
+                    style={{
+                      backgroundColor:
+                        v.colorHex || (isSelected ? "#146C43" : "#64748B"),
+                    }}
+                  >
+                    {v.name.slice(0, 1).toUpperCase()}
+                  </div>
+                  <span
+                    className={`text-[9px] font-bold mt-1 leading-none ${
+                      isSelected ? "text-primary" : "text-gray-600"
+                    }`}
+                  >
+                    V{idx + 1}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* 3. Baris Bawah: Stepper Jumlah & Tombol Masukkan Keranjang (Item #2) */}
+      {/* 3. Baris Bawah: Stepper Jumlah & Tombol Masukkan Keranjang */}
       <div className="space-y-1 pt-1 border-t border-gray-100">
         <div className="text-[11px] font-semibold text-gray-600">
-          Jumlah Varian (V{selectedVariantIndex + 1}):
+          {hasVariants
+            ? `Jumlah Varian (V${selectedVariantIndex + 1}):`
+            : `Jumlah (${satuan}):`}
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3 w-full">
@@ -308,6 +325,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 <span className="text-[9px] sm:text-[10px] font-normal leading-none mt-0.5 opacity-90">
                   {qty > 0
                     ? `Total: ${formatRupiah(currentSubtotal)}`
+                    : hasVariants
+                    ? "Pilih jumlah varian dulu"
                     : "Pilih jumlah dulu"}
                 </span>
               </>

@@ -54,7 +54,7 @@ model ProductVariant {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
-  @@unique([productId, satuan])
+  @@unique([productId, namaVarian])
   @@index([productId])
 }
 
