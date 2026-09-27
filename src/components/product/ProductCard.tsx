@@ -2,9 +2,10 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Product, ProductVariant } from "@/types/product";
 import { useCart } from "@/context/CartContext";
-import { ShoppingCart, Info } from "lucide-react";
+import { ShoppingCart, Info, Check } from "lucide-react";
 import { getPlaceholderByCategory } from "@/lib/placeholders";
 
 interface ProductCardProps {
@@ -14,7 +15,8 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { addItem } = useCart();
+  const router = useRouter();
+  const { addItem, openQuickCheckout } = useCart();
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [qty, setQty] = useState(0);
   const [added, setAdded] = useState(false);
@@ -64,6 +66,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       setAdded(false);
       setQty(0);
     }, 1500);
+  };
+
+  const handleQuickCheckout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (qty <= 0) return;
+    openQuickCheckout(product, activeVariant, qty);
   };
 
   return (
@@ -181,51 +189,66 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </>
       )}
 
-      {/* Stepper + tombol keranjang */}
+      {/* Stepper + Tombol + Keranjang (Kecil) + Tombol Checkout (Besar) */}
       <div className="flex items-center gap-2 px-3 pb-3">
-        <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white">
+        {/* Stepper */}
+        <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white shrink-0">
           <button
             type="button"
             onClick={() => setQty(Math.max(0, qty - 1))}
-            className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors select-none font-bold"
+            className="w-8 h-10 sm:w-9 sm:h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors select-none font-bold cursor-pointer"
             aria-label="Kurangi jumlah"
           >
             −
           </button>
-          <div className="w-10 text-center text-sm">
+          <div className="w-9 sm:w-10 text-center text-sm">
             <div className="font-semibold text-gray-900 leading-tight">{qty}</div>
             <div className="text-[10px] text-gray-400 leading-tight">{satuan}</div>
           </div>
           <button
             type="button"
             onClick={() => setQty(qty + 1)}
-            className="w-9 h-9 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors select-none font-bold"
+            className="w-8 h-10 sm:w-9 sm:h-11 flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors select-none font-bold cursor-pointer"
             aria-label="Tambah jumlah"
           >
             +
           </button>
         </div>
 
+        {/* Tombol + Keranjang (Kecil, outline w-10 h-10 sm:w-11 sm:h-11) */}
         <button
           type="button"
           disabled={qty === 0}
           onClick={handleAddToCart}
-          className={`flex-1 h-11 rounded-xl text-sm font-semibold flex items-center justify-center gap-2 transition-colors ${
+          className={`w-10 h-10 sm:w-11 sm:h-11 flex-shrink-0 rounded-xl flex items-center justify-center transition-all ${
+            qty === 0
+              ? "border border-gray-200 text-gray-300 bg-white cursor-not-allowed"
+              : added
+              ? "border-2 border-emerald-600 bg-emerald-50 text-emerald-600"
+              : "border-2 border-[#146C43] bg-white text-[#146C43] hover:bg-emerald-50 active:scale-95 cursor-pointer shadow-xs"
+          }`}
+          title={qty === 0 ? "Pilih jumlah dulu" : "Tambah ke Keranjang"}
+          aria-label="Tambah ke Keranjang"
+        >
+          {added ? (
+            <Check className="w-5 h-5 stroke-[2.5]" />
+          ) : (
+            <ShoppingCart className="w-5 h-5 stroke-[2.2]" />
+          )}
+        </button>
+
+        {/* Tombol Checkout (Besar, flex-1, solid hijau #146C43) */}
+        <button
+          type="button"
+          disabled={qty === 0}
+          onClick={handleQuickCheckout}
+          className={`flex-1 h-10 sm:h-11 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center transition-all ${
             qty === 0
               ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-              : added
-              ? "bg-emerald-700 text-white"
-              : "bg-[#146C43] hover:bg-[#0f5333] text-white active:scale-[0.99] cursor-pointer"
+              : "bg-[#146C43] hover:bg-[#0f5333] text-white active:scale-[0.99] cursor-pointer shadow-sm"
           }`}
         >
-          <ShoppingCart className="w-4 h-4" />
-          <span>
-            {qty === 0
-              ? "Pilih jumlah dulu"
-              : added
-              ? "Masuk Keranjang!"
-              : "Masukkan Keranjang"}
-          </span>
+          <span>{qty === 0 ? "Pilih jumlah dulu" : "Checkout"}</span>
         </button>
       </div>
     </div>

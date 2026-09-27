@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ProductCard } from "@/components/product/ProductCard";
-import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
@@ -20,10 +19,9 @@ function KatalogPageContent() {
   const initialCategory = searchParams.get("kategori") || "all";
   const initialQuery = searchParams.get("q") || "";
 
-  const { totalItemsCount } = useCart();
+  const { totalItemsCount, openCartDrawer } = useCart();
   const storeSettings = useStoreSettings();
 
-  const [cartOpen, setCartOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>(initialCategory);
   const [query, setQuery] = useState<string>(initialQuery);
   const [products, setProducts] = useState<Product[]>([]);
@@ -174,7 +172,7 @@ function KatalogPageContent() {
           </div>
           <button
             type="button"
-            onClick={() => setCartOpen(true)}
+            onClick={openCartDrawer}
             className="relative cursor-pointer p-1"
             aria-label="Buka Keranjang"
           >
@@ -243,9 +241,6 @@ function KatalogPageContent() {
 
         <div ref={loadMoreRef} className="h-10" /> {/* trigger IntersectionObserver */}
       </div>
-
-      {/* Drawer keranjang (Radix Dialog / Vaul bottom sheet) */}
-      <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
 
       {/* Tombol WhatsApp mengambang */}
       <a

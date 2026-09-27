@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { CartDrawer } from "@/components/cart/CartDrawer";
 
 export const metadata: Metadata = {
   title: "Khalifa Niaga — Grosir Alat Tulis, Plastik & Kelontong",
@@ -34,6 +35,7 @@ export default function RootLayout({
         <CartProvider>
           {children}
           <BottomNav />
+          <CartDrawer />
         </CartProvider>
       </body>
     </html>

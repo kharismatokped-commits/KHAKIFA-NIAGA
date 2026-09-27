@@ -10,7 +10,9 @@ import {
 } from "@/types/product";
 import { getUnitPrice, getOrderType, OrderType } from "@/lib/pricing";
 
-interface CartContextType {
+export type CartDrawerMode = "cart" | "quick_checkout";
+
+export interface CartContextType {
   items: CartItem[];
   addItem: (
     product: Product,
@@ -30,6 +32,18 @@ interface CartContextType {
   customerInfo: CustomerOrderInfo;
   updateCustomerInfo: (info: Partial<CustomerOrderInfo>) => void;
   productsMap: Map<string, Product>;
+  // Drawer & Quick Checkout
+  isCartDrawerOpen: boolean;
+  cartDrawerMode: CartDrawerMode;
+  quickCheckoutItem: CartItem | null;
+  openCartDrawer: () => void;
+  openQuickCheckout: (
+    product: Product,
+    variant?: ProductVariant,
+    qty?: number,
+  ) => void;
+  updateQuickQty: (newQty: number) => void;
+  closeCartDrawer: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -238,6 +252,89 @@ export const CartProvider: React.FC<{
     setCustomerInfo((prev) => ({ ...prev, ...info }));
   };
 
+  // Drawer & Quick Checkout States
+  const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
+  const [cartDrawerMode, setCartDrawerMode] = useState<CartDrawerMode>("cart");
+  const [quickCheckoutItem, setQuickCheckoutItem] = useState<CartItem | null>(null);
+
+  const openCartDrawer = () => {
+    setCartDrawerMode("cart");
+    setIsCartDrawerOpen(true);
+  };
+
+  const openQuickCheckout = (
+    product: Product,
+    variant?: ProductVariant,
+    qty: number = 1,
+  ) => {
+    if (qty <= 0) return;
+
+    // Pastikan produk ada di map
+    productsMap.set(product.id, product);
+
+    const unitType: UnitType = "PCS";
+    const tiers =
+      product.tieredPricesPcs && product.tieredPricesPcs.length > 0
+        ? product.tieredPricesPcs
+        : product.tieredPricesPack || [];
+    const unitPrice = getUnitPrice(tiers, qty);
+
+    const activeImage =
+      (variant && variant.image) ||
+      (product.images && product.images[0]) ||
+      "";
+
+    const item: CartItem = {
+      id: `quick__${product.id}__${variant ? variant.id : "default"}`,
+      productId: product.id,
+      productName: product.name,
+      sku: product.sku,
+      category: product.category,
+      image: activeImage,
+      variantId: variant?.id,
+      variantName: variant?.name,
+      unitType,
+      packRatio: 1,
+      qty,
+      unitPrice,
+      subtotal: qty * unitPrice,
+      selected: true,
+    };
+
+    setQuickCheckoutItem(item);
+    setCartDrawerMode("quick_checkout");
+    setIsCartDrawerOpen(true);
+  };
+
+  const updateQuickQty = (newQty: number) => {
+    if (!quickCheckoutItem) return;
+    if (newQty <= 0) {
+      closeCartDrawer();
+      return;
+    }
+    const prod = productsMap.get(quickCheckoutItem.productId);
+    const tiers =
+      prod?.tieredPricesPcs && prod.tieredPricesPcs.length > 0
+        ? prod.tieredPricesPcs
+        : prod?.tieredPricesPack || [];
+    const unitPrice =
+      tiers.length > 0
+        ? getUnitPrice(tiers, newQty)
+        : quickCheckoutItem.unitPrice;
+
+    setQuickCheckoutItem({
+      ...quickCheckoutItem,
+      qty: newQty,
+      unitPrice,
+      subtotal: newQty * unitPrice,
+    });
+  };
+
+  const closeCartDrawer = () => {
+    setIsCartDrawerOpen(false);
+    setQuickCheckoutItem(null);
+  };
+
   // Calculations
   const totalItemsCount = items.reduce((acc, curr) => acc + curr.qty, 0);
 
@@ -269,6 +366,13 @@ export const CartProvider: React.FC<{
         customerInfo,
         updateCustomerInfo,
         productsMap,
+        isCartDrawerOpen,
+        cartDrawerMode,
+        quickCheckoutItem,
+        openCartDrawer,
+        openQuickCheckout,
+        updateQuickQty,
+        closeCartDrawer,
       }}
     >
       {children}
