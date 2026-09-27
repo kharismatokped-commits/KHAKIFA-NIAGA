@@ -85,9 +85,9 @@ export const PopularSection: React.FC<PopularSectionProps> = ({
           ))}
         </div>
       ) : displayProducts.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        <div className="flex flex-col space-y-3 sm:space-y-3.5">
           {displayProducts.map((product) => (
-            <ProductCard key={product.id} product={product} variant="grid" />
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       ) : (

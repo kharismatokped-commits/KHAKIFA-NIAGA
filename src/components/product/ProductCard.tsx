@@ -3,16 +3,20 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Product } from "@/types/product";
+import { Product, ProductVariant } from "@/types/product";
 import { formatRupiah } from "@/lib/formatters";
+import { getUnitPrice } from "@/lib/pricing";
 import { useCart } from "@/context/CartContext";
-import { Star, ShoppingCart, Check, FileText, Zap } from "lucide-react";
+import {
+  Info,
+  Plus,
+  Minus,
+  ShoppingCart,
+  Check,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { getPlaceholderByCategory } from "@/lib/placeholders";
 import { HighlightText } from "@/components/common/HighlightText";
-import { ProductQuickOrderSheet } from "@/components/product/ProductQuickOrderSheet";
 
 interface ProductCardProps {
   product: Product;
@@ -23,328 +27,294 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({
   product,
   highlightQuery,
-  variant = "list",
 }) => {
-  const router = useRouter();
   const { addItem } = useCart();
+  const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
+  const [qty, setQty] = useState(0);
   const [added, setAdded] = useState(false);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  const imageSrc =
-    product.images &&
+  // Varian produk: varian jenis/warna asli
+  const variants: ProductVariant[] =
+    product.variants && product.variants.length > 0
+      ? product.variants
+      : [{ id: product.id, name: "Standar" }];
+
+  const activeVariant: ProductVariant =
+    variants[selectedVariantIndex] || variants[0];
+
+  // Satuan produk tetap (default pak atau pcs sesuai produk)
+  const satuan = product.satuanDefault || product.unitPcsName || "pak";
+
+  // Tier harga bertingkat (3 baris terlihat langsung di kartu)
+  const tiers = product.tieredPricesPcs || [];
+  const displayTiers = tiers.length > 0 ? tiers.slice(0, 3) : [];
+
+  // Hitung harga satuan berdasarkan qty yang sedang dipilih
+  const currentUnitPrice = getUnitPrice(tiers, qty > 0 ? qty : 1);
+  const currentSubtotal = qty * currentUnitPrice;
+
+  // Gambar varian aktif atau fallback placeholder
+  const activeImageSrc =
+    activeVariant.image ||
+    (product.images &&
     product.images.length > 0 &&
     product.images[0] &&
     !product.images[0].includes("photo-1583485088034")
       ? product.images[0]
-      : getPlaceholderByCategory(product.categoryCode || product.category);
+      : getPlaceholderByCategory(product.categoryCode || product.category));
+  const isPlaceholder = activeImageSrc.startsWith("/placeholders/");
 
-  const isPlaceholder = imageSrc.startsWith("/placeholders/");
+  const handleIncrement = () => {
+    setQty((prev) => prev + 1);
+  };
 
-  // Ambil harga tier grosir terendah (paling murah) dan harga awal (satuan pcs)
-  const lowestPcsPrice =
-    product.tieredPricesPcs.length > 0
-      ? product.tieredPricesPcs[product.tieredPricesPcs.length - 1].price
-      : 0;
+  const handleDecrement = () => {
+    setQty((prev) => (prev > 0 ? prev - 1 : 0));
+  };
 
-  const highestPcsPrice =
-    product.tieredPricesPcs.length > 0 ? product.tieredPricesPcs[0].price : 0;
-
-  const hasMultipleVariants = Boolean(
-    product.variants && product.variants.length > 1,
-  );
-
-  // Aksi 1: Simpan ke Keranjang Saja (Tetap di halaman)
-  const handleQuickAdd = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (hasMultipleVariants) {
-      setIsSheetOpen(true);
-      return;
+  const handleDirectInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseInt(e.target.value, 10);
+    if (isNaN(val) || val < 0) {
+      setQty(0);
+    } else {
+      setQty(val);
     }
-
-    const defaultVariant =
-      product.variants && product.variants.length > 0
-        ? product.variants[0]
-        : undefined;
-    addItem(product, "PCS", 1, defaultVariant);
-
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
   };
 
-  const handleOpenSheet = (e: React.MouseEvent) => {
+  const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    e.stopPropagation();
-    setIsSheetOpen(true);
+    if (qty <= 0) return;
+
+    addItem(product, "PCS", qty, activeVariant);
+    setAdded(true);
+    setTimeout(() => {
+      setAdded(false);
+      setQty(0); // Reset ke 0 setelah masuk keranjang agar user bisa pesan varian lain atau geser ke produk lain
+    }, 1500);
   };
 
-  if (variant === "grid") {
-    return (
-      <>
-        <div className="bg-white rounded-2xl border border-gray-200/90 hover:border-primary p-2.5 sm:p-3 shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
-          {/* Klik kartu langsung membuka Sheet Keterangan + Pesan Cepat (Tanpa Foto, Super Gesit) */}
-          <div
-            onClick={handleOpenSheet}
-            className="block cursor-pointer focus:outline-hidden"
-            role="button"
-            tabIndex={0}
-            aria-label={`Buka detail dan pesan ${product.name}`}
-          >
-            {/* Foto Produk: aspect-[4/3] */}
-            <div className="relative aspect-[4/3] w-full rounded-xl bg-gray-50 overflow-hidden mb-1.5 border border-gray-100 flex items-center justify-center">
-              <Image
-                src={imageSrc}
-                alt={product.name}
-                fill
-                sizes="(max-width: 640px) 50vw, 200px"
-                className={`${
-                  isPlaceholder
-                    ? "object-contain p-2 bg-[#F9FBFA]"
-                    : "object-cover"
-                } group-hover:scale-105 transition-transform duration-300`}
-              />
-              {/* Badge kondisional promo */}
-              {product.isPromo && (
-                <div className="absolute top-1.5 left-1.5 z-10">
-                  <Badge
-                    variant="promo"
-                    className="text-[9px] px-1.5 py-0.2 font-extrabold uppercase shadow-xs tracking-tight"
-                  >
-                    {product.promoTag || "GROSIR TERMURAH"}
-                  </Badge>
-                </div>
-              )}
-
-              {/* Indikator Real Varian jika ada jenis pilihan */}
-              {hasMultipleVariants && (
-                <div className="absolute bottom-1.5 right-1.5 z-10 bg-black/70 backdrop-blur-xs text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-                  {product.variants!.length} Varian
-                </div>
-              )}
-            </div>
-
-            {/* Baris Rating & Ulasan */}
-            <div className="flex items-center gap-1 text-[11px] text-gray-500 mb-0.5">
-              <Star className="w-3 h-3 fill-amber-400 text-amber-500" />
-              <span className="font-bold text-gray-700">{product.rating}</span>
-              <span className="text-gray-400">({product.reviewCount})</span>
-            </div>
-
-            {/* Nama Produk line-clamp-2 */}
-            <h3 className="font-heading font-medium text-gray-900 text-xs sm:text-[13px] leading-snug line-clamp-2 group-hover:text-primary transition-colors min-h-[32px]">
-              {highlightQuery ? (
-                <HighlightText text={product.name} query={highlightQuery} />
-              ) : (
-                product.name
-              )}
-            </h3>
-
-            {/* Baris Harga Per Pcs */}
-            <div className="mt-1 flex items-baseline gap-1">
-              <span className="text-[10px] text-gray-500 font-medium">Mulai</span>
-              <span className="font-price font-bold text-primary text-sm sm:text-base tracking-tight">
-                {formatRupiah(lowestPcsPrice)}
-              </span>
-              <span className="text-[10px] text-gray-500">/pcs</span>
-            </div>
-
-            {/* Hint Keterangan */}
-            <div className="mt-1 flex items-center gap-1 text-[10px] text-emerald-800/80 font-medium">
-              <FileText className="w-2.5 h-2.5" />
-              <span>Lihat Detail & Grosir</span>
-            </div>
+  return (
+    <div className="bg-white rounded-2xl border border-gray-200/90 hover:border-primary/40 shadow-xs hover:shadow-md transition-all duration-200 p-3.5 sm:p-4.5 space-y-3.5">
+      {/* 1. Baris Atas: Foto Produk (Kiri) + Info & Tabel Harga Bertingkat (Kanan) */}
+      <div className="flex gap-3 sm:gap-4 items-start">
+        {/* Foto Produk dengan Badge Varian (V1, V2, dst) */}
+        <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gray-50 overflow-hidden shrink-0 border border-gray-200 flex items-center justify-center shadow-xs">
+          <Image
+            src={activeImageSrc}
+            alt={`${product.name} - ${activeVariant.name}`}
+            fill
+            sizes="120px"
+            className={`${
+              isPlaceholder ? "object-contain p-2 bg-[#F9FBFA]" : "object-cover"
+            } transition-transform duration-300`}
+          />
+          {/* Badge Varian Aktif (V1, V2) di sudut kiri atas foto sesuai referensi */}
+          <div className="absolute top-1.5 left-1.5 z-10 bg-black/75 backdrop-blur-xs text-white text-[9px] font-mono font-bold px-1.5 py-0.5 rounded shadow-xs">
+            V{selectedVariantIndex + 1}
           </div>
 
-          {/* Tombol Aksi: Pesan Sekarang & + Keranjang */}
-          <div className="mt-2.5 pt-2 border-t border-gray-100/80 space-y-1.5">
-            {/* Tombol Utama: Pesan Sekarang -> Buka Sheet Pesan Cepat (Tanpa Foto, Super Gesit) */}
-            <Button
-              type="button"
-              onClick={handleOpenSheet}
-              className="w-full min-h-[36px] h-9 px-2 rounded-xl bg-primary hover:bg-primary-dark text-white font-heading font-black text-xs tracking-tight transition-all shadow-xs active:scale-[0.98] flex items-center justify-center gap-1.5"
-            >
-              <Zap className="w-3.5 h-3.5 fill-amber-300 text-amber-300 shrink-0" />
-              <span>Pesan Sekarang</span>
-            </Button>
-
-            {/* Tombol Sekunder: + Keranjang -> Tetap di halaman */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleQuickAdd}
-              className={`w-full min-h-[32px] h-8 px-2 rounded-xl border-gray-200 text-gray-700 hover:text-primary hover:border-primary text-[11px] font-bold transition-all flex items-center justify-center gap-1 shadow-2xs ${
-                added
-                  ? "bg-emerald-50 text-emerald-700 border-emerald-300 ring-1 ring-emerald-300"
-                  : "bg-white hover:bg-gray-50"
-              }`}
-            >
-              {added ? (
-                <>
-                  <Check className="w-3.5 h-3.5 stroke-[3] text-emerald-600" />
-                  <span>Masuk Keranjang!</span>
-                </>
-              ) : (
-                <>
-                  <ShoppingCart className="w-3.5 h-3.5" />
-                  <span>
-                    {hasMultipleVariants ? "Pilih Varian" : "+ Keranjang"}
-                  </span>
-                </>
-              )}
-            </Button>
-          </div>
+          {/* Badge Promo jika ada */}
+          {product.isPromo && (
+            <div className="absolute bottom-1.5 right-1.5 z-10">
+              <Badge
+                variant="promo"
+                className="text-[8px] px-1 py-0.2 uppercase font-extrabold shadow-xs"
+              >
+                PROMO
+              </Badge>
+            </div>
+          )}
         </div>
 
-        {/* Modal Sheet Keterangan + Pesan Cepat */}
-        <ProductQuickOrderSheet
-          product={product}
-          isOpen={isSheetOpen}
-          onClose={() => setIsSheetOpen(false)}
-        />
-      </>
-    );
-  }
-
-  // Tampilan List
-  return (
-    <>
-      <div className="bg-white rounded-2xl border border-gray-200/90 hover:border-primary p-3 sm:p-4 shadow-xs hover:shadow-md transition-all duration-200">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-          {/* Kolom Kiri & Tengah: Foto + Informasi Produk (Klik buka sheet keterangan) */}
-          <div
-            onClick={handleOpenSheet}
-            className="flex items-start sm:items-center gap-3.5 flex-1 min-w-0 group cursor-pointer"
-            role="button"
-            tabIndex={0}
-          >
-            {/* Foto Produk */}
-            <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-gray-50 overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center">
-              <Image
-                src={imageSrc}
-                alt={product.name}
-                fill
-                sizes="(max-width: 640px) 100px, 120px"
-                className={`${
-                  isPlaceholder
-                    ? "object-contain p-2 bg-[#F9FBFA]"
-                    : "object-cover"
-                } group-hover:scale-105 transition-transform duration-300`}
-              />
-              {product.isPromo && (
-                <div className="absolute top-1.5 left-1.5 z-10">
-                  <Badge
-                    variant="promo"
-                    className="text-[9px] px-1.5 py-0.2 font-extrabold uppercase shadow-xs"
-                  >
-                    {product.promoTag || "GROSIR TERMURAH"}
-                  </Badge>
-                </div>
-              )}
-            </div>
-
-            {/* Nama, Rating & Harga */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
-                <div className="flex items-center gap-0.5 text-amber-500 font-bold text-xs">
-                  <Star className="w-3.5 h-3.5 fill-amber-400" />
-                  <span>{product.rating}</span>
-                  <span className="text-gray-400 font-normal">
-                    ({product.reviewCount})
-                  </span>
-                </div>
-                <span className="font-mono text-[11px] text-gray-400 hidden sm:inline">
-                  SKU: {product.sku}
-                </span>
-              </div>
-
-              <h3 className="font-heading font-medium text-gray-900 text-[13px] sm:text-[14px] leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+        {/* Kolom Kanan: Nama Produk, Varian Aktif, & Tabel Harga 3 Baris */}
+        <div className="flex-1 min-w-0 space-y-1.5">
+          <div>
+            <h3 className="font-heading font-black text-sm sm:text-base text-gray-900 tracking-tight leading-snug uppercase line-clamp-2">
+              <Link
+                href={`/produk/${product.id}`}
+                className="hover:text-primary transition-colors"
+              >
                 {highlightQuery ? (
                   <HighlightText text={product.name} query={highlightQuery} />
                 ) : (
                   product.name
                 )}
-              </h3>
+              </Link>
+            </h3>
+            <p className="text-xs text-gray-500 font-medium">
+              ({activeVariant.name} (V{selectedVariantIndex + 1}))
+            </p>
+          </div>
 
-              {/* Harga per pcs */}
-              <div className="mt-1.5 flex flex-wrap items-baseline gap-1.5">
-                <span className="text-[12px] text-gray-500 font-normal">
-                  Mulai:
-                </span>
-                <span className="font-price font-bold text-primary text-[16px] tracking-tight">
-                  {formatRupiah(lowestPcsPrice)}
-                </span>
-                <span className="text-[12px] text-gray-500 font-normal">/pcs</span>
-
-                {highestPcsPrice > lowestPcsPrice && (
-                  <span className="font-price text-[12px] text-gray-400 line-through ml-1 hidden sm:inline">
-                    {formatRupiah(highestPcsPrice)}
+          {/* Tabel Harga Bertingkat Langsung Terlihat (Sesuai Pola Snowman) */}
+          <div className="bg-gray-50/90 rounded-xl p-2 sm:p-2.5 border border-gray-100 text-xs space-y-1">
+            {displayTiers.length > 0 ? (
+              displayTiers.map((tier, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between text-[11px] sm:text-xs"
+                >
+                  <span className="text-gray-600 font-medium">
+                    {tier.maxQty
+                      ? `Beli ${tier.minQty}–${tier.maxQty} ${satuan}`
+                      : `Beli ≥ ${tier.minQty} ${satuan}`}
                   </span>
-                )}
+                  <span className="font-price font-bold text-gray-900 tracking-tight">
+                    @ {formatRupiah(tier.price)}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-gray-600 font-medium">
+                  Beli 1 {satuan}
+                </span>
+                <span className="font-price font-bold text-gray-900">
+                  @ {formatRupiah(5000)}
+                </span>
               </div>
-
-              {/* Keterangan singkat & varian */}
-              <p className="mt-1 text-[11px] text-gray-500 line-clamp-1">
-                {product.description || "Klik untuk lihat keterangan lengkap & tingkat harga grosir."}
-              </p>
-            </div>
+            )}
           </div>
 
-          {/* Kolom Kanan: Tombol Aksi Langsung */}
-          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100 shrink-0">
-            <button
-              type="button"
-              onClick={handleOpenSheet}
-              className="text-[12px] font-medium text-primary hover:underline flex items-center gap-1 sm:mb-1 order-3 sm:order-1"
-            >
-              <FileText className="w-3.5 h-3.5" />
-              <span>Lihat Detail & Harga</span>
-            </button>
-
-            <div className="flex items-center gap-2 w-full sm:w-auto order-1 sm:order-2">
-              {/* Tombol + Keranjang */}
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleQuickAdd}
-                className={`min-h-[40px] h-10 px-3 rounded-xl border-gray-200 text-gray-700 hover:text-primary text-xs font-bold transition-all ${
-                  added ? "bg-emerald-50 text-emerald-700 border-emerald-300" : "bg-white"
-                }`}
-                title="+ Keranjang"
-              >
-                {added ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 stroke-[3] text-emerald-600" />
-                    <span>Masuk!</span>
-                  </>
-                ) : (
-                  <>
-                    <ShoppingCart className="w-3.5 h-3.5" />
-                    <span>+ Keranjang</span>
-                  </>
-                )}
-              </Button>
-
-              {/* Tombol Pesan Sekarang */}
-              <Button
-                type="button"
-                onClick={handleOpenSheet}
-                className="flex-1 sm:flex-none min-h-[40px] h-10 px-4 rounded-xl bg-primary hover:bg-primary-dark text-white font-heading font-black text-xs sm:text-sm tracking-tight transition-all shadow-sm active:scale-[0.98] flex items-center justify-center gap-1.5"
-              >
-                <Zap className="w-3.5 h-3.5 fill-amber-300 text-amber-300 shrink-0" />
-                <span>Pesan Sekarang</span>
-              </Button>
+          {/* Kotak Info Biru Muda: Keterangan (Item #1 yang dilingkari user) */}
+          {product.keterangan && (
+            <div className="bg-sky-50 text-sky-800 border border-sky-200/80 rounded-xl px-2.5 py-1.5 text-[11px] sm:text-xs flex items-center gap-1.5 font-medium">
+              <Info className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+              <span className="truncate">
+                <strong>Keterangan:</strong> {product.keterangan}
+              </span>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* Modal Sheet Keterangan + Pesan Cepat */}
-      <ProductQuickOrderSheet
-        product={product}
-        isOpen={isSheetOpen}
-        onClose={() => setIsSheetOpen(false)}
-      />
-    </>
+      {/* 2. Bagian Tengah: Pilih Varian Gambar & Swatch */}
+      <div className="space-y-1.5 pt-1 border-t border-gray-100">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] sm:text-[11px] font-bold text-gray-700 tracking-wider uppercase">
+            PILIH VARIAN GAMBAR:
+          </span>
+          <span className="text-[11px] font-bold text-primary">
+            {variants.length} Varian Tersedia
+          </span>
+        </div>
+
+        {/* Baris Swatch / Thumbnail Varian */}
+        <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar pt-0.5">
+          {variants.map((v, idx) => {
+            const isSelected = selectedVariantIndex === idx;
+            return (
+              <button
+                key={v.id || idx}
+                type="button"
+                onClick={() => setSelectedVariantIndex(idx)}
+                className={`w-13 sm:w-14 h-13 sm:h-14 rounded-xl border-2 transition-all p-1 flex flex-col items-center justify-center shrink-0 relative cursor-pointer active:scale-95 ${
+                  isSelected
+                    ? "border-primary bg-emerald-50/70 shadow-xs ring-2 ring-emerald-200"
+                    : "border-gray-200 bg-white hover:border-gray-300"
+                }`}
+                title={v.name}
+              >
+                {/* Visual Swatch: Warna Hex / Inisial */}
+                <div
+                  className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-bold text-white shadow-2xs"
+                  style={{
+                    backgroundColor:
+                      v.colorHex || (isSelected ? "#146C43" : "#64748B"),
+                  }}
+                >
+                  {v.name.slice(0, 1).toUpperCase()}
+                </div>
+                <span
+                  className={`text-[9px] font-bold mt-1 leading-none ${
+                    isSelected ? "text-primary" : "text-gray-600"
+                  }`}
+                >
+                  V{idx + 1}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 3. Baris Bawah: Stepper Jumlah & Tombol Masukkan Keranjang (Item #2) */}
+      <div className="space-y-1 pt-1 border-t border-gray-100">
+        <div className="text-[11px] font-semibold text-gray-600">
+          Jumlah Varian (V{selectedVariantIndex + 1}):
+        </div>
+
+        <div className="flex items-center gap-2 sm:gap-3 w-full">
+          {/* Stepper (- [0] +) */}
+          <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-white shadow-2xs shrink-0">
+            <button
+              type="button"
+              onClick={handleDecrement}
+              disabled={qty <= 0}
+              className="w-9 sm:w-10 h-11 flex items-center justify-center text-gray-700 hover:bg-gray-100 active:bg-gray-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              aria-label="Kurangi jumlah"
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+
+            <div className="w-14 sm:w-16 h-11 border-x border-gray-200 flex flex-col items-center justify-center bg-white px-1">
+              <input
+                type="number"
+                min="0"
+                value={qty}
+                onChange={handleDirectInput}
+                className="w-full text-center font-heading font-black text-sm text-gray-900 focus:outline-hidden leading-none bg-transparent"
+                aria-label="Jumlah pesanan"
+              />
+              <span className="text-[9px] text-gray-400 font-medium leading-none mt-0.5">
+                {satuan}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleIncrement}
+              className="w-9 sm:w-10 h-11 flex items-center justify-center text-gray-700 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+              aria-label="Tambah jumlah"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Tombol Masukkan Keranjang */}
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={qty <= 0}
+            className={`flex-1 h-11 px-3 rounded-xl flex flex-col items-center justify-center font-heading transition-all shadow-xs ${
+              qty > 0
+                ? added
+                  ? "bg-emerald-700 text-white shadow-md ring-2 ring-emerald-300"
+                  : "bg-primary hover:bg-primary-dark text-white shadow-md active:scale-[0.98] cursor-pointer"
+                : "bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-200"
+            }`}
+          >
+            {added ? (
+              <span className="flex items-center gap-1.5 text-xs sm:text-sm font-black">
+                <Check className="w-4 h-4 stroke-[3]" />
+                <span>Masuk Keranjang!</span>
+              </span>
+            ) : (
+              <>
+                <span className="flex items-center gap-1.5 text-xs sm:text-sm font-bold tracking-tight">
+                  <ShoppingCart className="w-4 h-4" />
+                  <span>MASUKKAN KERANJANG</span>
+                </span>
+                <span className="text-[9px] sm:text-[10px] font-normal leading-none mt-0.5 opacity-90">
+                  {qty > 0
+                    ? `Total: ${formatRupiah(currentSubtotal)}`
+                    : "Pilih jumlah dulu"}
+                </span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };

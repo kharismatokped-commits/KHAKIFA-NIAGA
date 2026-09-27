@@ -28,6 +28,8 @@ export interface Product {
   category: CategoryId;
   categoryCode?: string;
   description: string;
+  keterangan?: string; // Info kemasan seperti "1 pak isi 12 pcs"
+  satuanDefault?: string; // "pak", "pcs", "ktk", dll
   images: string[];
   isPlaceholder?: boolean;
   rating: number;

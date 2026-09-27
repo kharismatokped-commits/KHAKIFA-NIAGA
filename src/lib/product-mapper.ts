@@ -101,6 +101,24 @@ export function mapDbProductToCustomerProduct(db: any): Product {
     ? db.gambar
     : [getPlaceholderByCategory(categoryCode)];
 
+  const rawUnit = (db.satuanDefault || primaryVariant?.satuan || "pcs")
+    .toLowerCase()
+    .replace(/^-/, "");
+  const satuanDefault = rawUnit || "pcs";
+
+  // Ekstrak keterangan isi kemasan (misal "1 pak isi 12 pcs" atau "1 ktk isi 10 pcs")
+  const packVariant = db.variants?.find((v: any) => v.konversi && v.konversi > 1);
+  let keterangan = db.keterangan || null;
+  if (!keterangan && packVariant) {
+    const packUnit = (packVariant.satuan || "pak").toLowerCase().replace(/^-/, "");
+    const baseUnit = (primaryVariant?.satuan || "pcs").toLowerCase().replace(/^-/, "");
+    keterangan = `1 ${packUnit} isi ${packVariant.konversi} ${baseUnit}`;
+  } else if (!keterangan && db.deskripsi && (db.deskripsi.toLowerCase().includes("isi") || db.deskripsi.toLowerCase().includes("warna"))) {
+    keterangan = db.deskripsi;
+  } else if (!keterangan) {
+    keterangan = `Kemasan resmi ${satuanDefault}`;
+  }
+
   return {
     id: db.id,
     name: db.nama,
@@ -108,6 +126,8 @@ export function mapDbProductToCustomerProduct(db: any): Product {
     category: (db.categoryId || "atk") as CategoryId,
     categoryCode: db.category?.kodeAsal || undefined,
     description: db.deskripsi || "Produk grosir resmi berkualitas.",
+    keterangan: keterangan,
+    satuanDefault: satuanDefault,
     images: images,
     isPlaceholder: !hasRealImage,
     rating: db.rating || 5.0,
@@ -117,14 +137,14 @@ export function mapDbProductToCustomerProduct(db: any): Product {
     isPromo: Boolean(db.isPromo),
     promoTag: db.isPromo ? "GROSIR TERMURAH" : undefined,
 
-    // Cukup 1 satuan standar: PCS
+    // Cukup 1 satuan standar: PCS / PAK
     hasPcs: true,
-    unitPcsName: "pcs",
+    unitPcsName: satuanDefault,
     tieredPricesPcs: pcsTiers,
 
     // Konsep banyak satuan (PAK / DUS) dihilangkan
     hasPack: false,
-    unitPackName: "pcs",
+    unitPackName: satuanDefault,
     packRatio: 1,
     tieredPricesPack: [],
 

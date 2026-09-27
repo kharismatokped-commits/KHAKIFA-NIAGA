@@ -20,19 +20,21 @@ model Category {
 }
 
 model Product {
-  id           String           @id @default(cuid())
-  nama         String           @unique
-  deskripsi    String?          @db.Text
-  categoryId   String
-  category     Category         @relation(fields: [categoryId], references: [id], onDelete: Restrict)
-  rating       Float            @default(5.0)
-  jumlahUlasan Int              @default(0)
-  gambar       String[]         @default([])
-  isPromo      Boolean          @default(false)
-  variants     ProductVariant[]
+  id            String           @id @default(cuid())
+  nama          String           @unique
+  deskripsi     String?          @db.Text
+  keterangan    String?          @db.Text // info isi kemasan, misal "1 pak isi 12 pcs"
+  satuanDefault String           @default("pcs") // "pak", "pcs", dll
+  categoryId    String
+  category      Category         @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  rating        Float            @default(5.0)
+  jumlahUlasan  Int              @default(0)
+  gambar        String[]         @default([])
+  isPromo       Boolean          @default(false)
+  variants      ProductVariant[]
 
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
 
   @@index([categoryId])
 }
@@ -45,6 +47,7 @@ model ProductVariant {
   satuan       String?
   konversi     Int         @default(1)
   gambarVarian String?
+  colorHex     String?     // kode warna heksadesimal untuk swatch (misal #000000)
   priceTiers   PriceTier[]
   orderItems   OrderItem[]
 
