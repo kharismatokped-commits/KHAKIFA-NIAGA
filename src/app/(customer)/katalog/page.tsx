@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, Suspense, useMemo } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Product } from "@/types/product";
@@ -12,18 +12,10 @@ import {
   Search,
   MessageCircle,
   Loader2,
-  PenLine,
-  Home,
-  Package,
-  Store,
-  Zap,
-  Gamepad2,
-  Trophy,
-  Grid2x2,
   LayoutGrid,
   ArrowLeft,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import Image from "next/image";
 
 // ─────────────────────────────────────────────
 // Tipe data
@@ -37,17 +29,17 @@ interface CategoryItem {
 }
 
 // ─────────────────────────────────────────────
-// Mapping ikon per kode kategori
+// Mapping 3D icon (Microsoft Fluent Emoji, MIT license)
 // ─────────────────────────────────────────────
-const ICON_MAP: Record<string, LucideIcon> = {
-  ATK: PenLine,
-  RT: Home,
-  plastik: Package,
-  kelontong: Store,
-  LT: Zap,
-  MNA: Gamepad2,
-  OLR: Trophy,
-  AKS: Grid2x2,
+const ICON_3D_MAP: Record<string, string> = {
+  ATK: "/icons/3d/atk.png",           // ✏️ Pencil
+  RT: "/icons/3d/rumah-tangga.png",   // 🏠 House
+  plastik: "/icons/3d/plastik.png",   // 📦 Package
+  kelontong: "/icons/3d/keranjang.png", // 🛒 Shopping Cart
+  LT: "/icons/3d/listrik.png",        // ⚡ High Voltage
+  MNA: "/icons/3d/mainan.png",        // 🧸 Teddy Bear
+  OLR: "/icons/3d/olahraga.png",      // ⚽ Soccer Ball
+  AKS: "/icons/3d/aksesoris.png",     // 🛍️ Shopping Bags
 };
 
 const BG_MAP: Record<string, string> = {
@@ -61,20 +53,9 @@ const BG_MAP: Record<string, string> = {
   AKS: "#F3E8FF",
 };
 
-const ICON_COLOR_MAP: Record<string, string> = {
-  ATK: "#146C43",
-  RT: "#146C43",
-  plastik: "#146C43",
-  kelontong: "#146C43",
-  LT: "#D97706",
-  MNA: "#DC2626",
-  OLR: "#2563EB",
-  AKS: "#7C3AED",
-};
-
-function getCategoryIcon(cat: CategoryItem): LucideIcon {
+function getCategoryIcon3D(cat: CategoryItem): string {
   const code = cat.kodeAsal || "";
-  return ICON_MAP[code] || Grid2x2;
+  return ICON_3D_MAP[code] || "/icons/3d/aksesoris.png";
 }
 
 function getCategoryBg(cat: CategoryItem): string {
@@ -82,13 +63,8 @@ function getCategoryBg(cat: CategoryItem): string {
   return BG_MAP[code] || "#EAF3DE";
 }
 
-function getCategoryIconColor(cat: CategoryItem): string {
-  const code = cat.kodeAsal || "";
-  return ICON_COLOR_MAP[code] || "#146C43";
-}
-
 // ─────────────────────────────────────────────
-// Grid Tile Kategori
+// Grid Tile Kategori — ikon 3D Fluent Emoji PNG
 // ─────────────────────────────────────────────
 interface CategoryTileProps {
   cat: CategoryItem;
@@ -96,25 +72,35 @@ interface CategoryTileProps {
 }
 
 const CategoryTile: React.FC<CategoryTileProps> = ({ cat, onClick }) => {
-  const IconComponent = getCategoryIcon(cat);
+  const iconSrc = getCategoryIcon3D(cat);
   const bgColor = getCategoryBg(cat);
-  const iconColor = getCategoryIconColor(cat);
   return (
     <button
       type="button"
       onClick={onClick}
       className="flex flex-col items-center gap-2 group active:scale-95 transition-transform"
     >
-      {/* Lingkaran ikon */}
+      {/* Lingkaran background + ikon 3D mengambang */}
       <div
         className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform"
         style={{ backgroundColor: bgColor }}
       >
-        <IconComponent
-          className="w-7 h-7 sm:w-8 sm:h-8 transition-transform"
-          style={{ color: iconColor }}
-          strokeWidth={2}
-        />
+        <span
+          style={{
+            filter:
+              "drop-shadow(0 4px 6px rgba(0,0,0,0.15)) drop-shadow(0 1px 2px rgba(0,0,0,0.08))",
+            display: "inline-flex",
+          }}
+        >
+          <Image
+            src={iconSrc}
+            alt={cat.nama}
+            width={44}
+            height={44}
+            className="object-contain w-10 h-10 sm:w-11 sm:h-11"
+            unoptimized
+          />
+        </span>
       </div>
       {/* Label */}
       <span className="font-sans text-[12px] sm:text-[13px] text-[#1A1A1A] text-center leading-tight max-w-[80px] line-clamp-2">
@@ -125,7 +111,7 @@ const CategoryTile: React.FC<CategoryTileProps> = ({ cat, onClick }) => {
 };
 
 // ─────────────────────────────────────────────
-// Tile "Semua Kategori"
+// Tile "Semua Kategori" — tetap pakai Lucide (fungsional)
 // ─────────────────────────────────────────────
 const SemualKategoriTile: React.FC<{ onClick: () => void }> = ({ onClick }) => (
   <button
@@ -144,6 +130,7 @@ const SemualKategoriTile: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     </span>
   </button>
 );
+
 
 // ─────────────────────────────────────────────
 // Konten utama halaman

@@ -2,14 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  PenLine,
-  Home,
-  Package,
-  Store,
-  Grid2x2,
-  LayoutGrid,
-} from "lucide-react";
+import Image from "next/image";
+import { LayoutGrid } from "lucide-react";
 
 interface CategoryData {
   id: string;
@@ -21,28 +15,39 @@ interface CategoryData {
   };
 }
 
-function getCategoryIcon(cat: CategoryData) {
-  const code = (cat.kodeAsal || "").toUpperCase();
-  const name = (cat.nama || "").toLowerCase();
+// Mapping 3D icon (Microsoft Fluent Emoji, MIT license)
+const ICON_3D_MAP: Record<string, string> = {
+  ATK: "/icons/3d/atk.png",             // ✏️ Pencil
+  RT: "/icons/3d/rumah-tangga.png",     // 🏠 House
+  plastik: "/icons/3d/plastik.png",     // 📦 Package
+  kelontong: "/icons/3d/keranjang.png", // 🛒 Shopping Cart
+  LT: "/icons/3d/listrik.png",          // ⚡ High Voltage
+  MNA: "/icons/3d/mainan.png",          // 🧸 Teddy Bear
+  OLR: "/icons/3d/olahraga.png",        // ⚽ Soccer Ball
+  AKS: "/icons/3d/aksesoris.png",       // 🛍️ Shopping Bags
+};
 
-  // ATK -> PenLine
-  if (code === "ATK" || name.includes("tulis") || name.includes("atk")) {
-    return PenLine;
-  }
-  // Rumah Tangga -> Home
-  if (code === "RT" || name.includes("rumah") || name.includes("tangga")) {
-    return Home;
-  }
-  // Plastik & Kemasan -> Package
-  if (code === "PLASTIK" || name.includes("plastik") || name.includes("kemasan")) {
-    return Package;
-  }
-  // Kelontong -> Store
-  if (code === "KELONTONG" || name.includes("kelontong") || name.includes("sembako")) {
-    return Store;
-  }
-  // Lainnya (Listrik, Mainan, Olahraga, Aksesoris) -> Grid2x2
-  return Grid2x2;
+const BG_MAP: Record<string, string> = {
+  ATK: "#EAF3DE",
+  RT: "#EAF3DE",
+  plastik: "#EAF3DE",
+  kelontong: "#EAF3DE",
+  LT: "#FEF3C7",
+  MNA: "#FEE2E2",
+  OLR: "#DBEAFE",
+  AKS: "#F3E8FF",
+};
+
+function getIcon3D(cat: CategoryData): string {
+  const code = (cat.kodeAsal || "").toLowerCase() === "plastik"
+    ? "plastik"
+    : (cat.kodeAsal || "");
+  return ICON_3D_MAP[code] || "/icons/3d/aksesoris.png";
+}
+
+function getBg(cat: CategoryData): string {
+  const code = cat.kodeAsal || "";
+  return BG_MAP[code] || "#EAF3DE";
 }
 
 export const CategoryGrid: React.FC = () => {
@@ -54,14 +59,16 @@ export const CategoryGrid: React.FC = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.data && data.data.length > 0) {
-          // Urutkan kategori berdasarkan jumlah produk terbanyak
-          const sorted = [...data.data].sort((a, b) => {
-            const countA = a._count?.products ?? 0;
-            const countB = b._count?.products ?? 0;
-            return countB - countA;
-          });
-          // Ambil hingga 15 kategori (+ 1 tombol Semua Kategori = total kelipatan 4 untuk grid icon 4x4)
-          setCategories(sorted.slice(0, 15));
+          // Filter yang punya produk, urutkan terbanyak, ambil 7 (+ 1 "Semua" = 8 → 4×2 di grid 4)
+          const sorted = [...data.data]
+            .filter((c) => (c._count?.products ?? 0) > 0)
+            .sort((a, b) => {
+              const countA = a._count?.products ?? 0;
+              const countB = b._count?.products ?? 0;
+              return countB - countA;
+            })
+            .slice(0, 7);
+          setCategories(sorted);
         }
       })
       .catch((err) => console.error("Error loading categories:", err))
@@ -88,19 +95,35 @@ export const CategoryGrid: React.FC = () => {
   return (
     <div className="grid grid-cols-4 gap-y-3.5 sm:gap-y-4 gap-x-2 sm:gap-x-4 py-1">
       {categories.map((cat) => {
-        const IconComponent = getCategoryIcon(cat);
+        const iconSrc = getIcon3D(cat);
+        const bgColor = getBg(cat);
         return (
           <Link
             key={cat.id}
             href={`/katalog?kategori=${cat.id}`}
             className="flex flex-col items-center group active:scale-95 transition-transform"
           >
-            {/* Kotak Squircle rounded-2xl dengan Ikon Lucide strokeWidth 2 */}
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white shadow-sm border border-[#E5E7EB] flex items-center justify-center group-hover:border-[#146C43] group-hover:bg-[#F5F7F6] group-hover:scale-105 transition-all">
-              <IconComponent
-                className="w-6 h-6 sm:w-7 sm:h-7 text-[#146C43] group-hover:scale-110 transition-transform"
-                strokeWidth={2}
-              />
+            {/* Kotak squircle rounded-2xl dengan ikon 3D */}
+            <div
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-sm border border-[#E5E7EB] group-hover:scale-105 transition-all"
+              style={{ backgroundColor: bgColor }}
+            >
+              <span
+                style={{
+                  filter:
+                    "drop-shadow(0 3px 5px rgba(0,0,0,0.14)) drop-shadow(0 1px 2px rgba(0,0,0,0.08))",
+                  display: "inline-flex",
+                }}
+              >
+                <Image
+                  src={iconSrc}
+                  alt={cat.nama}
+                  width={36}
+                  height={36}
+                  className="object-contain w-8 h-8 sm:w-9 sm:h-9"
+                  unoptimized
+                />
+              </span>
             </div>
 
             {/* Label Teks Kategori (Inter 11px) */}
@@ -111,7 +134,7 @@ export const CategoryGrid: React.FC = () => {
         );
       })}
 
-      {/* Tombol Semua Kategori di Akhir Grid */}
+      {/* Tombol Semua Kategori di Akhir Grid — tetap Lucide */}
       <Link
         href="/katalog"
         className="flex flex-col items-center group active:scale-95 transition-transform"
