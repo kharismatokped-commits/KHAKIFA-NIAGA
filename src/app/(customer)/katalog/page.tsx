@@ -1,37 +1,176 @@
 "use client";
 
-import React, { useState, useEffect, useRef, Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { ProductCard } from "@/components/product/ProductCard";
 import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { useStoreSettings } from "@/hooks/useStoreSettings";
 import { useDebounce } from "@/hooks/useDebounce";
-import { ShoppingCart, Search, MessageCircle, Loader2 } from "lucide-react";
+import {
+  ShoppingCart,
+  Search,
+  MessageCircle,
+  Loader2,
+  PenLine,
+  Home,
+  Package,
+  Store,
+  Zap,
+  Gamepad2,
+  Trophy,
+  Grid2x2,
+  LayoutGrid,
+  ArrowLeft,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
+// ─────────────────────────────────────────────
+// Tipe data
+// ─────────────────────────────────────────────
 interface CategoryItem {
   id: string;
   nama: string;
+  kodeAsal?: string | null;
+  ikon?: string;
+  _count?: { products: number };
 }
 
+// ─────────────────────────────────────────────
+// Mapping ikon per kode kategori
+// ─────────────────────────────────────────────
+const ICON_MAP: Record<string, LucideIcon> = {
+  ATK: PenLine,
+  RT: Home,
+  plastik: Package,
+  kelontong: Store,
+  LT: Zap,
+  MNA: Gamepad2,
+  OLR: Trophy,
+  AKS: Grid2x2,
+};
+
+const BG_MAP: Record<string, string> = {
+  ATK: "#EAF3DE",
+  RT: "#EAF3DE",
+  plastik: "#EAF3DE",
+  kelontong: "#EAF3DE",
+  LT: "#FEF3C7",
+  MNA: "#FEE2E2",
+  OLR: "#DBEAFE",
+  AKS: "#F3E8FF",
+};
+
+const ICON_COLOR_MAP: Record<string, string> = {
+  ATK: "#146C43",
+  RT: "#146C43",
+  plastik: "#146C43",
+  kelontong: "#146C43",
+  LT: "#D97706",
+  MNA: "#DC2626",
+  OLR: "#2563EB",
+  AKS: "#7C3AED",
+};
+
+function getCategoryIcon(cat: CategoryItem): LucideIcon {
+  const code = cat.kodeAsal || "";
+  return ICON_MAP[code] || Grid2x2;
+}
+
+function getCategoryBg(cat: CategoryItem): string {
+  const code = cat.kodeAsal || "";
+  return BG_MAP[code] || "#EAF3DE";
+}
+
+function getCategoryIconColor(cat: CategoryItem): string {
+  const code = cat.kodeAsal || "";
+  return ICON_COLOR_MAP[code] || "#146C43";
+}
+
+// ─────────────────────────────────────────────
+// Grid Tile Kategori
+// ─────────────────────────────────────────────
+interface CategoryTileProps {
+  cat: CategoryItem;
+  onClick: () => void;
+}
+
+const CategoryTile: React.FC<CategoryTileProps> = ({ cat, onClick }) => {
+  const IconComponent = getCategoryIcon(cat);
+  const bgColor = getCategoryBg(cat);
+  const iconColor = getCategoryIconColor(cat);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex flex-col items-center gap-2 group active:scale-95 transition-transform"
+    >
+      {/* Lingkaran ikon */}
+      <div
+        className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform"
+        style={{ backgroundColor: bgColor }}
+      >
+        <IconComponent
+          className="w-7 h-7 sm:w-8 sm:h-8 transition-transform"
+          style={{ color: iconColor }}
+          strokeWidth={2}
+        />
+      </div>
+      {/* Label */}
+      <span className="font-sans text-[12px] sm:text-[13px] text-[#1A1A1A] text-center leading-tight max-w-[80px] line-clamp-2">
+        {cat.nama}
+      </span>
+    </button>
+  );
+};
+
+// ─────────────────────────────────────────────
+// Tile "Semua Kategori"
+// ─────────────────────────────────────────────
+const SemualKategoriTile: React.FC<{ onClick: () => void }> = ({ onClick }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className="flex flex-col items-center gap-2 group active:scale-95 transition-transform"
+  >
+    <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] rounded-full flex items-center justify-center shadow-sm bg-[#F5F7F6] border border-[#E5E7EB] group-hover:scale-105 transition-transform">
+      <LayoutGrid
+        className="w-7 h-7 sm:w-8 sm:h-8 text-[#146C43] transition-transform"
+        strokeWidth={2}
+      />
+    </div>
+    <span className="font-sans font-semibold text-[12px] sm:text-[13px] text-[#146C43] text-center leading-tight max-w-[80px]">
+      Semua Kategori
+    </span>
+  </button>
+);
+
+// ─────────────────────────────────────────────
+// Konten utama halaman
+// ─────────────────────────────────────────────
 function KatalogPageContent() {
   const searchParams = useSearchParams();
-  const initialCategory = searchParams.get("kategori") || "all";
+  const initialCategory = searchParams.get("kategori") || "";
   const initialQuery = searchParams.get("q") || "";
 
   const { totalItemsCount, openCartDrawer } = useCart();
   const storeSettings = useStoreSettings();
 
+  // "view" = "grid" (tampilkan grid kategori) | "products" (tampilkan list produk)
+  const [view, setView] = useState<"grid" | "products">(
+    initialCategory ? "products" : "grid"
+  );
   const [activeCategory, setActiveCategory] = useState<string>(initialCategory);
+  const [activeCategoryName, setActiveCategoryName] = useState<string>("");
   const [query, setQuery] = useState<string>(initialQuery);
+
   const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<CategoryItem[]>([
-    { id: "all", nama: "Semua Produk" },
-  ]);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [page, setPage] = useState<number>(1);
   const [hasMore, setHasMore] = useState<boolean>(true);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+  const [isCategoriesLoading, setIsCategoriesLoading] = useState<boolean>(true);
 
   const debouncedQuery = useDebounce(query, 300);
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -40,38 +179,44 @@ function KatalogPageContent() {
   const waNumber = (storeSettings?.nomorWhatsApp || "6287789923079").replace(/\D/g, "");
   const waLink = `https://wa.me/${waNumber}?text=Halo%20Admin%20Khalifa%20Niaga,%20saya%20ingin%20tanya%20tentang%20produk%20grosir`;
 
-  // Fetch daftar kategori
+  // ── Fetch daftar kategori (satu kali) ──────────────────────
   useEffect(() => {
+    setIsCategoriesLoading(true);
     fetch("/api/categories")
       .then((res) => res.json())
       .then((res) => {
         if (res.data && res.data.length > 0) {
-          const list: CategoryItem[] = [
-            { id: "all", nama: "Semua Produk" },
-            ...res.data.map((c: any) => ({
-              id: c.id,
-              nama: c.nama,
-            })),
-          ];
-          setCategories(list);
+          // Filter kategori yang punya produk, urutkan dari terbanyak
+          const filtered = res.data
+            .filter((c: CategoryItem) => (c._count?.products ?? 0) > 0)
+            .sort((a: CategoryItem, b: CategoryItem) => {
+              const countA = a._count?.products ?? 0;
+              const countB = b._count?.products ?? 0;
+              return countB - countA;
+            });
+          setCategories(filtered);
+          // Set nama kategori aktif jika ada initialCategory
+          if (initialCategory) {
+            const found = filtered.find((c: CategoryItem) => c.id === initialCategory);
+            if (found) setActiveCategoryName(found.nama);
+          }
         }
       })
-      .catch((err) => console.error("Error loading categories:", err));
-  }, []);
+      .catch((err) => console.error("Error loading categories:", err))
+      .finally(() => setIsCategoriesLoading(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Fetch produk halaman 1 saat query atau kategori berganti
+  // ── Fetch produk page 1 ────────────────────────────────────
   useEffect(() => {
+    if (view !== "products") return;
     let isMounted = true;
     setIsLoading(true);
     setPage(1);
+    setProducts([]);
 
     const params = new URLSearchParams();
-    if (activeCategory && activeCategory !== "all") {
-      params.set("category", activeCategory);
-    }
-    if (debouncedQuery.trim() !== "") {
-      params.set("q", debouncedQuery.trim());
-    }
+    if (activeCategory) params.set("category", activeCategory);
+    if (debouncedQuery.trim() !== "") params.set("q", debouncedQuery.trim());
     params.set("page", "1");
     params.set("limit", "15");
 
@@ -94,21 +239,16 @@ function KatalogPageContent() {
     return () => {
       isMounted = false;
     };
-  }, [activeCategory, debouncedQuery]);
+  }, [activeCategory, debouncedQuery, view]);
 
-  // Load more function untuk infinite scroll
+  // ── Load more ─────────────────────────────────────────────
   const loadMore = () => {
     if (isLoadingMore || !hasMore || isLoading) return;
-
     setIsLoadingMore(true);
     const nextPage = page + 1;
     const params = new URLSearchParams();
-    if (activeCategory && activeCategory !== "all") {
-      params.set("category", activeCategory);
-    }
-    if (debouncedQuery.trim() !== "") {
-      params.set("q", debouncedQuery.trim());
-    }
+    if (activeCategory) params.set("category", activeCategory);
+    if (debouncedQuery.trim() !== "") params.set("q", debouncedQuery.trim());
     params.set("page", nextPage.toString());
     params.set("limit", "15");
 
@@ -126,48 +266,76 @@ function KatalogPageContent() {
         }
         setIsLoadingMore(false);
       })
-      .catch((err) => {
-        console.error("Error loading more products:", err);
-        setIsLoadingMore(false);
-      });
+      .catch(() => setIsLoadingMore(false));
   };
 
-  // Setup IntersectionObserver pada loadMoreRef
+  // ── IntersectionObserver ──────────────────────────────────
   useEffect(() => {
+    if (view !== "products") return;
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore && !isLoading && !isLoadingMore) {
           loadMore();
         }
       },
-      { threshold: 0.1, rootMargin: "200px" },
+      { threshold: 0.1, rootMargin: "200px" }
     );
-
     const currentRef = loadMoreRef.current;
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
+    if (currentRef) observer.observe(currentRef);
     return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
+      if (currentRef) observer.unobserve(currentRef);
     };
-  }, [hasMore, isLoading, isLoadingMore, page, activeCategory, debouncedQuery]);
+  }, [hasMore, isLoading, isLoadingMore, page, view]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ── Handler klik kategori ─────────────────────────────────
+  const handleCategoryClick = (cat: CategoryItem) => {
+    setActiveCategory(cat.id);
+    setActiveCategoryName(cat.nama);
+    setQuery("");
+    setView("products");
+  };
+
+  const handleSemua = () => {
+    setActiveCategory("");
+    setActiveCategoryName("Semua Produk");
+    setQuery("");
+    setView("products");
+  };
+
+  const handleBack = () => {
+    setView("grid");
+    setQuery("");
+    setActiveCategory("");
+    setActiveCategoryName("");
+  };
+
+  // ── Judul di header ────────────────────────────────────────
+  const headerTitle = view === "grid" ? "Kategori" : activeCategoryName || "Semua Produk";
 
   return (
-    <main className="min-h-screen bg-gray-50 pb-20">
-      {/* Header + search, sticky */}
-      <header className="sticky top-0 z-20 bg-[#146C43] px-4 pt-3 pb-3">
+    <main className="min-h-screen bg-[#F5F7F6] pb-24">
+      {/* ── Header Hijau ── */}
+      <header className="bg-[#146C43] px-4 pt-4 pb-4 sticky top-0 z-20">
+        {/* Baris atas: logo + judul + keranjang */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
+            {view === "products" && (
+              <button
+                type="button"
+                onClick={handleBack}
+                className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center mr-1 active:scale-95 transition-transform"
+                aria-label="Kembali ke Kategori"
+              >
+                <ArrowLeft className="w-4 h-4 text-white" strokeWidth={2} />
+              </button>
+            )}
             <img
               src="/logo.png"
               className="w-8 h-8 rounded-lg bg-white p-0.5 object-contain"
               alt="Khalifa Niaga"
             />
             <span className="font-heading font-semibold text-[16px] text-white tracking-tight">
-              Khalifa Niaga
+              {headerTitle}
             </span>
           </div>
           <button
@@ -184,65 +352,126 @@ function KatalogPageContent() {
             )}
           </button>
         </div>
-        <div className="flex items-center gap-2 bg-white rounded-xl px-3 py-2 shadow-sm border border-[#E5E7EB]">
-          <Search className="w-4 h-4 text-[#6B7280]" strokeWidth={2} />
+
+        {/* Search bar — rounded-full */}
+        <div className="flex items-center gap-2 bg-white rounded-full px-4 py-2.5 shadow-sm">
+          <Search className="w-4 h-4 text-[#6B7280] flex-shrink-0" strokeWidth={2} />
           <input
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Cari produk, nama, atau kategori..."
+            onChange={(e) => {
+              setQuery(e.target.value);
+              if (e.target.value.trim() && view === "grid") {
+                // Auto-pindah ke view produk jika ada query
+                setActiveCategory("");
+                setActiveCategoryName("Hasil Pencarian");
+                setView("products");
+              }
+            }}
+            placeholder={
+              view === "grid"
+                ? "Cari produk atau kategori..."
+                : `Cari di ${activeCategoryName || "semua produk"}...`
+            }
             className="flex-1 font-sans text-[13px] outline-none bg-transparent text-[#1A1A1A] placeholder:text-[#6B7280]"
           />
+          {query.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              className="text-[#6B7280] hover:text-[#1A1A1A] transition-colors text-xs font-sans"
+            >
+              ✕
+            </button>
+          )}
         </div>
       </header>
 
-      {/* Kategori filter, sticky di bawah header */}
-      <div className="sticky top-[96px] sm:top-[88px] z-10 bg-white px-4 py-2 flex gap-2 overflow-x-auto border-b border-[#E5E7EB] no-scrollbar">
-        {categories.map((c) => (
-          <button
-            key={c.id}
-            type="button"
-            onClick={() => setActiveCategory(c.id)}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-full font-sans text-[11px] font-medium cursor-pointer transition-colors ${
-              activeCategory === c.id
-                ? "bg-[#146C43] text-white shadow-xs"
-                : "bg-[#F5F7F6] text-[#6B7280] border border-[#E5E7EB] hover:bg-gray-100"
-            }`}
-          >
-            {c.nama}
-          </button>
-        ))}
-      </div>
+      {/* ── View: Grid Kategori ── */}
+      {view === "grid" && (
+        <section className="px-4 py-5">
+          <h2 className="font-heading font-semibold text-[15px] text-[#1A1A1A] mb-4">
+            Pilih Kategori
+          </h2>
 
-      {/* List produk, infinite scroll */}
-      <div className="px-4 pt-3 max-w-4xl mx-auto">
-        {isLoading ? (
-          <div className="py-16 text-center text-gray-500 space-y-2">
-            <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#146C43]" />
-            <p className="text-xs">Memuat katalog produk grosir...</p>
-          </div>
-        ) : products.length === 0 ? (
-          <div className="bg-white rounded-2xl p-8 text-center border border-gray-200 my-4 space-y-2">
-            <p className="text-sm font-bold text-gray-700">
-              Tidak ada produk yang cocok
+          {isCategoriesLoading ? (
+            /* Skeleton 3-kolom */
+            <div className="grid grid-cols-3 gap-x-4 gap-y-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="flex flex-col items-center gap-2">
+                  <div className="w-16 h-16 rounded-full bg-gray-200 animate-pulse" />
+                  <div className="w-14 h-3 bg-gray-200 rounded animate-pulse" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-x-4 gap-y-6">
+              {/* Tile Semua Kategori selalu pertama */}
+              <SemualKategoriTile onClick={handleSemua} />
+
+              {/* Tile tiap kategori */}
+              {categories.map((cat) => (
+                <CategoryTile
+                  key={cat.id}
+                  cat={cat}
+                  onClick={() => handleCategoryClick(cat)}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* ── View: List Produk ── */}
+      {view === "products" && (
+        <div className="px-4 pt-3 max-w-4xl mx-auto">
+          {/* Sub-judul + jumlah produk */}
+          {!isLoading && products.length > 0 && (
+            <p className="font-sans text-[12px] text-[#6B7280] mb-3">
+              {activeCategory
+                ? `${products.length} produk di kategori ini`
+                : `${products.length} produk ditampilkan`}
             </p>
-            <p className="text-xs text-gray-500">
-              Coba ganti kata kunci pencarian atau pilih kategori yang lain.
-            </p>
-          </div>
-        ) : (
-          products.map((p) => <ProductCard key={p.id} product={p} />)
-        )}
+          )}
 
-        {isLoadingMore && (
-          <div className="py-4 text-center">
-            <Loader2 className="w-5 h-5 animate-spin mx-auto text-[#146C43]" />
-          </div>
-        )}
+          {isLoading ? (
+            <div className="py-16 text-center text-gray-500 space-y-2">
+              <Loader2 className="w-6 h-6 animate-spin mx-auto text-[#146C43]" />
+              <p className="text-xs font-sans">Memuat produk...</p>
+            </div>
+          ) : products.length === 0 ? (
+            <div className="bg-white rounded-2xl p-8 text-center border border-[#E5E7EB] my-4 space-y-3">
+              <div className="w-14 h-14 rounded-full bg-[#F5F7F6] flex items-center justify-center mx-auto">
+                <LayoutGrid className="w-7 h-7 text-[#146C43]" strokeWidth={2} />
+              </div>
+              <p className="font-heading font-semibold text-[14px] text-[#1A1A1A]">
+                Tidak ada produk ditemukan
+              </p>
+              <p className="font-sans text-[12px] text-[#6B7280]">
+                Coba ganti kata kunci atau{" "}
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="text-[#146C43] font-medium underline"
+                >
+                  lihat kategori lain
+                </button>
+              </p>
+            </div>
+          ) : (
+            products.map((p) => <ProductCard key={p.id} product={p} />)
+          )}
 
-        <div ref={loadMoreRef} className="h-10" /> {/* trigger IntersectionObserver */}
-      </div>
+          {isLoadingMore && (
+            <div className="py-4 text-center">
+              <Loader2 className="w-5 h-5 animate-spin mx-auto text-[#146C43]" />
+            </div>
+          )}
 
-      {/* Tombol WhatsApp mengambang */}
+          <div ref={loadMoreRef} className="h-10" />
+        </div>
+      )}
+
+      {/* ── Tombol WhatsApp mengambang ── */}
       <a
         href={waLink}
         target="_blank"
@@ -260,7 +489,7 @@ export default function KatalogPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="min-h-screen bg-[#F5F7F6] flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-[#146C43]" />
         </div>
       }
