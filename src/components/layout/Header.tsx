@@ -145,7 +145,7 @@ export const Header: React.FC = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full bg-white border-b border-gray-100/80 shadow-xs">
+      <header className="sticky top-0 z-40 w-full bg-[#146C43] shadow-sm">
         <div className="max-w-5xl mx-auto px-4 pt-2.5 pb-2.5">
           {/* LAPIS ATAS: Logo KN + Nama Toko + Keranjang + Menu Hamburger (Collapse saat scroll ke bawah) */}
           <div
@@ -163,7 +163,7 @@ export const Header: React.FC = () => {
               {/* Sisi Kiri: Logo KN & Identitas Toko */}
               <Link href="/" className="flex items-center gap-3 group shrink-0">
                 {/* Logo Baru Khalifa Niaga */}
-                <div className="w-12 h-12 rounded-[14px] bg-white border border-gray-100 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0 p-1 overflow-hidden">
+                <div className="w-12 h-12 rounded-[14px] bg-white border border-white/20 flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform shrink-0 p-1 overflow-hidden">
                   <Image
                     src="/logo-mark.png"
                     alt="Logo Khalifa Niaga"
@@ -176,10 +176,10 @@ export const Header: React.FC = () => {
 
                 {/* Teks Nama & Subtitle */}
                 <div className="flex flex-col justify-center">
-                  <h1 className="font-heading font-semibold text-[16px] text-[#1A1A1A] tracking-tight leading-none">
+                  <h1 className="font-heading font-semibold text-[16px] text-white tracking-tight leading-none">
                     {storeSettings.namaToko}
                   </h1>
-                  <p className="font-sans text-[12px] text-[#6B7280] font-normal tracking-tight mt-1">
+                  <p className="font-sans text-[12px] text-emerald-100 font-normal tracking-tight mt-1">
                     Grosir Alat Tulis • Aksesoris • Kelontong
                   </p>
                 </div>
@@ -202,11 +202,11 @@ export const Header: React.FC = () => {
                 {/* Ikon Keranjang Trolley dengan Badge Angka Merah */}
                 <Link
                   href="/keranjang"
-                  className="relative p-1 text-gray-700 hover:text-gray-900 transition-colors"
+                  className="relative p-1 text-white hover:text-white/80 transition-colors"
                   aria-label="Keranjang Belanja"
                 >
                   <div className="w-8 h-8 flex items-center justify-center">
-                    <ShoppingCart className="w-6 h-6 text-[#1A1A1A]" strokeWidth={2} />
+                    <ShoppingCart className="w-6 h-6 text-white" strokeWidth={2} />
                   </div>
                   <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-[#E53935] text-white text-[10px] font-bold shadow-xs">
                     {totalItemsCount}
@@ -217,16 +217,16 @@ export const Header: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="p-1.5 rounded-lg text-[#1A1A1A] hover:bg-gray-100 transition-colors"
+                  className="p-1.5 rounded-lg text-white hover:bg-white/10 transition-colors"
                   aria-label="Menu Navigasi"
                 >
-                  <Menu className="w-6 h-6" strokeWidth={2} />
+                  <Menu className="w-6 h-6 text-white" strokeWidth={2} />
                 </button>
               </div>
             </div>
           </div>
 
-          {/* LAPIS BAWAH: Search Input Oval Abu-abu (Pill) dengan Live Dropdown */}
+          {/* LAPIS BAWAH: Search Input Oval Putih dengan Live Dropdown */}
           <div ref={dropdownRef} className="relative w-full">
             <form onSubmit={handleSearchSubmit} className="relative w-full">
               <input
@@ -242,7 +242,7 @@ export const Header: React.FC = () => {
                     setShowDropdown(true);
                   }
                 }}
-                className="w-full h-11 pl-10 pr-10 rounded-2xl bg-[#F5F7F6] text-[#1A1A1A] placeholder:text-[#6B7280] text-[13px] font-sans border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#146C43] transition-all"
+                className="w-full h-11 pl-10 pr-10 rounded-2xl bg-white text-[#1A1A1A] placeholder:text-[#6B7280] text-[13px] font-sans shadow-sm border border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-300 transition-all"
               />
               {/* Search Icon / Loader */}
               <div className="absolute left-3.5 top-3 text-[#6B7280] pointer-events-none">
