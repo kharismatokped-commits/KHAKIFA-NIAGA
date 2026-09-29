@@ -1,8 +1,23 @@
 import type { Metadata, Viewport } from "next";
+import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { CartDrawer } from "@/components/cart/CartDrawer";
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-poppins",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Khalifa Niaga — Grosir Alat Tulis, Plastik & Kelontong",
@@ -30,8 +45,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id">
-      <body className="min-h-screen bg-gray-50 text-gray-900 font-sans antialiased">
+    <html lang="id" className={`${poppins.variable} ${inter.variable}`}>
+      <body className="min-h-screen bg-white text-[#1A1A1A] font-sans antialiased">
         <CartProvider>
           {children}
           <BottomNav />

@@ -163,10 +163,10 @@ function KatalogPageContent() {
           <div className="flex items-center gap-2">
             <img
               src="/logo.png"
-              className="w-8 h-8 rounded-md bg-white p-0.5 object-contain"
+              className="w-8 h-8 rounded-lg bg-white p-0.5 object-contain"
               alt="Khalifa Niaga"
             />
-            <span className="text-white font-semibold text-base">
+            <span className="font-heading font-semibold text-[16px] text-white tracking-tight">
               Khalifa Niaga
             </span>
           </div>
@@ -176,36 +176,36 @@ function KatalogPageContent() {
             className="relative cursor-pointer p-1"
             aria-label="Buka Keranjang"
           >
-            <ShoppingCart className="w-6 h-6 text-white" />
+            <ShoppingCart className="w-6 h-6 text-white" strokeWidth={2} />
             {totalItemsCount > 0 && (
-              <span className="absolute -top-1 -right-2 bg-red-500 text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+              <span className="absolute -top-1 -right-2 bg-[#E53935] text-white font-sans text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                 {totalItemsCount}
               </span>
             )}
           </button>
         </div>
-        <div className="flex items-center gap-2 bg-white rounded-xl px-3 py-2 shadow-xs">
-          <Search className="w-4 h-4 text-gray-400" />
+        <div className="flex items-center gap-2 bg-white rounded-xl px-3 py-2 shadow-sm border border-[#E5E7EB]">
+          <Search className="w-4 h-4 text-[#6B7280]" strokeWidth={2} />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Cari produk, nama, atau kategori..."
-            className="flex-1 text-sm outline-none bg-transparent"
+            className="flex-1 font-sans text-[13px] outline-none bg-transparent text-[#1A1A1A] placeholder:text-[#6B7280]"
           />
         </div>
       </header>
 
       {/* Kategori filter, sticky di bawah header */}
-      <div className="sticky top-[96px] sm:top-[88px] z-10 bg-gray-50 px-4 py-2 flex gap-2 overflow-x-auto border-b border-gray-200 no-scrollbar">
+      <div className="sticky top-[96px] sm:top-[88px] z-10 bg-white px-4 py-2 flex gap-2 overflow-x-auto border-b border-[#E5E7EB] no-scrollbar">
         {categories.map((c) => (
           <button
             key={c.id}
             type="button"
             onClick={() => setActiveCategory(c.id)}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium cursor-pointer transition-colors ${
+            className={`flex-shrink-0 px-3 py-1.5 rounded-full font-sans text-[11px] font-medium cursor-pointer transition-colors ${
               activeCategory === c.id
-                ? "bg-[#146C43] text-white"
-                : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-100"
+                ? "bg-[#146C43] text-white shadow-xs"
+                : "bg-[#F5F7F6] text-[#6B7280] border border-[#E5E7EB] hover:bg-gray-100"
             }`}
           >
             {c.nama}

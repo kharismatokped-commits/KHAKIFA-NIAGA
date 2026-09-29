@@ -21,8 +21,8 @@ export default {
           foreground: "hsl(var(--popover-foreground))",
         },
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "#146C43",
+          foreground: "#FFFFFF",
           50: "#f0fdf4",
           100: "#dcfce7",
           200: "#bbf7d0",
@@ -35,6 +35,11 @@ export default {
           dark: "#115b38",
           darker: "#0f4d30",
         },
+        surface: "#F5F7F6",
+        "accent-badge": "#E53935",
+        "text-primary": "#1A1A1A",
+        "text-secondary": "#6B7280",
+        "whatsapp-green": "#25D366",
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",

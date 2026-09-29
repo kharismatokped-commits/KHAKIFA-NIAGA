@@ -176,10 +176,10 @@ export const Header: React.FC = () => {
 
                 {/* Teks Nama & Subtitle */}
                 <div className="flex flex-col justify-center">
-                  <h1 className="font-heading font-black text-[18px] sm:text-[20px] text-[#0f172a] tracking-tight leading-none">
+                  <h1 className="font-heading font-semibold text-[16px] text-[#1A1A1A] tracking-tight leading-none">
                     {storeSettings.namaToko}
                   </h1>
-                  <p className="text-[11px] sm:text-xs text-[#64748b] font-medium tracking-tight mt-1">
+                  <p className="font-sans text-[12px] text-[#6B7280] font-normal tracking-tight mt-1">
                     Grosir Alat Tulis • Aksesoris • Kelontong
                   </p>
                 </div>
@@ -192,10 +192,10 @@ export const Header: React.FC = () => {
                   href={waLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-bold rounded-xl shadow-xs transition-colors"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#25D366] hover:bg-[#20ba5a] text-white text-xs font-medium rounded-xl shadow-xs transition-colors"
                   aria-label="Chat WhatsApp Admin"
                 >
-                  <MessageCircle className="w-4 h-4 fill-white text-white" />
+                  <MessageCircle className="w-4 h-4 fill-white text-white" strokeWidth={2} />
                   <span>WhatsApp</span>
                 </a>
 
@@ -206,9 +206,9 @@ export const Header: React.FC = () => {
                   aria-label="Keranjang Belanja"
                 >
                   <div className="w-8 h-8 flex items-center justify-center">
-                    <ShoppingCart className="w-6 h-6 stroke-[2.2] text-gray-600" />
+                    <ShoppingCart className="w-6 h-6 text-[#1A1A1A]" strokeWidth={2} />
                   </div>
-                  <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1 rounded-full bg-[#E53935] text-white text-[11px] font-black shadow-xs">
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-[#E53935] text-white text-[10px] font-bold shadow-xs">
                     {totalItemsCount}
                   </span>
                 </Link>
@@ -217,10 +217,10 @@ export const Header: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                  className="p-1.5 rounded-lg text-gray-800 hover:bg-gray-100 transition-colors"
+                  className="p-1.5 rounded-lg text-[#1A1A1A] hover:bg-gray-100 transition-colors"
                   aria-label="Menu Navigasi"
                 >
-                  <Menu className="w-6 h-6 stroke-[2.5]" />
+                  <Menu className="w-6 h-6" strokeWidth={2} />
                 </button>
               </div>
             </div>
@@ -242,14 +242,14 @@ export const Header: React.FC = () => {
                     setShowDropdown(true);
                   }
                 }}
-                className="w-full h-11 pl-10 pr-10 rounded-2xl bg-[#EEF2F6] text-gray-800 placeholder:text-[#94A3B8] text-[13px] sm:text-sm font-medium border-0 focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                className="w-full h-11 pl-10 pr-10 rounded-2xl bg-[#F5F7F6] text-[#1A1A1A] placeholder:text-[#6B7280] text-[13px] font-sans border border-[#E5E7EB] focus:outline-none focus:ring-2 focus:ring-[#146C43] transition-all"
               />
               {/* Search Icon / Loader */}
-              <div className="absolute left-3.5 top-3 text-[#94A3B8] pointer-events-none">
+              <div className="absolute left-3.5 top-3 text-[#6B7280] pointer-events-none">
                 {isSearching ? (
-                  <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                  <Loader2 className="w-4 h-4 animate-spin text-[#146C43]" />
                 ) : (
-                  <Search className="w-4 h-4 stroke-[2.2]" />
+                  <Search className="w-4 h-4" strokeWidth={2} />
                 )}
               </div>
               {searchQuery && (
@@ -262,7 +262,7 @@ export const Header: React.FC = () => {
                   }}
                   className="absolute right-3 top-3 text-gray-400 hover:text-gray-600 p-0.5"
                 >
-                  <X className="w-4 h-4" strokeWidth={2.2} />
+                  <X className="w-4 h-4" strokeWidth={2} />
                 </button>
               )}
             </form>

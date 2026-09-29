@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Product, UnitType } from "@/types/product";
 import { useCart } from "@/context/CartContext";
-import { RotateCcw, Plus, Check, ShoppingBag } from "lucide-react";
+import { RotateCcw, Plus, Check } from "lucide-react";
 
 interface RepeatOrderItem {
   productVariantId: string;
@@ -83,14 +83,14 @@ export const RepeatOrderSection: React.FC = () => {
       {/* Header Section */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-emerald-100 flex items-center justify-center text-primary">
-            <RotateCcw className="w-3.5 h-3.5" />
+          <div className="w-7 h-7 rounded-xl bg-emerald-50 border border-emerald-200/60 flex items-center justify-center text-[#146C43]">
+            <RotateCcw className="w-4 h-4" strokeWidth={2} />
           </div>
           <div>
-            <h3 className="font-heading font-black text-base text-gray-900 tracking-tight">
+            <h3 className="font-heading font-semibold text-base text-[#1A1A1A] tracking-tight">
               Pesan Lagi
             </h3>
-            <p className="text-[12px] text-gray-500">
+            <p className="font-sans text-[13px] text-[#6B7280]">
               Produk yang sering Anda pesan untuk kulakan
             </p>
           </div>
@@ -107,12 +107,12 @@ export const RepeatOrderSection: React.FC = () => {
           return (
             <div
               key={item.productVariantId}
-              className="min-w-[190px] max-w-[210px] bg-white border border-gray-100 rounded-2xl p-3 shadow-xs flex flex-col justify-between shrink-0 group hover:border-primary/40 transition-colors"
+              className="min-w-[190px] max-w-[210px] bg-white border border-[#E5E7EB] rounded-2xl p-3 shadow-sm flex flex-col justify-between shrink-0 group hover:border-[#146C43] transition-colors"
             >
               <div>
                 <Link
                   href={`/produk/${item.product.id}`}
-                  className="block relative aspect-square w-full rounded-xl overflow-hidden bg-gray-50 mb-2 border border-gray-100/80"
+                  className="block relative aspect-square w-full rounded-xl overflow-hidden bg-[#F5F7F6] mb-2 border border-[#E5E7EB]"
                 >
                   <Image
                     src={imgSrc}
@@ -121,43 +121,43 @@ export const RepeatOrderSection: React.FC = () => {
                     sizes="(max-width: 640px) 190px, 210px"
                     className="object-contain p-2 group-hover:scale-105 transition-transform"
                   />
-                  <div className="absolute bottom-1.5 left-1.5 bg-gray-900/80 backdrop-blur-xs text-white text-[10px] font-semibold px-2 py-0.5 rounded-md">
+                  <div className="absolute bottom-1.5 left-1.5 bg-[#1A1A1A]/80 backdrop-blur-xs text-white font-sans text-[10px] font-medium px-2 py-0.5 rounded-md">
                     {item.lastQty} {item.lastUnit}
                   </div>
                 </Link>
 
                 <Link href={`/produk/${item.product.id}`}>
-                  <h4 className="font-heading font-bold text-xs text-gray-800 line-clamp-2 leading-snug group-hover:text-primary transition-colors">
+                  <h4 className="font-heading font-medium text-[14px] text-[#1A1A1A] line-clamp-2 leading-snug group-hover:text-[#146C43] transition-colors">
                     {item.product.name}
                   </h4>
                 </Link>
 
                 {item.variantName && item.variantName !== "Standar" && (
-                  <p className="text-[11px] text-gray-500 mt-0.5 line-clamp-1">
+                  <p className="font-sans text-[11px] text-[#6B7280] mt-0.5 line-clamp-1">
                     Varian: {item.variantName}
                   </p>
                 )}
               </div>
 
-              <div className="mt-3 pt-2 border-t border-gray-50">
+              <div className="mt-3 pt-2 border-t border-[#E5E7EB]">
                 <button
                   type="button"
                   onClick={() => handleAddToCart(item)}
                   disabled={isAdded}
-                  className={`w-full py-2 px-2.5 rounded-xl font-heading font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                  className={`w-full h-[40px] rounded-xl font-heading font-medium text-[13px] flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                     isAdded
                       ? "bg-emerald-600 text-white"
-                      : "bg-primary text-white hover:bg-emerald-700 active:scale-95"
+                      : "bg-[#146C43] text-white hover:bg-[#0f5333] active:scale-95 shadow-sm"
                   }`}
                 >
                   {isAdded ? (
                     <>
-                      <Check className="w-3.5 h-3.5" />
+                      <Check className="w-4 h-4" strokeWidth={2} />
                       <span>Masuk Keranjang</span>
                     </>
                   ) : (
                     <>
-                      <Plus className="w-3.5 h-3.5" />
+                      <Plus className="w-4 h-4" strokeWidth={2} />
                       <span>
                         + {item.lastQty} {item.lastUnit}
                       </span>

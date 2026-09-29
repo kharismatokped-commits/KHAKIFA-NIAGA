@@ -3,13 +3,11 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import {
-  BookOpen,
+  PenLine,
   Home,
   Package,
-  Zap,
-  Gamepad2,
-  Trophy,
-  Sparkles,
+  Store,
+  Grid2x2,
   LayoutGrid,
 } from "lucide-react";
 
@@ -27,28 +25,24 @@ function getCategoryIcon(cat: CategoryData) {
   const code = (cat.kodeAsal || "").toUpperCase();
   const name = (cat.nama || "").toLowerCase();
 
+  // ATK -> PenLine
   if (code === "ATK" || name.includes("tulis") || name.includes("atk")) {
-    return BookOpen;
+    return PenLine;
   }
+  // Rumah Tangga -> Home
   if (code === "RT" || name.includes("rumah") || name.includes("tangga")) {
     return Home;
   }
+  // Plastik & Kemasan -> Package
   if (code === "PLASTIK" || name.includes("plastik") || name.includes("kemasan")) {
     return Package;
   }
-  if (code === "LT" || name.includes("listrik") || name.includes("perkakas")) {
-    return Zap;
+  // Kelontong -> Store
+  if (code === "KELONTONG" || name.includes("kelontong") || name.includes("sembako")) {
+    return Store;
   }
-  if (code === "MNA" || name.includes("mainan")) {
-    return Gamepad2;
-  }
-  if (code === "OLR" || name.includes("olahraga")) {
-    return Trophy;
-  }
-  if (code === "AKS" || name.includes("aksesoris")) {
-    return Sparkles;
-  }
-  return LayoutGrid;
+  // Lainnya (Listrik, Mainan, Olahraga, Aksesoris) -> Grid2x2
+  return Grid2x2;
 }
 
 export const CategoryGrid: React.FC = () => {
@@ -66,8 +60,7 @@ export const CategoryGrid: React.FC = () => {
             const countB = b._count?.products ?? 0;
             return countB - countA;
           });
-          // Ambil hingga 15 kategori (+ 1 tombol Semua Kategori = 16 item / grid 4x4)
-          // Jika ada 7 kategori (+ 1 tombol = 8 item / grid 4x2)
+          // Ambil hingga 15 kategori (+ 1 tombol Semua Kategori = total kelipatan 4 untuk grid icon 4x4)
           setCategories(sorted.slice(0, 15));
         }
       })
@@ -80,8 +73,8 @@ export const CategoryGrid: React.FC = () => {
       <div className="grid grid-cols-4 gap-y-3.5 gap-x-2 sm:gap-4 py-1">
         {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
           <div key={i} className="flex flex-col items-center">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[18px] sm:rounded-2xl bg-gray-100 animate-pulse" />
-            <div className="w-12 h-3 bg-gray-100 rounded mt-2 animate-pulse" />
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#F5F7F6] border border-[#E5E7EB] animate-pulse" />
+            <div className="w-12 h-3 bg-[#F5F7F6] rounded mt-2 animate-pulse" />
           </div>
         ))}
       </div>
@@ -102,16 +95,16 @@ export const CategoryGrid: React.FC = () => {
             href={`/katalog?kategori=${cat.id}`}
             className="flex flex-col items-center group active:scale-95 transition-transform"
           >
-            {/* Kotak Putih Squircle dengan Ikon Lucide Outline Tebal */}
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[18px] sm:rounded-2xl bg-white shadow-xs border border-gray-200/80 flex items-center justify-center group-hover:border-primary group-hover:bg-emerald-50/40 group-hover:scale-105 group-hover:shadow-md transition-all">
+            {/* Kotak Squircle rounded-2xl dengan Ikon Lucide strokeWidth 2 */}
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white shadow-sm border border-[#E5E7EB] flex items-center justify-center group-hover:border-[#146C43] group-hover:bg-[#F5F7F6] group-hover:scale-105 transition-all">
               <IconComponent
-                className="w-6 h-6 sm:w-7 sm:h-7 text-primary group-hover:scale-110 transition-transform"
-                strokeWidth={2.2}
+                className="w-6 h-6 sm:w-7 sm:h-7 text-[#146C43] group-hover:scale-110 transition-transform"
+                strokeWidth={2}
               />
             </div>
 
-            {/* Label Teks di Bawah Kotak */}
-            <span className="font-heading font-medium text-[11px] sm:text-[12px] text-gray-800 group-hover:text-primary text-center leading-tight mt-1.5 line-clamp-2 max-w-[80px] transition-colors">
+            {/* Label Teks Kategori (Inter 11px) */}
+            <span className="font-sans font-medium text-[11px] text-[#1A1A1A] group-hover:text-[#146C43] text-center leading-tight mt-1.5 line-clamp-2 max-w-[80px] transition-colors">
               {cat.nama}
             </span>
           </Link>
@@ -123,13 +116,13 @@ export const CategoryGrid: React.FC = () => {
         href="/katalog"
         className="flex flex-col items-center group active:scale-95 transition-transform"
       >
-        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[18px] sm:rounded-2xl bg-emerald-50 shadow-xs border border-emerald-200 flex items-center justify-center group-hover:border-primary group-hover:bg-emerald-100 group-hover:scale-105 group-hover:shadow-md transition-all">
+        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#F5F7F6] shadow-sm border border-[#E5E7EB] flex items-center justify-center group-hover:border-[#146C43] group-hover:bg-emerald-50/50 group-hover:scale-105 transition-all">
           <LayoutGrid
-            className="w-6 h-6 sm:w-7 sm:h-7 text-primary group-hover:scale-110 transition-transform"
-            strokeWidth={2.2}
+            className="w-6 h-6 sm:w-7 sm:h-7 text-[#146C43] group-hover:scale-110 transition-transform"
+            strokeWidth={2}
           />
         </div>
-        <span className="font-heading font-bold text-[11px] sm:text-[12px] text-primary text-center leading-tight mt-1.5 line-clamp-2 max-w-[80px] transition-colors">
+        <span className="font-sans font-semibold text-[11px] text-[#146C43] text-center leading-tight mt-1.5 line-clamp-2 max-w-[80px] transition-colors">
           Semua Kategori
         </span>
       </Link>
