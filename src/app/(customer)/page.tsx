@@ -43,7 +43,7 @@ export default async function HomePage() {
       {/* 2. Pesan Lagi (Khusus repeat customer, otomatis tersembunyi untuk new visitor) */}
       <RepeatOrderSection />
 
-      {/* 3. Kategori Scroll Horizontal (1 Baris, Maks 7 Kategori + Tombol Semua Kategori) */}
+      {/* 3. Kategori Grid Icon 4 Kolom (4x4) */}
       <CategoryGrid />
 
       {/* 4. Produk Terlaris (2 Kolom Grid, 6-8 Produk + Tombol Lihat Semua Produk) */}
