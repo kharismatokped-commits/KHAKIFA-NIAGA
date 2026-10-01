@@ -28,8 +28,19 @@ export const BottomNav: React.FC = () => {
   ];
 
   return (
-    <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#E5E7EB] shadow-lg pb-safe">
-      <div className="grid grid-cols-4 h-16">
+    /* Floating pill — tidak menempel ke tepi layar */
+    <nav
+      className="sm:hidden fixed bottom-3.5 left-1/2 -translate-x-1/2 z-40"
+      style={{
+        width: "calc(100% - 36px)",
+        maxWidth: "444px",
+        height: "68px",
+        borderRadius: "26px",
+        background: "#F8F9FE",
+        boxShadow: "10px 10px 24px rgba(163,177,198,0.34), -8px -8px 20px rgba(255,255,255,0.94)",
+      }}
+    >
+      <div className="flex items-center justify-around h-full px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive =
@@ -42,34 +53,43 @@ export const BottomNav: React.FC = () => {
               key={item.href}
               href={item.href}
               prefetch={true}
-              className={`flex flex-col items-center justify-center gap-1 transition-all duration-150 relative py-1 select-none active:scale-95 ${
-                isActive
-                  ? "text-[#146C43]"
-                  : "text-[#6B7280] hover:text-[#1A1A1A]"
-              }`}
+              className="relative flex-shrink-0 select-none active:scale-95 transition-all duration-200"
             >
-              <div className="relative">
-                {/* Ukuran 24px, strokeWidth 2 */}
-                <Icon
-                  className="w-6 h-6 transition-transform duration-150"
-                  strokeWidth={2}
-                />
-                {item.badge !== undefined && item.badge > 0 && (
-                  <span className="absolute -top-1.5 -right-2.5 flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-[#E53935] text-white text-[10px] font-bold shadow-xs animate-in zoom-in-50 duration-150">
-                    {item.badge}
+              {isActive ? (
+                /* Tab Aktif: pill gradien hijau */
+                <span
+                  className="flex flex-col items-center justify-center gap-0.5 px-4 py-2"
+                  style={{
+                    background: "linear-gradient(135deg, #2E9B63, #146C43)",
+                    borderRadius: "20px",
+                    boxShadow: "0 6px 18px rgba(20,108,67,0.32)",
+                    minWidth: "72px",
+                    minHeight: "52px",
+                  }}
+                >
+                  <Icon className="w-[22px] h-[22px] text-white" strokeWidth={2} />
+                  <span className="text-[9.5px] font-bold text-white leading-tight">{item.label}</span>
+                </span>
+              ) : (
+                /* Tab Normal */
+                <span className="flex flex-col items-center justify-center gap-0.5 px-3 py-2" style={{ minWidth: "62px", minHeight: "52px" }}>
+                  <span className="relative">
+                    <Icon className="w-[22px] h-[22px] text-[#8A8FA8]" strokeWidth={2} />
+                    {item.badge !== undefined && item.badge > 0 && (
+                      <span
+                        className="absolute -top-1.5 -right-2.5 flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full text-white text-[9px] font-bold"
+                        style={{
+                          background: "linear-gradient(135deg, #FF6B6B, #E5484D)",
+                          boxShadow: "0 3px 8px rgba(229,72,77,0.45)",
+                        }}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
                   </span>
-                )}
-              </div>
-              {/* Label teks 11px di bawah ikon */}
-              <span
-                className={`text-[11px] leading-tight tracking-tight transition-colors duration-150 ${
-                  isActive
-                    ? "font-semibold text-[#146C43]"
-                    : "font-normal text-[#6B7280]"
-                }`}
-              >
-                {item.label}
-              </span>
+                  <span className="text-[9.5px] font-700 text-[#8A8FA8] leading-tight">{item.label}</span>
+                </span>
+              )}
             </Link>
           );
         })}

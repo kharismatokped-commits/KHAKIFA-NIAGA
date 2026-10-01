@@ -80,8 +80,11 @@ export const CategoryGrid: React.FC = () => {
       <div className="grid grid-cols-4 gap-y-3.5 gap-x-2 sm:gap-4 py-1">
         {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
           <div key={i} className="flex flex-col items-center">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#F5F7F6] border border-[#E5E7EB] animate-pulse" />
-            <div className="w-12 h-3 bg-[#F5F7F6] rounded mt-2 animate-pulse" />
+            <div
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-[19px] animate-pulse"
+              style={{ background: "#E9ECF6", boxShadow: "inset 4px 4px 9px rgba(163,177,198,0.28), inset -4px -4px 9px rgba(255,255,255,0.92)" }}
+            />
+            <div className="w-12 h-3 rounded mt-2 animate-pulse" style={{ background: "#E9ECF6" }} />
           </div>
         ))}
       </div>
@@ -103,16 +106,18 @@ export const CategoryGrid: React.FC = () => {
             href={`/katalog?kategori=${cat.id}`}
             className="flex flex-col items-center group active:scale-95 transition-transform"
           >
-            {/* Kotak squircle rounded-2xl dengan ikon 3D */}
+            {/* Tile Neumorphic + Glossy overlay */}
             <div
-              className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center shadow-sm border border-[#E5E7EB] group-hover:scale-105 transition-all"
-              style={{ backgroundColor: bgColor }}
+              className="w-14 h-14 sm:w-16 sm:h-16 rounded-[19px] flex items-center justify-center relative overflow-hidden group-hover:scale-105 transition-all"
+              style={{
+                backgroundColor: bgColor,
+                boxShadow: "6px 6px 14px rgba(163,177,198,0.30), -6px -6px 14px rgba(255,255,255,0.92)",
+              }}
             >
               <span
                 style={{
-                  filter:
-                    "drop-shadow(0 3px 5px rgba(0,0,0,0.14)) drop-shadow(0 1px 2px rgba(0,0,0,0.08))",
-                  display: "inline-flex",
+                  filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.14)) drop-shadow(0 1px 2px rgba(0,0,0,0.08))",
+                  display: "inline-flex", position: "relative", zIndex: 1,
                 }}
               >
                 <Image
@@ -124,28 +129,41 @@ export const CategoryGrid: React.FC = () => {
                   unoptimized
                 />
               </span>
+              {/* Overlay gloss putih — efek 3D glossy */}
+              <div
+                className="absolute inset-0 rounded-[19px] pointer-events-none"
+                style={{
+                  background: "linear-gradient(155deg, rgba(255,255,255,0.55) 50%, transparent 62%)",
+                }}
+              />
             </div>
 
-            {/* Label Teks Kategori (Inter 11px) */}
-            <span className="font-sans font-medium text-[11px] text-[#1A1A1A] group-hover:text-[#146C43] text-center leading-tight mt-1.5 line-clamp-2 max-w-[80px] transition-colors">
+            {/* Label */}
+            <span className="font-sans font-bold text-[10.5px] text-[#8A8FA8] group-hover:text-[#146C43] text-center leading-tight mt-1.5 line-clamp-2 max-w-[80px] transition-colors">
               {cat.nama}
             </span>
           </Link>
         );
       })}
 
-      {/* Tombol Semua Kategori di Akhir Grid — tetap Lucide */}
+      {/* Tombol Semua Kategori — inset (tenggelam) */}
       <Link
         href="/katalog"
         className="flex flex-col items-center group active:scale-95 transition-transform"
       >
-        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-[#F5F7F6] shadow-sm border border-[#E5E7EB] flex items-center justify-center group-hover:border-[#146C43] group-hover:bg-emerald-50/50 group-hover:scale-105 transition-all">
+        <div
+          className="w-14 h-14 sm:w-16 sm:h-16 rounded-[19px] flex items-center justify-center group-hover:scale-105 transition-all"
+          style={{
+            background: "#E9ECF6",
+            boxShadow: "inset 4px 4px 9px rgba(163,177,198,0.28), inset -4px -4px 9px rgba(255,255,255,0.92)",
+          }}
+        >
           <LayoutGrid
             className="w-6 h-6 sm:w-7 sm:h-7 text-[#146C43] group-hover:scale-110 transition-transform"
             strokeWidth={2}
           />
         </div>
-        <span className="font-sans font-semibold text-[11px] text-[#146C43] text-center leading-tight mt-1.5 line-clamp-2 max-w-[80px] transition-colors">
+        <span className="font-sans font-bold text-[10.5px] text-[#146C43] text-center leading-tight mt-1.5 line-clamp-2 max-w-[80px] transition-colors">
           Semua Kategori
         </span>
       </Link>

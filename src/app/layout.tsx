@@ -46,7 +46,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className={`${poppins.variable} ${inter.variable}`}>
-      <body className="min-h-screen bg-white text-[#1A1A1A] font-sans antialiased">
+      <body className="min-h-screen bg-[#EEF0F8] text-[#1F2340] font-sans antialiased">
         <CartProvider>
           {children}
           <BottomNav />

@@ -8,14 +8,29 @@
   :root {
     /* Sistem Desain Visual Khalifa Niaga */
     --primary: #146C43;                     /* hijau tua - tombol utama, harga, ikon aktif */
-    --primary-gradient: linear-gradient(135deg, #1E7A4E, #2E9B63); /* banner promo */
-    --background: #FFFFFF;
-    --surface: #F5F7F6;                      /* card/section abu muda */
-    --accent-badge: #E53935;                 /* badge angka keranjang */
-    --text-primary: #1A1A1A;
-    --text-secondary: #6B7280;
-    --border: #E5E7EB;
-    --whatsapp-green: #25D366;               /* khusus tombol/ikon WhatsApp */
+    --primary-gradient: linear-gradient(135deg, #2E9B63, #146C43); /* banner promo */
+    --background: #EEF0F8;                  /* Soft UI — lavender-abu terang */
+    --surface: #F8F9FE;                     /* Soft UI — kartu / surface off-white */
+    --surface-inset: #E9ECF6;               /* Soft UI — elemen tenggelam (input, stepper) */
+    --accent-badge: #E5484D;                /* badge angka keranjang */
+    --text-primary: #1F2340;                /* Soft UI — biru gelap hampir hitam */
+    --text-secondary: #8A8FA8;              /* Soft UI — abu kebiruan */
+    --border: #E2E6F2;                      /* Soft UI — divider tipis */
+    --whatsapp-green: #25D366;              /* khusus tombol/ikon WhatsApp */
+
+    /* ── Soft UI / Neumorphism Shadow Tokens ─────────────── */
+    /* Raised (timbul): bayangan gelap kanan-bawah + highlight terang kiri-atas */
+    --nm-shadow-out:   6px 6px 14px rgba(163,177,198,0.30), -6px -6px 14px rgba(255,255,255,0.92);
+    /* Pressed (inset): bayangan dalam untuk input, stepper, elemen tenggelam */
+    --nm-shadow-in:    inset 4px 4px 9px rgba(163,177,198,0.28), inset -4px -4px 9px rgba(255,255,255,0.92);
+    /* Card: shadow sedang untuk kartu produk */
+    --nm-shadow-card:  8px 8px 18px rgba(163,177,198,0.28), -6px -6px 16px rgba(255,255,255,0.90);
+    /* Heavy: shadow kuat untuk bottom nav, drawer, floating elements */
+    --nm-shadow-heavy: 10px 10px 24px rgba(163,177,198,0.34), -8px -8px 20px rgba(255,255,255,0.94);
+    /* Button Glow: shadow glow hijau untuk tombol utama */
+    --nm-glow-green:   0 12px 26px rgba(20,108,67,0.34);
+    /* Hero Banner Glow */
+    --nm-glow-hero:    0 16px 32px rgba(20,108,67,0.30);
 
     /* Radix/Tailwind compatibility mapping */
     --foreground: 0 0% 10%;
@@ -36,6 +51,7 @@
     --radius: 1rem;
   }
 }
+
 
 @layer base {
   * {

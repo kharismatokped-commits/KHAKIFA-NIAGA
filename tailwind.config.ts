@@ -10,10 +10,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "hsl(var(--background))",
+        background: "#EEF0F8",
         foreground: "hsl(var(--foreground))",
+        surface: "#F8F9FE",
+        "surface-inset": "#E9ECF6",
         card: {
-          DEFAULT: "hsl(var(--card))",
+          DEFAULT: "#F8F9FE",
           foreground: "hsl(var(--card-foreground))",
         },
         popover: {
@@ -31,14 +33,13 @@ export default {
           700: "#146C43",
           800: "#1B7A4A",
           900: "#14532d",
-          light: "#1B7A4A",
-          dark: "#115b38",
+          light: "#2E9B63",
+          dark: "#146C43",
           darker: "#0f4d30",
         },
-        surface: "#F5F7F6",
-        "accent-badge": "#E53935",
-        "text-primary": "#1A1A1A",
-        "text-secondary": "#6B7280",
+        "accent-badge": "#E5484D",
+        "text-primary": "#1F2340",
+        "text-secondary": "#8A8FA8",
         "whatsapp-green": "#25D366",
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -51,16 +52,26 @@ export default {
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",
-          red: "#E53935",
+          red: "#E5484D",
           orange: "#F57C00",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
-        border: "hsl(var(--border))",
+        border: "#E2E6F2",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
+      },
+      boxShadow: {
+        /* Soft UI / Neumorphism shadow presets */
+        "nm-out":   "6px 6px 14px rgba(163,177,198,0.30), -6px -6px 14px rgba(255,255,255,0.92)",
+        "nm-in":    "inset 4px 4px 9px rgba(163,177,198,0.28), inset -4px -4px 9px rgba(255,255,255,0.92)",
+        "nm-card":  "8px 8px 18px rgba(163,177,198,0.28), -6px -6px 16px rgba(255,255,255,0.90)",
+        "nm-heavy": "10px 10px 24px rgba(163,177,198,0.34), -8px -8px 20px rgba(255,255,255,0.94)",
+        "nm-green": "0 12px 26px rgba(20,108,67,0.34)",
+        "nm-hero":  "0 16px 32px rgba(20,108,67,0.30)",
+        "nm-badge": "0 3px 8px rgba(229,72,77,0.45)",
       },
       borderRadius: {
         lg: "var(--radius)",

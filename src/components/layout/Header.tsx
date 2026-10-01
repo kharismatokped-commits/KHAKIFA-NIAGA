@@ -242,7 +242,7 @@ export const Header: React.FC = () => {
                     setShowDropdown(true);
                   }
                 }}
-                className="w-full h-11 pl-10 pr-10 rounded-2xl bg-white text-[#1A1A1A] placeholder:text-[#6B7280] text-[13px] font-sans shadow-sm border border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-300 transition-all"
+                className="w-full h-11 pl-10 pr-10 rounded-2xl bg-white text-[#1F2340] placeholder:text-[#8A8FA8] text-[13px] font-sans shadow-sm border-none focus:outline-none focus:ring-2 focus:ring-white/50 transition-all"
               />
               {/* Search Icon / Loader */}
               <div className="absolute left-3.5 top-3 text-[#6B7280] pointer-events-none">
