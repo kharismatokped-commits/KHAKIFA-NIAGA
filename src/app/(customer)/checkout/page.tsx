@@ -454,8 +454,16 @@ export default function CheckoutPage() {
 
           <WhatsAppPreview messageText={currentMessageText} />
 
-          {/* Tombol Kirim Pesanan (Mobile Fixed Bottom Bar) */}
-          <div className="sm:hidden fixed bottom-16 left-0 right-0 p-3 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-xl z-30">
+          {/* Tombol Kirim Pesanan (Mobile Fixed Bottom Bar) — di atas bottom nav pill */}
+          <div
+            className="sm:hidden fixed left-3 right-3 z-20 p-3"
+            style={{
+              bottom: "88px",
+              borderRadius: "20px",
+              background: "#F8F9FE",
+              boxShadow: "8px 8px 18px rgba(163,177,198,0.28), -6px -6px 16px rgba(255,255,255,0.90)",
+            }}
+          >
             <Button
               type="button"
               onClick={handleSendToWhatsApp}

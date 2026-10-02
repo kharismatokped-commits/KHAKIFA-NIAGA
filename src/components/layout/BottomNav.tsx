@@ -28,19 +28,29 @@ export const BottomNav: React.FC = () => {
   ];
 
   return (
-    /* Floating pill — tidak menempel ke tepi layar */
+    /* Wrapper transparan — hanya sebagai posisi anchor, tidak ada background/shadow */
     <nav
       className="sm:hidden fixed bottom-3.5 left-1/2 -translate-x-1/2 z-40"
       style={{
         width: "calc(100% - 36px)",
         maxWidth: "444px",
         height: "68px",
-        borderRadius: "26px",
-        background: "#F8F9FE",
-        boxShadow: "10px 10px 24px rgba(163,177,198,0.34), -8px -8px 20px rgba(255,255,255,0.94)",
+        background: "transparent",
+        border: "none",
+        boxShadow: "none",
+        padding: 0,
       }}
     >
-      <div className="flex items-center justify-around h-full px-2">
+      {/* Pill itu sendiri — background putih + shadow hanya di sini */}
+      <div
+        className="flex items-center justify-around h-full px-2"
+        style={{
+          height: "68px",
+          borderRadius: "26px",
+          background: "#F8F9FE",
+          boxShadow: "10px 10px 24px rgba(163,177,198,0.34), -8px -8px 20px rgba(255,255,255,0.80)",
+        }}
+      >
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive =

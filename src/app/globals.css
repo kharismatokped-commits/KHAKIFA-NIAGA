@@ -83,26 +83,27 @@
     font-family: var(--font-jakarta, 'Plus Jakarta Sans'), var(--font-inter, 'Inter'), system-ui, sans-serif;
   }
 
-  /* Padding bawah halaman — agar konten tidak tertutup bottom nav floating (68px pill + 14px margin + 20px buffer = 110px) */
+  /* Padding bawah halaman:
+     68px (pill nav) + 14px (margin) + 78px (buffer checkout bar + WA btn) = 160px */
   main {
-    padding-bottom: 110px;
+    padding-bottom: 160px;
   }
 }
 
 
-/* Custom styling for WhatsApp button pulse & banner */
+/* WhatsApp button pulse — hanya bayangan hijau, tanpa white highlight */
 .whatsapp-pulse {
   animation: pulse-ring 2s infinite;
 }
 
 @keyframes pulse-ring {
   0% {
-    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6);
+    box-shadow: 0 6px 16px rgba(22,163,74,0.35), 0 0 0 0 rgba(37,211,102,0.50);
   }
   70% {
-    box-shadow: 0 0 0 12px rgba(37, 211, 102, 0);
+    box-shadow: 0 6px 16px rgba(22,163,74,0.20), 0 0 0 10px rgba(37,211,102,0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+    box-shadow: 0 6px 16px rgba(22,163,74,0.35), 0 0 0 0 rgba(37,211,102,0);
   }
 }
