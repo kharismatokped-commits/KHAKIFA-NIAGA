@@ -18,7 +18,8 @@ export const FloatingWhatsApp: React.FC = () => {
   return (
     <aside
       aria-label="WhatsApp Chat"
-      className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40"
+      className="fixed sm:bottom-6 sm:right-6 z-30"
+      style={{ bottom: "90px", right: "16px" }}
     >
       <a
         href={waLink}

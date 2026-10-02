@@ -111,11 +111,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               background: "linear-gradient(155deg, rgba(255,255,255,0.45) 50%, transparent 62%)",
             }}
           />
-          {hasVariants && (
-            <span className="absolute top-1 left-1 bg-[#1F2340]/80 text-white font-sans text-[10px] px-1.5 py-0.5 rounded-md z-10">
-              {activeKode}
-            </span>
-          )}
+          {/* Badge V1/V2 dihapus — varian tampil via teks di bawah nama produk */}
         </div>
 
         <div className="flex-1 min-w-0">
@@ -174,7 +170,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
       )}
 
-      {/* ── BAGIAN 1: Varian Picker ── */}
+      {/* ── BAGIAN 1: Varian Picker — CSS grid 3 kolom ── */}
       {hasVariants && (
         <>
           {/* Header: "Pilih Varian" + "N Varian Tersedia" */}
@@ -194,8 +190,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </span>
           </div>
 
-          {/* Grid chip varian — flex-wrap, TIDAK scroll horizontal */}
-          <div className="px-3 pb-3 flex flex-wrap gap-2">
+          {/* Grid 3 kolom sama lebar — tidak scroll, semua terlihat */}
+          <div
+            className="px-3 pb-3"
+            style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "10px" }}
+          >
             {variants.map((v, idx) => {
               const isActive = idx === selectedVariantIndex;
               const colorHex = v.colorHex || getColorHex(v.name);
@@ -206,30 +205,33 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   key={v.id || idx}
                   type="button"
                   onClick={() => setSelectedVariantIndex(idx)}
-                  /* Area sentuh minimal 44px tinggi */
                   style={{
+                    width: "100%",
                     minHeight: "44px",
-                    padding: "10px 14px",
                     borderRadius: "14px",
-                    border: "none",
                     cursor: "pointer",
                     display: "flex",
                     alignItems: "center",
-                    gap: "7px",
+                    justifyContent: "center",
+                    gap: "6px",
+                    padding: "8px 10px",
                     fontFamily: "inherit",
                     fontSize: "13px",
                     fontWeight: isActive ? 700 : 600,
                     transition: "all 0.15s ease",
-                    /* Terpilih: inset (tertekan) dengan tint hijau lembut */
+                    overflow: "hidden",
+                    /* ── Terpilih: inset tertekan + tint hijau + border hijau ── */
                     ...(isActive
                       ? {
-                          background: "linear-gradient(135deg, rgba(46,155,99,0.10), rgba(20,108,67,0.06))",
-                          boxShadow: "inset 3px 3px 8px rgba(163,177,198,0.28), inset -3px -3px 8px rgba(255,255,255,0.90)",
+                          background: "#E3F4EA",
+                          border: "1.5px solid #2E9B63",
+                          boxShadow: "inset 3px 3px 8px rgba(20,108,67,0.12), inset -3px -3px 8px rgba(255,255,255,0.85)",
                           color: "#146C43",
                         }
                       : {
-                          /* Normal: raised neumorphic off-white */
+                          /* Normal: raised neumorphic off-white, tanpa border */
                           background: "#F8F9FE",
+                          border: "1.5px solid transparent",
                           boxShadow: "5px 5px 12px rgba(163,177,198,0.28), -4px -4px 10px rgba(255,255,255,0.90)",
                           color: "#1F2340",
                         }),
@@ -241,16 +243,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   {hasImage ? (
                     <img
                       src={v.image!}
-                      className="w-5 h-5 rounded-md object-cover flex-shrink-0"
+                      className="rounded-md object-cover flex-shrink-0"
+                      style={{ width: "16px", height: "16px" }}
                       alt={v.name}
                     />
                   ) : colorHex ? (
-                    /* Lingkaran warna kecil 14px */
+                    /* Lingkaran warna 14px */
                     <span
                       className="flex-shrink-0 rounded-full"
                       style={{
                         width: "14px",
                         height: "14px",
+                        minWidth: "14px",
                         background: colorHex,
                         border: "1.5px solid rgba(0,0,0,0.12)",
                         boxShadow: "0 1px 3px rgba(0,0,0,0.14)",
@@ -258,14 +262,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                     />
                   ) : null}
 
-                  {/* Nama varian LENGKAP */}
-                  <span className="leading-none">{v.name}</span>
+                  {/* Nama varian — ellipsis jika terlalu panjang */}
+                  <span
+                    style={{
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      lineHeight: 1.2,
+                      maxWidth: "100%",
+                    }}
+                  >
+                    {v.name}
+                  </span>
 
-                  {/* Centang kecil jika terpilih */}
+                  {/* Centang kecil hanya jika terpilih */}
                   {isActive && (
                     <Check
                       className="flex-shrink-0"
-                      style={{ width: "13px", height: "13px", color: "#146C43" }}
+                      style={{ width: "13px", height: "13px", color: "#146C43", minWidth: "13px" }}
                       strokeWidth={2.5}
                     />
                   )}
@@ -275,6 +289,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </div>
         </>
       )}
+
 
       {/* ── Stepper + Tombol Keranjang + Tombol Checkout ── */}
       <div className="flex items-center gap-2 px-3 pb-3">
