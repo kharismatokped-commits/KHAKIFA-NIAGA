@@ -33,6 +33,12 @@ interface CartDrawerProps {
   onClose?: () => void;
 }
 
+/* ── CSS-in-JS style tokens (shared) ── */
+const NM_CARD = "8px 8px 18px rgba(163,177,198,0.28), -6px -6px 16px rgba(255,255,255,0.90)";
+const NM_OUT  = "6px 6px 14px rgba(163,177,198,0.28), -5px -5px 12px rgba(255,255,255,0.90)";
+const NM_IN   = "inset 4px 4px 9px rgba(163,177,198,0.28), inset -4px -4px 9px rgba(255,255,255,0.92)";
+const NM_IN_ERR = "inset 4px 4px 9px rgba(229,72,77,0.12), inset -4px -4px 9px rgba(255,255,255,0.92)";
+
 export const CartDrawer: React.FC<CartDrawerProps> = ({
   open,
   onClose,
@@ -207,30 +213,66 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
         onClick={handleClose}
       />
 
-      {/* Drawer Container (Bottom Sheet on mobile, Right Drawer on desktop) */}
-      <div className="fixed inset-x-0 bottom-0 sm:inset-y-0 sm:right-0 sm:left-auto max-h-[92vh] sm:max-h-none sm:w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-none shadow-2xl flex flex-col z-50 animate-in slide-in-from-bottom sm:slide-in-from-right duration-200">
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3.5 border-b border-[#E5E7EB] bg-[#146C43] text-white rounded-t-2xl sm:rounded-none shrink-0">
+      {/* ── Drawer Container ── */}
+      <div
+        className="fixed inset-x-0 bottom-0 sm:inset-y-0 sm:right-0 sm:left-auto max-h-[92vh] sm:max-h-none sm:w-full sm:max-w-md flex flex-col z-50 animate-in slide-in-from-bottom sm:slide-in-from-right duration-200"
+        style={{
+          background: "#EEF0F8",
+          borderRadius: "28px 28px 0 0",
+          boxShadow: "0 -12px 40px rgba(163,177,198,0.34), 0 0 0 1px rgba(255,255,255,0.60)",
+        }}
+      >
+        {/* Handle bar */}
+        <div className="flex justify-center pt-3 pb-1 shrink-0">
+          <div
+            className="rounded-full"
+            style={{ width: "36px", height: "4px", background: "#C8CEDD" }}
+          />
+        </div>
+
+        {/* ── HEADER: terang, tanpa background hijau pekat ── */}
+        <div
+          className="flex items-center justify-between px-5 py-3 shrink-0"
+          style={{ borderBottom: "1px solid rgba(226,230,242,0.6)" }}
+        >
           <div className="flex items-center gap-2">
             {isQuickMode ? (
-              <Zap className="w-5 h-5 text-amber-300 fill-amber-300" strokeWidth={2} />
+              <Zap
+                style={{ width: "20px", height: "20px", color: "#146C43", fill: "rgba(20,108,67,0.15)" }}
+                strokeWidth={2}
+              />
             ) : (
-              <ShoppingCart className="w-5 h-5 text-white" strokeWidth={2} />
+              <ShoppingCart style={{ width: "20px", height: "20px", color: "#146C43" }} strokeWidth={2} />
             )}
-            <h2 className="font-heading font-semibold text-base">
+            <h2 className="font-heading font-bold text-[16px] text-[#1F2340]">
               {isQuickMode ? "Checkout Langsung" : "Keranjang Belanja"}
             </h2>
-            <span className="bg-white/20 text-white font-sans text-xs px-2 py-0.5 rounded-full font-bold">
-              {isQuickMode ? "1 Barang" : totalItemsCount}
+            {/* Badge kapsul timbul */}
+            <span
+              className="font-sans text-[11px] font-bold text-[#146C43] px-2.5 py-0.5"
+              style={{
+                borderRadius: "20px",
+                background: "#F8F9FE",
+                boxShadow: NM_OUT,
+              }}
+            >
+              {isQuickMode ? "1 Barang" : `${totalItemsCount} Item`}
             </span>
           </div>
+
+          {/* Tombol tutup — bulat timbul */}
           <button
             type="button"
             onClick={handleClose}
-            className="w-8 h-8 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+            className="flex items-center justify-center transition-all active:scale-90 cursor-pointer"
+            style={{
+              width: "34px", height: "34px", borderRadius: "50%",
+              background: "#F8F9FE", boxShadow: NM_OUT,
+              color: "#8A8FA8",
+            }}
             aria-label="Tutup"
           >
-            <X className="w-5 h-5" strokeWidth={2} />
+            <X style={{ width: "16px", height: "16px" }} strokeWidth={2.5} />
           </button>
         </div>
 
@@ -241,49 +283,66 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             onSubmit={handleQuickOrderSubmit}
             className="flex-1 flex flex-col min-h-0 overflow-hidden"
           >
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {/* Ringkasan 1 Barang */}
-              <div className="p-3 bg-[#F5F7F6] rounded-xl border border-[#E5E7EB] space-y-2.5">
-                <div className="flex items-start justify-between gap-2">
+            <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3" style={{ paddingBottom: "8px" }}>
+
+              {/* ── Kartu Ringkasan Produk ── */}
+              <div
+                className="rounded-[20px] p-4"
+                style={{ background: "#F8F9FE", boxShadow: NM_CARD }}
+              >
+                {/* Badge "BELI CEPAT 1 PRODUK" */}
+                <span
+                  className="font-sans text-[10px] font-bold inline-block px-2.5 py-0.5 mb-2"
+                  style={{
+                    borderRadius: "20px",
+                    background: "linear-gradient(135deg, rgba(46,155,99,0.12), rgba(20,108,67,0.08))",
+                    color: "#146C43",
+                  }}
+                >
+                  BELI CEPAT 1 PRODUK
+                </span>
+
+                <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
-                    <span className="text-[10px] font-sans font-bold text-[#146C43] bg-emerald-100 px-2 py-0.5 rounded">
-                      BELI CEPAT 1 PRODUK
-                    </span>
-                    <h4 className="font-heading font-medium text-[14px] text-[#1A1A1A] mt-1">
+                    <h4 className="font-heading font-semibold text-[14px] text-[#1F2340] leading-snug">
                       {quickCheckoutItem.productName}
                     </h4>
                     {quickCheckoutItem.variantName &&
                       quickCheckoutItem.variantName !== "Standar" && (
-                        <p className="font-sans text-[11px] text-[#6B7280] mt-0.5">
+                        <p className="font-sans text-[12px] text-[#8A8FA8] mt-0.5">
                           Varian:{" "}
-                          <span className="font-medium text-[#146C43]">
+                          <span className="font-semibold text-[#146C43]">
                             {quickCheckoutItem.variantName}
                           </span>
                         </p>
                       )}
                   </div>
 
-                  {/* Stepper jumlah */}
-                  <div className="flex items-center h-8 border border-[#E5E7EB] rounded-lg overflow-hidden bg-white shrink-0">
+                  {/* Stepper kapsul timbul */}
+                  <div
+                    className="flex items-center shrink-0"
+                    style={{
+                      height: "38px", borderRadius: "19px",
+                      background: "#F8F9FE", boxShadow: NM_OUT,
+                    }}
+                  >
                     <button
                       type="button"
-                      onClick={() =>
-                        updateQuickQty(Math.max(1, quickCheckoutItem.qty - 1))
-                      }
-                      className="w-7 h-full flex items-center justify-center text-[#6B7280] hover:bg-[#F5F7F6] hover:text-[#1A1A1A] select-none text-xs font-bold"
+                      onClick={() => updateQuickQty(Math.max(1, quickCheckoutItem.qty - 1))}
+                      className="flex items-center justify-center text-[#146C43] font-bold select-none cursor-pointer"
+                      style={{ width: "34px", height: "34px", borderRadius: "50%", fontSize: "16px", marginLeft: "2px" }}
                       aria-label="Kurangi jumlah"
                     >
                       −
                     </button>
-                    <span className="w-8 text-center font-heading text-xs font-bold text-[#1A1A1A]">
+                    <span className="font-heading font-bold text-[14px] text-[#1F2340] px-1 min-w-[24px] text-center">
                       {quickCheckoutItem.qty}
                     </span>
                     <button
                       type="button"
-                      onClick={() =>
-                        updateQuickQty(quickCheckoutItem.qty + 1)
-                      }
-                      className="w-7 h-full flex items-center justify-center text-[#6B7280] hover:bg-[#F5F7F6] hover:text-[#1A1A1A] select-none text-xs font-bold"
+                      onClick={() => updateQuickQty(quickCheckoutItem.qty + 1)}
+                      className="flex items-center justify-center text-[#146C43] font-bold select-none cursor-pointer"
+                      style={{ width: "34px", height: "34px", borderRadius: "50%", fontSize: "16px", marginRight: "2px" }}
                       aria-label="Tambah jumlah"
                     >
                       +
@@ -291,44 +350,54 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between text-xs pt-2 border-t border-[#E5E7EB]">
-                  <span className="font-sans text-[12px] text-[#6B7280]">
-                    {quickCheckoutItem.qty} {quickCheckoutItem.unitType.toLowerCase()} ×{" "}
-                    {formatRupiah(quickCheckoutItem.unitPrice)}
+                {/* Pemisah tipis */}
+                <div style={{ height: "1px", background: "#E2E6F2", margin: "12px 0" }} />
+
+                <div className="flex items-center justify-between">
+                  <span className="font-sans text-[12px] text-[#8A8FA8]">
+                    {quickCheckoutItem.qty} {quickCheckoutItem.unitType.toLowerCase()} × {formatRupiah(quickCheckoutItem.unitPrice)}
                   </span>
-                  <span className="font-heading font-bold text-[#146C43] text-[16px]">
+                  <span className="font-heading font-bold text-[16px] text-[#146C43]">
                     {formatRupiah(quickCheckoutItem.subtotal)}
                   </span>
                 </div>
               </div>
 
-              {/* Form Data Pemesan */}
-              <div className="space-y-3 bg-white p-3.5 rounded-xl border border-[#E5E7EB]">
-                <div className="flex items-center justify-between border-b border-[#E5E7EB] pb-2">
-                  <div className="flex items-center gap-1.5 font-heading text-xs font-semibold text-[#1A1A1A]">
-                    <User className="w-4 h-4 text-[#146C43]" strokeWidth={2} />
-                    <span>Data Pengiriman</span>
+              {/* ── Kartu Form Data Pengiriman ── */}
+              <div
+                className="rounded-[20px] p-4 space-y-4"
+                style={{ background: "#F8F9FE", boxShadow: NM_CARD }}
+              >
+                {/* Header kartu */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <User style={{ width: "16px", height: "16px", color: "#146C43" }} strokeWidth={2} />
+                    <span className="font-heading font-bold text-[13px] text-[#1F2340]">
+                      Data Pengiriman
+                    </span>
                   </div>
+                  {/* Badge Tarif — kapsul biru lembut */}
                   <span
-                    className={`font-sans text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      quickOrderType === "grosir"
-                        ? "bg-emerald-100 text-[#146C43]"
-                        : "bg-blue-50 text-blue-700"
-                    }`}
+                    className="font-sans text-[10px] font-bold px-2.5 py-0.5"
+                    style={{
+                      borderRadius: "20px",
+                      background: quickOrderType === "grosir"
+                        ? "rgba(46,155,99,0.10)"
+                        : "rgba(59,130,246,0.10)",
+                      color: quickOrderType === "grosir" ? "#146C43" : "#2563EB",
+                    }}
                   >
-                    {quickOrderType === "grosir"
-                      ? "Tarif Grosir"
-                      : "Tarif Eceran"}
+                    {quickOrderType === "grosir" ? "Tarif Grosir" : "Tarif Eceran"}
                   </span>
                 </div>
 
                 {/* Nama Toko (jika grosir) */}
                 {quickOrderType === "grosir" && (
-                  <div className="space-y-1">
-                    <label className="font-sans text-[11px] font-medium text-[#1A1A1A] flex items-center gap-1">
-                      <Store className="w-3.5 h-3.5 text-[#6B7280]" strokeWidth={2} />
+                  <div className="space-y-2">
+                    <label className="font-sans text-[11px] font-semibold text-[#1F2340] flex items-center gap-1.5">
+                      <Store style={{ width: "13px", height: "13px", color: "#8A8FA8" }} strokeWidth={2} />
                       <span>Nama Toko / Usaha</span>
-                      <span className="text-red-500">*</span>
+                      <span style={{ color: "#E5484D" }}>*</span>
                     </label>
                     <input
                       type="text"
@@ -338,14 +407,23 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                         setStoreName(e.target.value);
                         if (errors.storeName) setErrors({ ...errors, storeName: "" });
                       }}
-                      className={`w-full font-sans text-xs px-3 py-2 rounded-lg border outline-none transition-colors ${
-                        errors.storeName
-                          ? "border-red-400 focus:border-red-500 bg-red-50/20"
-                          : "border-[#E5E7EB] focus:border-[#146C43] bg-[#F5F7F6]"
-                      }`}
+                      className="w-full font-sans text-[13px] text-[#1F2340] placeholder:text-[#B0B4C0] outline-none transition-all"
+                      style={{
+                        padding: "13px 16px",
+                        borderRadius: "14px",
+                        border: "none",
+                        background: errors.storeName ? "rgba(229,72,77,0.04)" : "#E9ECF6",
+                        boxShadow: errors.storeName ? NM_IN_ERR : NM_IN,
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.boxShadow = "inset 5px 5px 12px rgba(163,177,198,0.32), inset -5px -5px 12px rgba(255,255,255,0.95), 0 0 0 2px rgba(46,155,99,0.25)";
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.boxShadow = errors.storeName ? NM_IN_ERR : NM_IN;
+                      }}
                     />
                     {errors.storeName && (
-                      <p className="font-sans text-[10px] text-red-500 font-medium">
+                      <p className="font-sans text-[10px] font-medium" style={{ color: "#E5484D" }}>
                         {errors.storeName}
                       </p>
                     )}
@@ -353,11 +431,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 )}
 
                 {/* Nama Pemesan */}
-                <div className="space-y-1">
-                  <label className="font-sans text-[11px] font-medium text-[#1A1A1A] flex items-center gap-1">
-                    <User className="w-3.5 h-3.5 text-[#6B7280]" strokeWidth={2} />
+                <div className="space-y-2">
+                  <label className="font-sans text-[11px] font-semibold text-[#1F2340] flex items-center gap-1.5">
+                    <User style={{ width: "13px", height: "13px", color: "#8A8FA8" }} strokeWidth={2} />
                     <span>Nama Pemesan</span>
-                    <span className="text-red-500">*</span>
+                    <span style={{ color: "#E5484D" }}>*</span>
                   </label>
                   <input
                     type="text"
@@ -365,28 +443,36 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     value={customerName}
                     onChange={(e) => {
                       setCustomerName(e.target.value);
-                      if (errors.customerName)
-                        setErrors({ ...errors, customerName: "" });
+                      if (errors.customerName) setErrors({ ...errors, customerName: "" });
                     }}
-                    className={`w-full font-sans text-xs px-3 py-2 rounded-lg border outline-none transition-colors ${
-                      errors.customerName
-                        ? "border-red-400 focus:border-red-500 bg-red-50/20"
-                        : "border-[#E5E7EB] focus:border-[#146C43] bg-[#F5F7F6]"
-                    }`}
+                    className="w-full font-sans text-[13px] text-[#1F2340] placeholder:text-[#B0B4C0] outline-none transition-all"
+                    style={{
+                      padding: "13px 16px",
+                      borderRadius: "14px",
+                      border: "none",
+                      background: errors.customerName ? "rgba(229,72,77,0.04)" : "#E9ECF6",
+                      boxShadow: errors.customerName ? NM_IN_ERR : NM_IN,
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.boxShadow = "inset 5px 5px 12px rgba(163,177,198,0.32), inset -5px -5px 12px rgba(255,255,255,0.95), 0 0 0 2px rgba(46,155,99,0.25)";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.boxShadow = errors.customerName ? NM_IN_ERR : NM_IN;
+                    }}
                   />
                   {errors.customerName && (
-                    <p className="font-sans text-[10px] text-red-500 font-medium">
+                    <p className="font-sans text-[10px] font-medium" style={{ color: "#E5484D" }}>
                       {errors.customerName}
                     </p>
                   )}
                 </div>
 
                 {/* No WhatsApp */}
-                <div className="space-y-1">
-                  <label className="font-sans text-[11px] font-medium text-[#1A1A1A] flex items-center gap-1">
-                    <MessageCircle className="w-3.5 h-3.5 text-[#6B7280]" strokeWidth={2} />
+                <div className="space-y-2">
+                  <label className="font-sans text-[11px] font-semibold text-[#1F2340] flex items-center gap-1.5">
+                    <MessageCircle style={{ width: "13px", height: "13px", color: "#8A8FA8" }} strokeWidth={2} />
                     <span>No. WhatsApp Aktif</span>
-                    <span className="text-red-500">*</span>
+                    <span style={{ color: "#E5484D" }}>*</span>
                   </label>
                   <input
                     type="tel"
@@ -394,28 +480,36 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     value={whatsappNumber}
                     onChange={(e) => {
                       setWhatsappNumber(e.target.value);
-                      if (errors.whatsappNumber)
-                        setErrors({ ...errors, whatsappNumber: "" });
+                      if (errors.whatsappNumber) setErrors({ ...errors, whatsappNumber: "" });
                     }}
-                    className={`w-full font-sans text-xs px-3 py-2 rounded-lg border outline-none transition-colors ${
-                      errors.whatsappNumber
-                        ? "border-red-400 focus:border-red-500 bg-red-50/20"
-                        : "border-[#E5E7EB] focus:border-[#146C43] bg-[#F5F7F6]"
-                    }`}
+                    className="w-full font-sans text-[13px] text-[#1F2340] placeholder:text-[#B0B4C0] outline-none transition-all"
+                    style={{
+                      padding: "13px 16px",
+                      borderRadius: "14px",
+                      border: "none",
+                      background: errors.whatsappNumber ? "rgba(229,72,77,0.04)" : "#E9ECF6",
+                      boxShadow: errors.whatsappNumber ? NM_IN_ERR : NM_IN,
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.boxShadow = "inset 5px 5px 12px rgba(163,177,198,0.32), inset -5px -5px 12px rgba(255,255,255,0.95), 0 0 0 2px rgba(46,155,99,0.25)";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.boxShadow = errors.whatsappNumber ? NM_IN_ERR : NM_IN;
+                    }}
                   />
                   {errors.whatsappNumber && (
-                    <p className="font-sans text-[10px] text-red-500 font-medium">
+                    <p className="font-sans text-[10px] font-medium" style={{ color: "#E5484D" }}>
                       {errors.whatsappNumber}
                     </p>
                   )}
                 </div>
 
                 {/* Alamat Pengiriman */}
-                <div className="space-y-1">
-                  <label className="font-sans text-[11px] font-medium text-[#1A1A1A] flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-[#6B7280]" strokeWidth={2} />
+                <div className="space-y-2">
+                  <label className="font-sans text-[11px] font-semibold text-[#1F2340] flex items-center gap-1.5">
+                    <MapPin style={{ width: "13px", height: "13px", color: "#8A8FA8" }} strokeWidth={2} />
                     <span>Alamat Lengkap Pengiriman</span>
-                    <span className="text-red-500">*</span>
+                    <span style={{ color: "#E5484D" }}>*</span>
                   </label>
                   <textarea
                     rows={2}
@@ -425,23 +519,32 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       setAddress(e.target.value);
                       if (errors.address) setErrors({ ...errors, address: "" });
                     }}
-                    className={`w-full font-sans text-xs px-3 py-2 rounded-lg border outline-none transition-colors resize-none ${
-                      errors.address
-                        ? "border-red-400 focus:border-red-500 bg-red-50/20"
-                        : "border-[#E5E7EB] focus:border-[#146C43] bg-[#F5F7F6]"
-                    }`}
+                    className="w-full font-sans text-[13px] text-[#1F2340] placeholder:text-[#B0B4C0] outline-none resize-none transition-all"
+                    style={{
+                      padding: "13px 16px",
+                      borderRadius: "14px",
+                      border: "none",
+                      background: errors.address ? "rgba(229,72,77,0.04)" : "#E9ECF6",
+                      boxShadow: errors.address ? NM_IN_ERR : NM_IN,
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.boxShadow = "inset 5px 5px 12px rgba(163,177,198,0.32), inset -5px -5px 12px rgba(255,255,255,0.95), 0 0 0 2px rgba(46,155,99,0.25)";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.boxShadow = errors.address ? NM_IN_ERR : NM_IN;
+                    }}
                   />
                   {errors.address && (
-                    <p className="font-sans text-[10px] text-red-500 font-medium">
+                    <p className="font-sans text-[10px] font-medium" style={{ color: "#E5484D" }}>
                       {errors.address}
                     </p>
                   )}
                 </div>
 
                 {/* Catatan (Opsional) */}
-                <div className="space-y-1">
-                  <label className="font-sans text-[11px] font-medium text-[#1A1A1A] flex items-center gap-1">
-                    <FileText className="w-3.5 h-3.5 text-[#6B7280]" strokeWidth={2} />
+                <div className="space-y-2">
+                  <label className="font-sans text-[11px] font-semibold text-[#1F2340] flex items-center gap-1.5">
+                    <FileText style={{ width: "13px", height: "13px", color: "#8A8FA8" }} strokeWidth={2} />
                     <span>Catatan Tambahan (Opsional)</span>
                   </label>
                   <input
@@ -449,35 +552,66 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     placeholder="Contoh: Minta dikemas rapat / antar sore"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    className="w-full font-sans text-xs px-3 py-2 rounded-lg border border-[#E5E7EB] focus:border-[#146C43] bg-[#F5F7F6] outline-none"
+                    className="w-full font-sans text-[13px] text-[#1F2340] placeholder:text-[#B0B4C0] outline-none transition-all"
+                    style={{
+                      padding: "13px 16px",
+                      borderRadius: "14px",
+                      border: "none",
+                      background: "#E9ECF6",
+                      boxShadow: NM_IN,
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.boxShadow = "inset 5px 5px 12px rgba(163,177,198,0.32), inset -5px -5px 12px rgba(255,255,255,0.95), 0 0 0 2px rgba(46,155,99,0.25)";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.boxShadow = NM_IN;
+                    }}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Footer Quick Checkout */}
-            <div className="p-4 border-t border-[#E5E7EB] bg-white space-y-3 shrink-0">
-              <div className="flex items-center justify-between">
-                <span className="font-sans text-[13px] text-[#6B7280]">Total Pembelian:</span>
-                <span className="font-heading font-bold text-[16px] text-[#146C43]">
+            {/* ── Footer Sticky — Total + Tombol Kirim ── */}
+            <div
+              className="px-4 pt-3 pb-4 shrink-0 space-y-3"
+              style={{
+                borderTop: "1px solid rgba(226,230,242,0.60)",
+                background: "#EEF0F8",
+              }}
+            >
+              {/* Total baris */}
+              <div
+                className="flex items-center justify-between px-4 py-3 rounded-[16px]"
+                style={{ background: "#F8F9FE", boxShadow: NM_OUT }}
+              >
+                <span className="font-sans text-[13px] text-[#8A8FA8]">Total Pembelian:</span>
+                <span className="font-heading font-bold text-[20px] text-[#146C43]">
                   {formatRupiah(quickCheckoutItem.subtotal)}
                 </span>
               </div>
 
-              {/* Tombol Kirim: height 44px, rounded-xl, background var(--primary), teks putih 14px medium */}
+              {/* Tombol Kirim — gradien hijau + glow + efek tekan */}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full h-[44px] bg-[#146C43] hover:bg-[#0f5333] active:scale-[0.99] text-white rounded-xl font-heading font-medium text-[14px] flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                className="w-full flex items-center justify-center gap-2 font-heading font-semibold text-white transition-all active:scale-[0.98] cursor-pointer"
+                style={{
+                  height: "52px",
+                  borderRadius: "16px",
+                  background: "linear-gradient(135deg, #2E9B63, #146C43)",
+                  boxShadow: "0 12px 28px rgba(20,108,67,0.36)",
+                  fontSize: "15px",
+                }}
               >
                 {isSubmitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 style={{ width: "20px", height: "20px" }} className="animate-spin" />
                 ) : (
-                  <Send className="w-4 h-4" strokeWidth={2} />
+                  <Send style={{ width: "18px", height: "18px" }} strokeWidth={2} />
                 )}
                 <span>Kirim Pesanan ke WhatsApp</span>
               </button>
-              <p className="font-sans text-[11px] text-center text-[#6B7280]">
+
+              <p className="font-sans text-[11px] text-center text-[#8A8FA8]">
                 Pemesanan langsung diproses tanpa mengganggu keranjang belanja.
               </p>
             </div>
@@ -488,13 +622,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {items.length === 0 ? (
                 <div className="py-12 text-center space-y-3">
-                  <div className="w-16 h-16 rounded-full bg-emerald-50 text-[#146C43] flex items-center justify-center mx-auto">
-                    <ShoppingBag className="w-8 h-8" strokeWidth={2} />
+                  <div
+                    className="w-16 h-16 rounded-full flex items-center justify-center mx-auto"
+                    style={{ background: "#F8F9FE", boxShadow: NM_OUT }}
+                  >
+                    <ShoppingBag style={{ width: "32px", height: "32px", color: "#146C43" }} strokeWidth={2} />
                   </div>
-                  <p className="font-heading font-semibold text-sm text-[#1A1A1A]">
+                  <p className="font-heading font-semibold text-sm text-[#1F2340]">
                     Keranjang Anda masih kosong
                   </p>
-                  <p className="font-sans text-xs text-[#6B7280]">
+                  <p className="font-sans text-xs text-[#8A8FA8]">
                     Pilih produk dan tentukan jumlah untuk mulai belanja grosir.
                   </p>
                 </div>
@@ -502,15 +639,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                 items.map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center gap-3 p-3 bg-[#F5F7F6] rounded-xl border border-[#E5E7EB]"
+                    className="flex items-center gap-3 p-3 rounded-[18px]"
+                    style={{ background: "#F8F9FE", boxShadow: NM_CARD }}
                   >
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-heading font-medium text-[13px] text-[#1A1A1A] truncate">
+                      <h4 className="font-heading font-semibold text-[13px] text-[#1F2340] truncate">
                         {item.productName}
                       </h4>
                       {item.variantName && item.variantName !== "Standar" && (
-                        <p className="font-sans text-[11px] text-[#6B7280]">
-                          Varian: {item.variantName}
+                        <p className="font-sans text-[11px] text-[#8A8FA8]">
+                          Varian: <span className="text-[#146C43] font-medium">{item.variantName}</span>
                         </p>
                       )}
                       <p className="font-heading font-bold text-[14px] text-[#146C43] mt-0.5">
@@ -519,22 +657,27 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     </div>
 
                     {/* Stepper */}
-                    <div className="flex items-center h-8 border border-[#E5E7EB] rounded-lg overflow-hidden bg-white shrink-0">
+                    <div
+                      className="flex items-center shrink-0"
+                      style={{ height: "36px", borderRadius: "18px", background: "#F8F9FE", boxShadow: NM_OUT }}
+                    >
                       <button
                         type="button"
                         onClick={() => updateQty(item.id, item.qty - 1)}
-                        className="w-7 h-full flex items-center justify-center text-[#6B7280] hover:bg-[#F5F7F6] hover:text-[#1A1A1A] select-none text-xs font-bold cursor-pointer"
+                        className="flex items-center justify-center text-[#146C43] font-bold select-none cursor-pointer"
+                        style={{ width: "32px", height: "32px", borderRadius: "50%", fontSize: "15px", marginLeft: "2px" }}
                         aria-label="Kurangi jumlah"
                       >
                         −
                       </button>
-                      <span className="w-8 text-center font-heading text-xs font-bold text-[#1A1A1A]">
+                      <span className="font-heading text-[13px] font-bold text-[#1F2340] px-1 min-w-[20px] text-center">
                         {item.qty}
                       </span>
                       <button
                         type="button"
                         onClick={() => updateQty(item.id, item.qty + 1)}
-                        className="w-7 h-full flex items-center justify-center text-[#6B7280] hover:bg-[#F5F7F6] hover:text-[#1A1A1A] select-none text-xs font-bold cursor-pointer"
+                        className="flex items-center justify-center text-[#146C43] font-bold select-none cursor-pointer"
+                        style={{ width: "32px", height: "32px", borderRadius: "50%", fontSize: "15px", marginRight: "2px" }}
                         aria-label="Tambah jumlah"
                       >
                         +
@@ -544,10 +687,13 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     <button
                       type="button"
                       onClick={() => removeItem(item.id)}
-                      className="text-[#6B7280] hover:text-red-500 p-1 cursor-pointer transition-colors"
+                      className="cursor-pointer transition-colors p-1"
+                      style={{ color: "#8A8FA8" }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.color = "#E5484D"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.color = "#8A8FA8"; }}
                       aria-label="Hapus item"
                     >
-                      <Trash2 className="w-4 h-4" strokeWidth={2} />
+                      <Trash2 style={{ width: "16px", height: "16px" }} strokeWidth={2} />
                     </button>
                   </div>
                 ))
@@ -556,29 +702,44 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
 
             {/* Footer Standard Cart */}
             {items.length > 0 && (
-              <div className="p-4 border-t border-[#E5E7EB] bg-white space-y-3 shrink-0">
-                <div className="flex items-center justify-between">
-                  <span className="font-sans text-[13px] text-[#6B7280]">Total Pembelian:</span>
-                  <span className="font-heading font-bold text-[16px] text-[#1A1A1A]">
+              <div
+                className="px-4 pt-3 pb-4 space-y-3 shrink-0"
+                style={{ borderTop: "1px solid rgba(226,230,242,0.60)", background: "#EEF0F8" }}
+              >
+                <div
+                  className="flex items-center justify-between px-4 py-3 rounded-[16px]"
+                  style={{ background: "#F8F9FE", boxShadow: NM_OUT }}
+                >
+                  <span className="font-sans text-[13px] text-[#8A8FA8]">Total Pembelian:</span>
+                  <span className="font-heading font-bold text-[18px] text-[#1F2340]">
                     {formatRupiah(selectedTotalAmount)}
                   </span>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2.5">
                   <Link
                     href="/keranjang"
                     onClick={handleClose}
-                    className="flex-1 h-[44px] border border-[#146C43] rounded-xl font-heading font-medium text-[14px] text-[#146C43] flex items-center justify-center hover:bg-emerald-50 transition-colors"
+                    className="flex-1 flex items-center justify-center font-heading font-semibold text-[13px] text-[#146C43] transition-all active:scale-[0.97]"
+                    style={{
+                      height: "48px", borderRadius: "14px",
+                      background: "#F8F9FE", boxShadow: NM_OUT,
+                    }}
                   >
                     Lihat Detail
                   </Link>
                   <Link
                     href="/checkout"
                     onClick={handleClose}
-                    className="flex-2 h-[44px] bg-[#146C43] hover:bg-[#0f5333] text-white rounded-xl font-heading font-medium text-[14px] flex items-center justify-center gap-1.5 shadow-sm transition-colors"
+                    className="flex-[2] flex items-center justify-center gap-1.5 font-heading font-semibold text-[13px] text-white transition-all active:scale-[0.97]"
+                    style={{
+                      height: "48px", borderRadius: "14px",
+                      background: "linear-gradient(135deg, #2E9B63, #146C43)",
+                      boxShadow: "0 10px 24px rgba(20,108,67,0.32)",
+                    }}
                   >
                     <span>Pesan Sekarang</span>
-                    <ArrowRight className="w-4 h-4" strokeWidth={2} />
+                    <ArrowRight style={{ width: "16px", height: "16px" }} strokeWidth={2} />
                   </Link>
                 </div>
               </div>
